@@ -4,6 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Javier Guzmán — Frontend Developer & UX/UI Designer</title>
+  <meta name="description" content="Portafolio de Javier Guzmán, Frontend Developer & UX/UI Designer. Diseño de marca, desarrollo web con Three.js/WebGPU y experiencias interactivas. Disponible para trabajo remoto internacional.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Javier Guzmán — Frontend Developer & UX/UI Designer">
+  <meta property="og:description" content="Portafolio de diseño de marca y desarrollo web (Three.js, WebGPU, GSAP). Disponible para trabajo remoto internacional.">
+  <meta property="og:url" content="https://jguzmandlp.github.io/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Javier Guzmán — Frontend Developer & UX/UI Designer">
+  <meta name="twitter:description" content="Portafolio de diseño de marca y desarrollo web. Disponible para trabajo remoto internacional.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
@@ -844,7 +852,7 @@
       <polygon class="cls-1" points="232.71 41.79 230.09 41.79 230.09 39.19 227.48 39.18 227.48 36.59 230.09 36.57 230.08 28.41 232.69 28.39 232.71 25.79 240.9 25.79 240.9 39.16 238.29 39.2 238.28 41.79 235.68 41.79 235.68 44.4 232.7 44.4 232.71 41.79"/>
     </svg>
 
-    <p class="hero-tagline">Frontend Developer &amp; UX/UI Designer, based in Costa Rica. I build interfaces that not only look great — they feel alive.</p>
+    <p class="hero-tagline">Frontend Developer &amp; UX/UI Designer, based in Costa Rica — open to remote work worldwide. I build interfaces that not only look great — they feel alive.</p>
 
     <div class="hero-socials">
       <a href="https://linkedin.com/in/jguzmandlp" target="_blank">LinkedIn</a>
@@ -956,14 +964,14 @@
     <div class="contact-left">
       <span class="contact-eye">Hablemos</span>
       <h2 class="contact-title">Trabajemos<br><em>juntos.</em></h2>
-      <p class="contact-desc">¿Tienes un proyecto en mente? Estoy disponible para trabajo freelance en diseño gráfico, UX/UI y desarrollo web.</p>
-      <a href="mailto:Javier.guzman.dlp@gmail.com" class="contact-btn">Enviar mensaje ↗</a>
+      <p class="contact-desc">¿Tienes un proyecto en mente? Estoy disponible para trabajo remoto (freelance o full-time) en diseño gráfico, UX/UI y desarrollo web, sin importar tu zona horaria.</p>
+      <a href="mailto:javier.guzman.dlp@gmail.com" class="contact-btn">Enviar mensaje ↗</a>
     </div>
     <div class="contact-right">
       <div class="contact-links">
-        <a href="mailto:Javier.guzman.dlp@gmail.com" class="contact-link">
+        <a href="mailto:javier.guzman.dlp@gmail.com" class="contact-link">
           <span class="contact-link-label">Email</span>
-          <span>Javier.guzman.dlp@gmail.com ↗</span>
+          <span>javier.guzman.dlp@gmail.com ↗</span>
         </a>
         <a href="https://wa.me/50688741052" target="_blank" class="contact-link">
           <span class="contact-link-label">WhatsApp</span>
@@ -978,7 +986,7 @@
           <span>torre.ai/javier-guzman ↗</span>
         </a>
       </div>
-      <p class="contact-location">📍 San José, Costa Rica — disponible para proyectos remotos</p>
+      <p class="contact-location">📍 San José, Costa Rica — disponible para trabajo remoto internacional, cualquier zona horaria</p>
     </div>
   </div>
   <footer class="contact-footer">
@@ -992,14 +1000,6 @@
   <button class="proj-close" id="proj-close">✕</button>
   <div class="pd-inner" id="pd-inner"></div>
 </div>
-
-<!-- ══════════════════════════════════════
-     FOOTER
-══════════════════════════════════════ -->
-<footer>
-  <span class="f-name">Javier Guzmán</span>
-  <span class="f-copy">© 2025 · Costa Rica</span>
-</footer>
 
 <!-- GSAP -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
@@ -1340,21 +1340,41 @@ const scene      = document.getElementById('proj-scene');
 const projSection= document.getElementById('proj-section');
 const tapEl      = document.getElementById('proj-tap');
 
-PROJECTS.forEach((p, i) => {
-  /* Fotos de referencia portrait (reemplazar con fotos reales de cada proyecto) */
-  const PHOTOS = [
-    'https://picsum.photos/seed/sdcr/260/360',
-    'https://picsum.photos/seed/sikua/260/360',
-    'https://picsum.photos/seed/fragancia/260/360',
-    'https://picsum.photos/seed/pame/260/360',
-    'https://picsum.photos/seed/orozco/260/360',
-    'https://picsum.photos/seed/english/260/360'
-  ];
+/* Placeholder de marca: usa el color/acento del proyecto en vez de fotos random.
+   Cuando tengas un screenshot real, solo agrega `image:'img/nombre.jpg'` al proyecto
+   en el array PROJECTS y se usará automáticamente en lugar de este placeholder. */
+function cardPlaceholderSVG(p) {
+  const words = p.name.split(' ');
+  const lines = [];
+  let cur = '';
+  words.forEach(w => {
+    if ((cur + ' ' + w).trim().length > 11) { lines.push(cur.trim()); cur = w; }
+    else { cur = (cur + ' ' + w).trim(); }
+  });
+  if (cur) lines.push(cur);
+  const lineHeight = 30;
+  const startY = 320 - (lines.length - 1) * lineHeight;
+  const tspans = lines.map((l, idx) => `<tspan x="22" y="${startY + idx * lineHeight}">${l}</tspan>`).join('');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="260" height="360" viewBox="0 0 260 360">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${p.color}"/>
+        <stop offset="100%" stop-color="${p.accent}"/>
+      </linearGradient>
+    </defs>
+    <rect width="260" height="360" fill="url(#g)"/>
+    <rect width="260" height="360" fill="#000" opacity="0.12"/>
+    <text x="22" y="38" font-family="'Courier New',monospace" font-size="8" letter-spacing="2" fill="rgba(255,255,255,.45)">${p.role.toUpperCase()}</text>
+    <text font-family="Georgia,serif" font-style="italic" font-size="26" fill="rgba(255,255,255,.9)">${tspans}</text>
+  </svg>`;
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
 
+PROJECTS.forEach((p, i) => {
   const el = document.createElement('div');
   el.className = 'pc';
   el.innerHTML = `
-    <img class="pc-photo" src="${PHOTOS[i]}" alt="${p.name}" draggable="false">
+    <img class="pc-photo" src="${p.image || cardPlaceholderSVG(p)}" alt="${p.name}" draggable="false">
     `;
   scene.appendChild(el);
   cards.push(el);
@@ -1458,6 +1478,17 @@ function openProject(idx) {
   document.body.style.overflow = 'hidden';
 }
 
+/* ── Si el video no existe o falla al cargar, cae al placeholder "Demo próximamente" ── */
+function videoFallback(el) {
+  const wrap = el.closest('.pd-video-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = `
+    <div class="pd-video-placeholder">
+      <div class="pd-video-placeholder-icon">▶</div>
+      <p>Demo próximamente</p>
+    </div>`;
+}
+
 /* ── Mostrar contenido del proyecto ── */
 function showDetail(idx) {
   const p      = PROJECTS[idx];
@@ -1473,12 +1504,12 @@ function showDetail(idx) {
         <div class="pd-private">
           <div class="pd-private-icon">🔒</div>
           <p>Proyecto pre-lanzamiento<br>no disponible públicamente</p>
-          <a href="mailto:javier@sikuatours.com">Solicitar acceso ↗</a>
+          <a href="mailto:javier.guzman.dlp@gmail.com">Solicitar acceso ↗</a>
         </div>
       </div>`
     : p.video
       ? `<div class="pd-video-wrap">
-          <video class="pd-video" src="${p.video}" autoplay muted loop playsinline></video>
+          <video class="pd-video" src="${p.video}" autoplay muted loop playsinline onerror="videoFallback(this)"></video>
           <p class="pd-video-label">${p.id} · demo</p>
         </div>`
       : `<div class="pd-video-wrap">
