@@ -1058,7 +1058,17 @@
   }
 
   render(); // dibuja el estado "cerrado" de inmediato, antes de animar
-  setTimeout(reveal, 900); // espera a que la escena (Three.js) tenga tiempo de pintar
+
+  // Se retira justo cuando la página (incluida la escena Three.js) terminó de cargar.
+  // Si ya cargó todo antes de que este script corra, revela de inmediato.
+  var minShow = Date.now() + 400; // evita un parpadeo demasiado brusco si todo carga instantáneo
+  if (document.readyState === 'complete') {
+    setTimeout(reveal, Math.max(0, minShow - Date.now()));
+  } else {
+    window.addEventListener('load', function () {
+      setTimeout(reveal, Math.max(0, minShow - Date.now()));
+    });
+  }
 
   function reveal() {
     tl.progress(0).clear();
