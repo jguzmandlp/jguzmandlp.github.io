@@ -30,26 +30,27 @@
     /* ── Preloader ── */
     #preloader {
       position:fixed; inset:0; z-index:10000;
-      background:#060606;
+      background:linear-gradient(160deg, #8a1f0d 0%, #d9631f 38%, #f0a94a 70%, #ffdba0 100%);
       display:flex; flex-direction:column; align-items:center; justify-content:center;
       gap:22px;
       transition:opacity .5s ease;
     }
     #preloader.is-hidden { opacity:0; pointer-events:none; }
+    #preloader-logo-wrap {
+      perspective:900px;
+    }
     #preloader-logo {
       width:216px; height:auto;
-      opacity:.95;
       overflow:visible;
+      animation: coinSpin 1.4s linear infinite;
     }
-    #preloader-logo path {
-      fill:none;
-      stroke:#fff;
-      stroke-width:2;
-      vector-effect:non-scaling-stroke;
-    }
-    #preloader-logo.is-filled path {
+    #preloader-logo path,
+    #preloader-logo polygon {
       fill:#fff;
-      stroke:none;
+    }
+    @keyframes coinSpin {
+      from { transform: rotateY(0deg); }
+      to   { transform: rotateY(360deg); }
     }
     #preloader-bar-track {
       width:160px; height:1px;
@@ -935,6 +936,7 @@
      PRELOADER
 ══════════════════════════════════════ -->
 <div id="preloader">
+  <div id="preloader-logo-wrap">
   <svg id="preloader-logo" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" aria-label="Javier Guzmán">
     <path d="M421.85,172.96c-6.22-17.76-21.98-38.26-60.8-45.58,1.33-1.36,2.66-2.8,3.97-4.31.59-.67,1.13-1.36,1.64-2.09l16.69-23.78c1.77-2.53,4.77-7.76,5.38-14.95.93-10.54-3.67-20.66-12.38-27.36-3.55-2.89-9.92-6.73-18.72-6.73-3.29,0-6.47.57-9.49,1.61,1.22-2.4,2.08-5.04,2.49-7.83l1.64-11.11c1.04-7.23-1.09-14.59-5.89-20.13-4.77-5.54-11.75-8.72-19.06-8.72h-156.94c-7.31,0-14.27,3.18-19.06,8.72-4.79,5.54-6.93,12.89-5.86,20.13l1.62,11.11c.46,3.15,1.5,6.07,3,8.72-14.66,8.58-27.69,18.8-38.74,30.47-26.66,28.11-40.66,62.93-40.47,100.68.25,47,18.52,85.88,52.88,112.43,5.31,4.12,10.97,7.86,16.93,11.29-7.16,8.06-11.3,18.29-12.05,29.86-.08.84-.11,1.66-.11,2.49v.9c0,1.01.03,2.03.09,3.07,1.07,22.32,11.35,41.71,28.95,54.64,15.21,11.18,34.98,17.09,57.21,17.09.58,0,1.19,0,1.82-.03.32.03.66.03.99.03.97,0,1.9-.06,2.86-.17,21.2-1.18,41.09-8.83,56.18-21.68,17.49-14.88,27.11-35.47,27.11-57.97h0v-11.88c15.09-3.44,29.41-7.96,42.55-13.43,30.58-12.8,53.08-30.01,66.88-51.19,16.24-24.95,19.24-54.09,8.67-84.29ZM354.35,74.89c3.55-4.31,6.92-.93,6.92-.93,5.19,3.67,2.05,8.11,2.05,8.11l-16.67,23.78c-21.71,24.9-46.21,21.35-57.74,17.68v-62.84c7.78,3.43,12.03,6.35,12.03,6.35,39.28,25.04,53.41,7.85,53.41,7.85ZM327.93,26.51h0c-.97,6.58-6.2,11.7-12.79,12.53l-28.63,3.61c-4.21.53-7.37,4.11-7.37,8.36v5.91s.03.02.06.02v62.07s-.05-.02-.06-.02v27.15c-6.18,1.35-19.62,4.33-29.06,6.86,0,0-19.41,5.26-29.09,5.86v-16.71l5.32-2.62c11.58-5.8,4.58-17.17,4.58-17.17-2.91-4.69-6.75-6.01-9.9-6.12V51.03h0c0-4.25-3.17-7.84-7.39-8.36l-29.8-3.66c-6.59-.81-11.82-5.93-12.78-12.5h0s156.92,0,156.92,0ZM96.69,181.02c-.32-65.44,50.77-112.38,113.34-128.23v45.89c-79.16,4.3-81.85,76.4-81.85,76.4,0,0-3.79,67.58,81.85,77.36v49.13c-62.81-9.03-112.99-48.04-113.34-120.55ZM279.2,300.35h-.06v32.75c0,31.92-28.36,53.35-60.86,54.56l-.06.05v-.05c-.95.03-1.88.05-2.84.05-32.79,0-59.61-16.52-60.97-47.96-.04-.55-.06-1.08-.06-1.62v-.93l.02.02c.53-13.71,9.33-23.89,29.04-24.88,16.63-.84,29.63,7.43,29.63,21.68s-13.12,22.21-29.32,22.21c-3.04,0-6-.29-8.75-.82,5.49,5.43,13.55,8.57,22.51,8.57,16.58,0,34.94-13.55,36.15-33.32,0,0,1.62-16.87-12.64-29.05v-75.68c11.27.28,51.55-14.21,58.15-16.9v40.31h.06v51.03ZM288.9,298.68v-51.21c27.44-5.66,77.58-19.67,80.5-46.77.48-4.48-2.4-14.56-13.02-15.72,0,0-26.42-5.91-77.25,15.16h0c-25.82,10.74-40.81,15.33-49.05,17.29-6.85,1.6-9.1,1.4-9.1,1.4h0c-19.82,2.28-40.41-.99-50.19-20.33,0,0-29.64-53.01,42.59-74.02,0,0,6.24-2.61,8.42,2.45,0,0,3.48,6.5-2.02,8.12,0,0-27.24,13.63-16.88,28.25,0,0,1.52,4.41,18.08,2.95v-.06c4.77-.51,14.61-1.87,28.99-5.43.15-.03.32-.08.48-.13,2.61-.66,18.8-4.77,28.69-6.63h0c.08-.03.14-.03.2-.05,34.27-6.09,105.28-13.41,119.32,26.69,22.69,64.74-38.76,104.56-109.76,118.03Z"/>
     <g>
@@ -957,6 +959,7 @@
       <path d="M174.09,458.51v-1.33s-1.13,0-1.13,0v-1.12s-1.32,0-1.32,0v-1.12s1.31-.02,1.31-.02l.02-3.77h1c.21,0,.12-.66.06-1.08l3.81-.03v6.01s-1.33.05-1.33.05l-.02.98c0,.21-.65.12-1.04.05l-.08,1.36-1.29.02Z"/>
     </g>
   </svg>
+  </div>
   <div id="preloader-bar-track"><div id="preloader-bar-fill"></div></div>
   <div id="preloader-pct">0%</div>
 </div>
@@ -1226,8 +1229,6 @@
 
 <!-- GSAP -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/DrawSVGPlugin.min.js"></script>
-<script>if (window.gsap && window.DrawSVGPlugin) { gsap.registerPlugin(DrawSVGPlugin); }</script>
 
 <!-- Intro morph reveal — adaptado de https://demos.gsap.com/demo/dynamic-morphing/ -->
 <script>
@@ -1265,11 +1266,6 @@
   var barFill = document.getElementById('preloader-bar-fill');
   var pctLabel = document.getElementById('preloader-pct');
 
-  var logoEl = document.getElementById('preloader-logo');
-  var logoPaths = logoEl ? logoEl.querySelectorAll('path') : null;
-  var hasDrawSVG = !!(window.gsap && window.DrawSVGPlugin && logoPaths && logoPaths.length);
-  if (hasDrawSVG) gsap.set(logoPaths, { drawSVG: '0%' });
-
   if (!preloader || !barFill) {
     // Fallback por si el preloader no existe: comportamiento anterior.
     if (document.readyState === 'complete') safeReveal();
@@ -1294,25 +1290,15 @@
       if (progress > 100) progress = 100;
       barFill.style.width = progress + '%';
       pctLabel.textContent = Math.round(progress) + '%';
-      // El logo se dibuja más rápido que la barra (termina ~60% del progreso)
-      // para que quede tiempo de verlo completo y relleno antes de pasar al reveal.
-      var drawPct = Math.min(100, (progress / 60) * 100);
-      if (hasDrawSVG) gsap.set(logoPaths, { drawSVG: '0% ' + drawPct + '%' });
 
       if (progress >= 100) {
-        // El contorno ya terminado se "rellena" de blanco sólido y se deja ver un momento.
-        if (hasDrawSVG && !logoEl.classList.contains('is-filled')) {
-          gsap.to(logoPaths, { drawSVG: '0% 100%', duration: 0.35, onComplete: function () {
-            logoEl.classList.add('is-filled');
-          } });
-        }
         setTimeout(function () {
           preloader.classList.add('is-hidden');
           setTimeout(function () {
             preloader.style.display = 'none';
             safeReveal(); // arranca el efecto GSAP justo después del preloader
           }, 500); // debe coincidir con la transición CSS de #preloader
-        }, 650); // pausa mostrando el logo relleno antes de ocultar
+        }, 250); // pequeña pausa mostrando el 100%
         return;
       }
       requestAnimationFrame(tick);
