@@ -1294,13 +1294,15 @@
       if (progress > 100) progress = 100;
       barFill.style.width = progress + '%';
       pctLabel.textContent = Math.round(progress) + '%';
-      // El logo se va "dibujando" (contorno) al mismo ritmo que la barra de carga.
-      if (hasDrawSVG) gsap.set(logoPaths, { drawSVG: '0% ' + progress + '%' });
+      // El logo se dibuja más rápido que la barra (termina ~60% del progreso)
+      // para que quede tiempo de verlo completo y relleno antes de pasar al reveal.
+      var drawPct = Math.min(100, (progress / 60) * 100);
+      if (hasDrawSVG) gsap.set(logoPaths, { drawSVG: '0% ' + drawPct + '%' });
 
       if (progress >= 100) {
-        // Pequeño remate: el contorno terminado se "rellena" de blanco sólido.
-        if (hasDrawSVG) {
-          gsap.to(logoPaths, { drawSVG: '0% 100%', duration: 0.15, onComplete: function () {
+        // El contorno ya terminado se "rellena" de blanco sólido y se deja ver un momento.
+        if (hasDrawSVG && !logoEl.classList.contains('is-filled')) {
+          gsap.to(logoPaths, { drawSVG: '0% 100%', duration: 0.35, onComplete: function () {
             logoEl.classList.add('is-filled');
           } });
         }
@@ -1310,7 +1312,7 @@
             preloader.style.display = 'none';
             safeReveal(); // arranca el efecto GSAP justo después del preloader
           }, 500); // debe coincidir con la transición CSS de #preloader
-        }, 250); // pequeña pausa mostrando el 100%
+        }, 650); // pausa mostrando el logo relleno antes de ocultar
         return;
       }
       requestAnimationFrame(tick);
