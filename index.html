@@ -1045,24 +1045,30 @@
   var pointsDelay = [];
   var allPoints = [];
 
+  // Con esta fórmula del path (ver render()), points=0 = cubre toda la pantalla
+  // y points=100 = totalmente retirado/invisible.
   for (var i = 0; i < numPaths; i++) {
     var points = [];
     allPoints.push(points);
-    for (var j = 0; j < numPoints; j++) points.push(100); // 100 = cubre toda la pantalla
+    for (var j = 0; j < numPoints; j++) points.push(0); // 0 = cubre toda la pantalla
   }
 
   render(); // dibuja el estado "cerrado" de inmediato, antes de animar
 
-  // Se retira justo cuando la página (incluida la escena Three.js) terminó de cargar.
-  // Si ya cargó todo antes de que este script corra, revela de inmediato.
-  var minShow = Date.now() + 400; // evita un parpadeo demasiado brusco si todo carga instantáneo
-  if (document.readyState === 'complete') {
-    setTimeout(reveal, Math.max(0, minShow - Date.now()));
-  } else {
-    window.addEventListener('load', function () {
-      setTimeout(reveal, Math.max(0, minShow - Date.now()));
-    });
+  var revealed = false;
+  function safeReveal() {
+    if (revealed) return;
+    revealed = true;
+    reveal();
   }
+
+  // Se retira cuando la página (incluida la escena Three.js) termina de cargar.
+  if (document.readyState === 'complete') {
+    safeReveal();
+  } else {
+    window.addEventListener('load', safeReveal);
+  }
+  setTimeout(safeReveal, 4000); // red de seguridad por si 'load' nunca dispara
 
   function reveal() {
     // El timeline se crea recién aquí, ya con tweens reales, para que GSAP
@@ -1083,7 +1089,7 @@
 
       for (var q = 0; q < numPoints; q++) {
         var delay = pointsDelay[q];
-        tl.to(pts, { [q]: 0 }, delay + pathDelay); // 0 = se retira, revela el sitio
+        tl.to(pts, { [q]: 100 }, delay + pathDelay); // 100 = se retira, revela el sitio
       }
     }
   }
