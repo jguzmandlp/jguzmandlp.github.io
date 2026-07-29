@@ -684,68 +684,138 @@
 
 /* Layout interior */
 .about-inner {
-  flex:1; display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:80px;
-  padding:60px 80px 60px;
-  align-items:start;
+  flex:1; display:flex; flex-direction:column;
+  gap:38px;
+  padding:44px 80px 44px;
   overflow-y:auto;
+}
+.about-top {
+  display:flex; gap:40px; align-items:stretch;
 }
 
 .about-eye {
   font-size:9px; letter-spacing:.28em; text-transform:uppercase;
-  color:#c0201a; display:block; margin-bottom:14px;
+  color:#c0201a; display:block; margin-bottom:10px;
 }
 .about-title {
   font-family:'UnifrakturMaguntia',cursive;
-  font-size:clamp(42px,5vw,64px);
-  color:#fff; line-height:1; margin-bottom:32px;
+  font-size:clamp(34px,4vw,52px);
+  color:#fff; line-height:1; margin-bottom:22px;
 }
+/* Párrafo continuo, sin saltos manuales: el navegador reparte las palabras
+   dentro del ancho de la columna y justifica pareja como en InDesign
+   (última línea de cada párrafo queda alineada a la izquierda) */
+.about-left { flex:0 0 290px; max-width:290px; }
 .about-p {
-  font-size:13px; line-height:2;
+  font-size:12px; line-height:1.85; letter-spacing:0; word-spacing:-1.5px;
   color:rgba(255,255,255,.5);
-  margin-bottom:20px; max-width:480px;
+  margin-bottom:15px; width:100%;
+  text-align:justify; text-justify:inter-word;
+  hyphens:none; -webkit-hyphens:none; -ms-hyphens:none;
 }
 .about-p strong { color:rgba(255,255,255,.82); font-weight:400; }
 
-/* Awards */
-.about-awards { margin-top:36px; display:flex; flex-direction:column; gap:1px; }
-.award-row {
-  display:flex; gap:20px; align-items:flex-start;
-  padding:16px 0;
-  border-top:1px solid rgba(255,255,255,.07);
+/* Foto: mismo ancho que el párrafo */
+.about-photo {
+  flex:0 0 330px; width:330px;
+  background:
+    radial-gradient(ellipse at 40% 30%, rgba(192,32,26,.25) 0%, rgba(10,10,10,.9) 70%),
+    linear-gradient(155deg, #161616 0%, #060606 100%);
+  border:1px solid rgba(255,255,255,.08);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
 }
-.award-yr {
-  font-size:9px; letter-spacing:.15em;
-  color:#c0201a; flex-shrink:0; padding-top:2px;
-}
-.award-name {
-  font-size:12px; color:rgba(255,255,255,.75);
-  margin-bottom:4px; letter-spacing:.02em;
-}
-.award-detail {
-  font-size:11px; color:rgba(255,255,255,.32); line-height:1.6;
+.about-photo img { width:100%; height:100%; object-fit:cover; display:block; }
+.about-photo-placeholder {
+  font-size:9px; letter-spacing:.2em; text-transform:uppercase;
+  color:rgba(255,255,255,.25); text-align:center; padding:0 20px;
 }
 
-/* Skills */
-.skills-list {
-  display:flex; flex-direction:column; gap:1px;
-  border:1px solid rgba(255,255,255,.07);
+/* ── Bloques desplegables (Habilidades / Certificados): tercera columna
+   flexible que se centra dentro del espacio que le queda a la derecha
+   de texto + foto (nunca se superpone) ── */
+.about-right {
+  flex:1 1 auto; min-width:260px;
+  display:flex; flex-direction:column; gap:1px; align-items:center; text-align:center;
 }
+.reveal-block { border-top:1px solid rgba(255,255,255,.08); width:100%; }
+.reveal-block:last-child { border-bottom:1px solid rgba(255,255,255,.08); }
+.reveal-trigger {
+  display:flex; align-items:center; justify-content:center; gap:14px;
+  cursor:pointer; padding:20px 2px; position:relative;
+}
+.reveal-trigger .reveal-plus { position:absolute; right:2px; }
+.reveal-label {
+  font-family:'UnifrakturMaguntia',cursive;
+  font-size:clamp(32px,3.8vw,46px);
+  color:#fff; line-height:1; transition:color .3s;
+}
+.reveal-trigger:hover .reveal-label,
+.reveal-block.open .reveal-label { color:#c0201a; }
+.reveal-plus {
+  font-size:18px; color:rgba(255,255,255,.35); font-weight:300;
+  transition:transform .35s ease, color .3s;
+}
+.reveal-block.open .reveal-plus { transform:rotate(135deg); color:#c0201a; }
+.reveal-panel {
+  max-height:0; opacity:0; overflow:hidden;
+  transition:max-height .5s cubic-bezier(.2,1,.3,1), opacity .4s ease;
+}
+.reveal-block.open .reveal-panel { max-height:640px; opacity:1; padding-bottom:26px; }
+
+/* Pestañas de categoría dentro de Habilidades */
+.skill-tabs { display:flex; border:1px solid rgba(255,255,255,.1); margin-bottom:0; }
+.skill-tab {
+  flex:1; text-align:center; padding:11px 6px;
+  font-size:9px; letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(255,255,255,.35); cursor:pointer;
+  border-right:1px solid rgba(255,255,255,.08);
+  transition:color .2s, background .2s;
+}
+.skill-tab:last-child { border-right:none; }
+.skill-tab:hover, .skill-tab.chosen { color:#fff; background:rgba(192,32,26,.16); }
+.skill-tab-panels { border:1px solid rgba(255,255,255,.1); border-top:none; }
+.skill-tab-panel { display:none; flex-direction:column; padding:6px 14px; }
+.skill-tab-panel.chosen { display:flex; }
 .skill-row {
-  display:flex; align-items:center; gap:12px;
-  padding:14px 18px;
-  font-size:12px; color:rgba(255,255,255,.55);
-  background:rgba(255,255,255,.015);
-  transition:background .2s, color .2s;
-  border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  font-size:12px; color:rgba(255,255,255,.6);
+  padding:11px 2px; border-bottom:1px solid rgba(255,255,255,.06);
+  transition:color .2s;
 }
 .skill-row:last-child { border-bottom:none; }
-.skill-row:hover { background:rgba(255,255,255,.05); color:rgba(255,255,255,.85); }
+.skill-row:hover { color:#fff; }
 .skill-dot {
   width:5px; height:5px; border-radius:50%;
   background:#c0201a; flex-shrink:0;
 }
+
+/* Certificados dentro del panel desplegable */
+.certs-col-label {
+  font-size:9px; letter-spacing:.2em; text-transform:uppercase;
+  color:rgba(255,255,255,.3); margin:16px 0 4px; padding-top:4px;
+}
+.certs-col-label:first-child { margin-top:0; }
+.cert-row {
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  padding:10px 2px; border-bottom:1px solid rgba(255,255,255,.06);
+}
+.cert-name { font-size:12px; color:rgba(255,255,255,.72); }
+.cert-meta {
+  font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+  color:rgba(255,255,255,.28); white-space:nowrap;
+}
+
+/* Intereses: chips */
+.interest-tags { display:flex; flex-wrap:wrap; justify-content:center; gap:9px; padding-top:4px; }
+.interest-tag {
+  font-size:10px; letter-spacing:.06em;
+  color:rgba(255,255,255,.6);
+  border:1px solid rgba(255,255,255,.18);
+  padding:8px 14px; border-radius:20px;
+  transition:background .2s, color .2s, border-color .2s;
+}
+.interest-tag:hover { background:#c0201a; border-color:#c0201a; color:#fff; }
 
 /* ════════════════════════════════
    SECCIÓN CONTACTO
@@ -832,7 +902,12 @@
 
 /* ── Responsive about + contact ── */
 @media (max-width: 768px) {
-  .about-inner { grid-template-columns:1fr; gap:40px; padding:40px 28px; }
+  .about-inner { gap:40px; padding:40px 28px; }
+  .about-top { flex-direction:column; gap:28px; }
+  .about-left { flex-basis:auto; max-width:100%; }
+  .about-photo { flex-basis:auto; width:100%; max-width:330px; }
+  .about-p { text-align:left; }
+  .about-right { width:100%; min-width:0; margin-top:8px; }
   .contact-inner { grid-template-columns:1fr; gap:40px; padding:80px 28px 40px; }
   .contact-footer { padding:20px 28px; }
 }
@@ -862,16 +937,16 @@
 <svg class="shape-overlays" viewBox="0 0 100 100" preserveAspectRatio="none">
   <defs>
     <linearGradient id="introGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%"   stop-color="#111f1b"/>
-      <stop offset="45%"  stop-color="#c98a3f"/>
-      <stop offset="75%"  stop-color="#d9631f"/>
-      <stop offset="100%" stop-color="#a8290f"/>
+      <stop offset="0%"   stop-color="#8a1f0d"/>
+      <stop offset="40%"  stop-color="#d9631f"/>
+      <stop offset="75%"  stop-color="#f0a94a"/>
+      <stop offset="100%" stop-color="#ffdba0"/>
     </linearGradient>
     <linearGradient id="introGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%"   stop-color="#060a09"/>
-      <stop offset="45%"  stop-color="#f0b25e"/>
-      <stop offset="75%"  stop-color="#e8823a"/>
-      <stop offset="100%" stop-color="#c94a1c"/>
+      <stop offset="0%"   stop-color="#c9401a"/>
+      <stop offset="40%"  stop-color="#e8823a"/>
+      <stop offset="75%"  stop-color="#f5bd6b"/>
+      <stop offset="100%" stop-color="#ffe9c2"/>
     </linearGradient>
   </defs>
   <path class="shape-overlays__path" fill="url(#introGrad2)"></path>
@@ -981,45 +1056,93 @@
   </div>
 
   <div class="about-inner">
-    <!-- Columna izquierda: texto -->
-    <div class="about-left">
-      <span class="about-eye">Quién soy</span>
-      <h2 class="about-title">Sobre mí</h2>
-      <p class="about-p">Soy <strong>diseñador gráfico titulado de la Universidad Diego Portales</strong>, con más de 8 años de experiencia en proyectos creativos que van desde la producción de arte urbano a escala nacional hasta el desarrollo de plataformas digitales.</p>
-      <p class="about-p">Comencé en diseño editorial y producción de eventos, luego dirigí proyectos culturales de gran escala en Chile ganando premios nacionales, y hoy combino ese bagaje creativo con <strong>desarrollo web y diseño UX/UI</strong> desde Costa Rica.</p>
-      <p class="about-p">Me interesan los proyectos con propósito: marcas que cuentan historias reales, plataformas que resuelven problemas concretos, y diseño que conecta con las personas.</p>
-
-      <!-- Awards -->
-      <div class="about-awards">
-        <div class="award-row">
-          <span class="award-yr">2023</span>
-          <div>
-            <p class="award-name">Premio CityLab Esenciales</p>
-            <p class="award-detail">1° lugar Mejor Intervención Urbana — Proyecto Confluencia, Chile</p>
-          </div>
-        </div>
-        <div class="award-row">
-          <span class="award-yr">2022</span>
-          <div>
-            <p class="award-name">Premio Nacional de Innovación Avonni</p>
-            <p class="award-detail">1° lugar categoría Cultura — Proyecto De Cancha en Cancha, Chile</p>
-          </div>
-        </div>
+    <div class="about-top">
+      <!-- Columna izquierda: texto, saltos forzados a 7 palabras por línea -->
+      <div class="about-left">
+        <span class="about-eye">Quién soy</span>
+        <h2 class="about-title">Sobre mí</h2>
+        <p class="about-p">Empecé mi carrera en el diseño gráfico y la gestión cultural, liderando proyectos y circuitos de arte público galardonados a nivel nacional. Trabajar a gran escala me enseñó a coordinar procesos complejos, cuidar cada detalle visual y, sobre todo, diseñar pensando siempre en la experiencia de las personas.</p>
+        <p class="about-p">Hoy aplico esa misma visión estratégica al entorno digital como Diseñador UX/UI y Desarrollador Web. Integro el pensamiento visual, herramientas de prototipado y desarrollo frontend para construir sitios web e interfaces intuitivas, escalables y orientadas a resultados.</p>
+        <p class="about-p">Creo en el diseño con propósito y en las soluciones digitales que transmiten historias auténticas.</p>
+        <p class="about-p">📍 Ubicado en Costa Rica y abierto a colaboraciones remotas.</p>
       </div>
-    </div>
 
-    <!-- Columna derecha: skills -->
-    <div class="about-right">
-      <div class="skills-list">
-        <div class="skill-row"><span class="skill-dot"></span><span>Adobe Illustrator / Photoshop</span></div>
-        <div class="skill-row"><span class="skill-dot"></span><span>Adobe InDesign</span></div>
-        <div class="skill-row"><span class="skill-dot"></span><span>Adobe Express / Premiere</span></div>
-        <div class="skill-row"><span class="skill-dot"></span><span>Figma / UX Design</span></div>
-        <div class="skill-row"><span class="skill-dot"></span><span>HTML / CSS / JavaScript</span></div>
-        <div class="skill-row"><span class="skill-dot"></span><span>Three.js / WebGPU / GSAP</span></div>
-        <div class="skill-row"><span class="skill-dot"></span><span>Supabase / Cloudflare</span></div>
-        <div class="skill-row"><span class="skill-dot"></span><span>Meta Business / Marketing Digital</span></div>
-        <div class="skill-row"><span class="skill-dot"></span><span>Gestión de proyectos</span></div>
+      <!-- Foto: mismo ancho que el bloque de texto. Placeholder — reemplazar por foto real -->
+      <div class="about-photo">
+        <span class="about-photo-placeholder">Foto de Javier<br>(reemplazar)</span>
+        <!-- Para poner tu foto: borra el <span> de arriba y agrega
+             <img src="ruta-a-tu-foto.jpg" alt="Javier Guzmán"> aquí dentro -->
+      </div>
+
+      <!-- Habilidades y Certificados, desplegables, centrados en la página -->
+      <div class="about-right">
+        <div class="reveal-block" id="skills-block">
+          <div class="reveal-trigger">
+            <span class="reveal-label">Habilidades</span>
+            <span class="reveal-plus">＋</span>
+          </div>
+          <div class="reveal-panel">
+            <div class="skill-tabs">
+              <div class="skill-tab chosen" data-panel="tab-diseno">Diseño</div>
+              <div class="skill-tab" data-panel="tab-codigo">Código</div>
+              <div class="skill-tab" data-panel="tab-gestion">Gestión</div>
+            </div>
+            <div class="skill-tab-panels">
+              <div class="skill-tab-panel chosen" id="tab-diseno">
+                <div class="skill-row"><span class="skill-dot"></span>Adobe Photoshop / Illustrator</div>
+                <div class="skill-row"><span class="skill-dot"></span>Adobe InDesign / Express / Premiere</div>
+                <div class="skill-row"><span class="skill-dot"></span>Figma — UX / UI Design</div>
+              </div>
+              <div class="skill-tab-panel" id="tab-codigo">
+                <div class="skill-row"><span class="skill-dot"></span>HTML / CSS / JavaScript</div>
+                <div class="skill-row"><span class="skill-dot"></span>Three.js / WebGPU / GSAP</div>
+                <div class="skill-row"><span class="skill-dot"></span>Supabase / Cloudflare</div>
+                <div class="skill-row"><span class="skill-dot"></span>Claude Code / IA aplicada</div>
+              </div>
+              <div class="skill-tab-panel" id="tab-gestion">
+                <div class="skill-row"><span class="skill-dot"></span>Meta Business / Marketing Digital</div>
+                <div class="skill-row"><span class="skill-dot"></span>Gestión de proyectos</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="reveal-block" id="certs-block">
+          <div class="reveal-trigger">
+            <span class="reveal-label">Certificados</span>
+            <span class="reveal-plus">＋</span>
+          </div>
+          <div class="reveal-panel">
+            <p class="certs-col-label">Certificaciones</p>
+            <div class="cert-row"><span class="cert-name">Google UX Design Professional Certificate</span><span class="cert-meta">Google — 2026</span></div>
+            <div class="cert-row"><span class="cert-name">Full Stack Development Certification</span><span class="cert-meta">Mimo.org — 2026</span></div>
+            <div class="cert-row"><span class="cert-name">Inglés — Intermedio alto (B2, CEFR)</span><span class="cert-meta">EFSET</span></div>
+            <p class="certs-col-label">Cursos completados</p>
+            <div class="cert-row"><span class="cert-name">Claude 101</span><span class="cert-meta">Anthropic — 2026</span></div>
+            <div class="cert-row"><span class="cert-name">Claude Code 101</span><span class="cert-meta">Anthropic — 2026</span></div>
+            <div class="cert-row"><span class="cert-name">Introduction to Claude Cowork</span><span class="cert-meta">Anthropic — 2026</span></div>
+            <div class="cert-row"><span class="cert-name">Diseño Web UI/UX en Figma — IA y Grandes Proyectos</span><span class="cert-meta">Udemy — 2026</span></div>
+          </div>
+        </div>
+
+        <div class="reveal-block" id="interests-block">
+          <div class="reveal-trigger">
+            <span class="reveal-label">Intereses</span>
+            <span class="reveal-plus">＋</span>
+          </div>
+          <div class="reveal-panel">
+            <div class="interest-tags">
+              <span class="interest-tag">Turismo cultural</span>
+              <span class="interest-tag">Arte urbano</span>
+              <span class="interest-tag">Fotografía</span>
+              <span class="interest-tag">Deportes</span>
+              <span class="interest-tag">Educación</span>
+              <span class="interest-tag">Acción social y comunitaria</span>
+              <span class="interest-tag">Programación</span>
+              <span class="interest-tag">Proyectos impulsados por IA</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1479,16 +1602,17 @@ revealEls.forEach(el=>io.observe(el));
 const PROJECTS = [
   { id:'sdcr',     name:'Servicio Directo CR', role:'Platform · UX · Dev',
     color:'#05101e', grad:'linear-gradient(135deg,#060e1a,#0f1e3a)', accent:'#163a60',
-    tags:['Supabase','Cloudflare Workers','Tilopay','Vanilla JS'],
-    desc:'Marketplace de servicios locales en Costa Rica. Panel admin, perfiles de proveedores, mensajería en tiempo real, sistema de reviews y pagos integrados con Tilopay.',
-    tech:'HTML · CSS · JS · Supabase · Cloudflare Workers · Tilopay', url:'serviciodirectocr.com',
+    tags:['Supabase','Cloudflare Workers','Three.js','Tilopay'],
+    desc:'Marketplace de servicios locales en Costa Rica con tres paneles independientes — proveedor, cliente y administrador. Búsqueda geolocalizada con filtro por distancia y cobertura por provincia, perfiles verificados con sistema de reviews, mensajería en tiempo real y pagos integrados con Tilopay. Logo 3D animado en Three.js que reacciona al scroll.',
+    tech:'HTML · CSS · JS · Supabase · Cloudflare Workers · Three.js · Tilopay', url:'serviciodirectocr.com',
+    logo:'img/logos/sdcr-logo.svg',
     video:null, private:true },
-  { id:'sikua',    name:'Sikua Tours',          role:'Brand · Web · 3D',
+  { id:'sikua',    name:'Sikua Tours',          role:'Brand · Web · Turismo',
     color:'#051209', grad:'linear-gradient(135deg,#06130a,#103220)', accent:'#1a5c2a',
-    tags:['Three.js','GSAP','Cloudflare Pages','WebGPU'],
-    desc:'Plataforma de turismo cultural Bribri en Talamanca, Costa Rica. 181 frames AVIF en scroll, modelo 3D del usure con Three.js WebGPU y email routing con Cloudflare.',
-    tech:'HTML · CSS · JS · Three.js · GSAP · Cloudflare Pages', url:'sikuatours.com',
-    video:'videos/sikua.mp4' },
+    tags:['Canvas API','Vanilla JS','AVIF','Cloudflare Pages'],
+    desc:'Plataforma de turismo cultural Bribri en Talamanca, Costa Rica. Secuencia cinemática de scroll con más de 180 frames AVIF dibujados a mano sobre canvas (sin librerías de animación), tres tipos de tour, itinerarios armados a medida por cliente, tienda de artesanías Bribri con checkout por WhatsApp y panel admin de travel planning.',
+    tech:'HTML · CSS · JS Vanilla · Canvas API · Cloudflare Pages', url:'sikuatours.com',
+    video:null },
   { id:'fragancia',name:'Fragancia Urbana',     role:'E-commerce · 3D · Luxury',
     color:'#120f04', grad:'linear-gradient(135deg,#130f04,#2e2508)', accent:'#5a4a18',
     tags:['E-commerce','Three.js','GSAP','SINPE Móvil'],
@@ -1778,6 +1902,26 @@ function closeProject() {
 
 document.getElementById('proj-close').addEventListener('click', closeProject);
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeProject(); });
+
+/* Habilidades / Certificados: desplegables por click */
+document.querySelectorAll('.reveal-block').forEach(block => {
+  block.querySelector('.reveal-trigger').addEventListener('click', () => {
+    block.classList.toggle('open');
+  });
+});
+
+/* Pestañas de categoría dentro de Habilidades */
+document.querySelectorAll('.skill-tab').forEach(tab => {
+  tab.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const group = tab.parentElement;
+    group.querySelectorAll('.skill-tab').forEach(t => t.classList.remove('chosen'));
+    tab.classList.add('chosen');
+    const panels = group.nextElementSibling;
+    panels.querySelectorAll('.skill-tab-panel').forEach(p => p.classList.remove('chosen'));
+    panels.querySelector('#' + tab.dataset.panel).classList.add('chosen');
+  });
+});
 
 /* ══════════════════════════════════════
    SCROLL CONTROLADO — 4 secciones
