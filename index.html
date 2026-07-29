@@ -27,6 +27,37 @@
     }
     a { text-decoration:none; color:inherit; }
 
+    /* ── Preloader ── */
+    #preloader {
+      position:fixed; inset:0; z-index:10000;
+      background:#060606;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:22px;
+      transition:opacity .5s ease;
+    }
+    #preloader.is-hidden { opacity:0; pointer-events:none; }
+    #preloader-logo {
+      font-family:'UnifrakturMaguntia', serif;
+      font-size:34px;
+      color:#fff;
+      opacity:.92;
+      letter-spacing:.02em;
+    }
+    #preloader-bar-track {
+      width:160px; height:1px;
+      background:rgba(255,255,255,.15);
+      overflow:hidden;
+    }
+    #preloader-bar-fill {
+      width:0%; height:100%;
+      background:#fff;
+    }
+    #preloader-pct {
+      font-family:'Space Mono','Courier New',monospace;
+      font-size:10px; letter-spacing:.2em;
+      color:rgba(255,255,255,.4);
+    }
+
     /* ── Intro morph reveal ── */
     .shape-overlays {
       width:100%; height:100%;
@@ -818,6 +849,15 @@
 <div id="cur"></div>
 
 <!-- ══════════════════════════════════════
+     PRELOADER
+══════════════════════════════════════ -->
+<div id="preloader">
+  <div id="preloader-logo">Javier Guzmán</div>
+  <div id="preloader-bar-track"><div id="preloader-bar-fill"></div></div>
+  <div id="preloader-pct">0%</div>
+</div>
+
+<!-- ══════════════════════════════════════
      INTRO MORPH REVEAL
      Adaptado de https://demos.gsap.com/demo/dynamic-morphing/
 ══════════════════════════════════════ -->
@@ -1053,7 +1093,7 @@
     for (var j = 0; j < numPoints; j++) points.push(0); // 0 = cubre toda la pantalla
   }
 
-  render(); // dibuja el estado "cerrado" de inmediato, antes de animar
+  render(); // dibuja el estado "cerrado" de inmediato, antes de animar (queda detrás del preloader)
 
   var revealed = false;
   function safeReveal() {
@@ -1062,13 +1102,42 @@
     reveal();
   }
 
-  // Se retira cuando la página (incluida la escena Three.js) termina de cargar.
-  if (document.readyState === 'complete') {
-    safeReveal();
+  // ── Preloader: logo + barra, y solo cuando termina llama a safeReveal() ──
+  var preloader = document.getElementById('preloader');
+  var barFill = document.getElementById('preloader-bar-fill');
+  var pctLabel = document.getElementById('preloader-pct');
+
+  if (!preloader || !barFill) {
+    // Fallback por si el preloader no existe: comportamiento anterior.
+    if (document.readyState === 'complete') safeReveal();
+    else window.addEventListener('load', safeReveal);
+    setTimeout(safeReveal, 4000);
   } else {
-    window.addEventListener('load', safeReveal);
+    var progress = 0;
+    var pageLoaded = document.readyState === 'complete';
+    if (!pageLoaded) window.addEventListener('load', function () { pageLoaded = true; });
+    setTimeout(function () { pageLoaded = true; }, 5000); // red de seguridad
+
+    (function tick() {
+      var target = pageLoaded ? 100 : 90;
+      progress += (target - progress) * 0.08 + (pageLoaded ? 3 : 0.3);
+      if (progress > 100) progress = 100;
+      barFill.style.width = progress + '%';
+      pctLabel.textContent = Math.round(progress) + '%';
+
+      if (progress >= 100) {
+        setTimeout(function () {
+          preloader.classList.add('is-hidden');
+          setTimeout(function () {
+            preloader.style.display = 'none';
+            safeReveal(); // arranca el efecto GSAP justo después del preloader
+          }, 500); // debe coincidir con la transición CSS de #preloader
+        }, 250); // pequeña pausa mostrando el 100%
+        return;
+      }
+      requestAnimationFrame(tick);
+    })();
   }
-  setTimeout(safeReveal, 4000); // red de seguridad por si 'load' nunca dispara
 
   function reveal() {
     // El timeline se crea recién aquí, ya con tweens reales, para que GSAP
