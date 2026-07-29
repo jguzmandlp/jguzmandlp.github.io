@@ -1045,12 +1045,6 @@
   var pointsDelay = [];
   var allPoints = [];
 
-  var tl = gsap.timeline({
-    onUpdate: render,
-    onComplete: function () { overlay.style.display = 'none'; },
-    defaults: { ease: 'power2.inOut', duration: 1.1 }
-  });
-
   for (var i = 0; i < numPaths; i++) {
     var points = [];
     allPoints.push(points);
@@ -1071,7 +1065,13 @@
   }
 
   function reveal() {
-    tl.progress(0).clear();
+    // El timeline se crea recién aquí, ya con tweens reales, para que GSAP
+    // no lo dé por "completo" de inmediato (timeline vacío = duración 0).
+    var tl = gsap.timeline({
+      onUpdate: render,
+      onComplete: function () { overlay.style.display = 'none'; },
+      defaults: { ease: 'power2.inOut', duration: 1.1 }
+    });
 
     for (var k = 0; k < numPoints; k++) {
       pointsDelay[k] = Math.random() * delayPointsMax;
