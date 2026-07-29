@@ -27,6 +27,14 @@
     }
     a { text-decoration:none; color:inherit; }
 
+    /* ── Intro morph reveal ── */
+    .shape-overlays {
+      width:100%; height:100%;
+      position:fixed; top:0; left:0;
+      z-index:9998;
+      pointer-events:none;
+    }
+
     /* ── Cursor ── */
     #cur {
       position:fixed; width:6px; height:6px;
@@ -810,6 +818,25 @@
 <div id="cur"></div>
 
 <!-- ══════════════════════════════════════
+     INTRO MORPH REVEAL
+     Adaptado de https://demos.gsap.com/demo/dynamic-morphing/
+══════════════════════════════════════ -->
+<svg class="shape-overlays" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="introGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#2a2a2a"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </linearGradient>
+    <linearGradient id="introGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#f4ede1"/>
+      <stop offset="100%" stop-color="#d8c9ae"/>
+    </linearGradient>
+  </defs>
+  <path class="shape-overlays__path" fill="url(#introGrad2)"></path>
+  <path class="shape-overlays__path" fill="url(#introGrad1)"></path>
+</svg>
+
+<!-- ══════════════════════════════════════
      HERO
 ══════════════════════════════════════ -->
 <section class="hero">
@@ -1003,6 +1030,71 @@
 
 <!-- GSAP -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+<!-- Intro morph reveal — adaptado de https://demos.gsap.com/demo/dynamic-morphing/ -->
+<script>
+(function () {
+  var overlay = document.querySelector('.shape-overlays');
+  var paths = document.querySelectorAll('.shape-overlays__path');
+  if (!overlay || !paths.length) return;
+
+  var numPoints = 10;
+  var numPaths = paths.length;
+  var delayPointsMax = 0.3;
+  var delayPerPath = 0.25;
+  var pointsDelay = [];
+  var allPoints = [];
+
+  var tl = gsap.timeline({
+    onUpdate: render,
+    onComplete: function () { overlay.style.display = 'none'; },
+    defaults: { ease: 'power2.inOut', duration: 1.1 }
+  });
+
+  for (var i = 0; i < numPaths; i++) {
+    var points = [];
+    allPoints.push(points);
+    for (var j = 0; j < numPoints; j++) points.push(100); // 100 = cubre toda la pantalla
+  }
+
+  render(); // dibuja el estado "cerrado" de inmediato, antes de animar
+  setTimeout(reveal, 900); // espera a que la escena (Three.js) tenga tiempo de pintar
+
+  function reveal() {
+    tl.progress(0).clear();
+
+    for (var k = 0; k < numPoints; k++) {
+      pointsDelay[k] = Math.random() * delayPointsMax;
+    }
+
+    for (var p = 0; p < numPaths; p++) {
+      var pts = allPoints[p];
+      var pathDelay = delayPerPath * p;
+
+      for (var q = 0; q < numPoints; q++) {
+        var delay = pointsDelay[q];
+        tl.to(pts, { [q]: 0 }, delay + pathDelay); // 0 = se retira, revela el sitio
+      }
+    }
+  }
+
+  function render() {
+    for (var p = 0; p < numPaths; p++) {
+      var path = paths[p];
+      var pts = allPoints[p];
+
+      var d = 'M 0 0 V ' + pts[0] + ' C';
+      for (var q = 0; q < numPoints - 1; q++) {
+        var pct = (q + 1) / (numPoints - 1) * 100;
+        var cp = pct - (1 / (numPoints - 1) * 100) / 2;
+        d += ' ' + cp + ' ' + pts[q] + ' ' + cp + ' ' + pts[q + 1] + ' ' + pct + ' ' + pts[q + 1];
+      }
+      d += ' V 100 H 0';
+      path.setAttribute('d', d);
+    }
+  }
+})();
+</script>
 
 <!-- ══════════════════════════════════════
      THREE.JS IMPORTMAP
