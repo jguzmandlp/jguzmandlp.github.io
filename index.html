@@ -37,20 +37,16 @@
     }
     #preloader.is-hidden { opacity:0; pointer-events:none; }
     #preloader-logo-wrap {
-      perspective:900px;
+      overflow:visible;
     }
     #preloader-logo {
       width:216px; height:auto;
       overflow:visible;
-      animation: coinSpin 1.4s linear infinite;
+      filter:url(#liquid-filter);
     }
     #preloader-logo path,
     #preloader-logo polygon {
       fill:#fff;
-    }
-    @keyframes coinSpin {
-      from { transform: rotateY(0deg); }
-      to   { transform: rotateY(360deg); }
     }
     #preloader-bar-track {
       width:160px; height:1px;
@@ -935,6 +931,16 @@
 <!-- ══════════════════════════════════════
      PRELOADER
 ══════════════════════════════════════ -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="liquid-filter" x="-30%" y="-30%" width="160%" height="160%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.025" numOctaves="2" seed="7" result="noise">
+        <animate attributeName="baseFrequency" dur="6s" values="0.012 0.025;0.02 0.04;0.012 0.025" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap id="liquidDisplace" in="SourceGraphic" in2="noise" scale="26" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
 <div id="preloader">
   <div id="preloader-logo-wrap">
   <svg id="preloader-logo" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" aria-label="Javier Guzmán">
@@ -1265,6 +1271,8 @@
   var preloader = document.getElementById('preloader');
   var barFill = document.getElementById('preloader-bar-fill');
   var pctLabel = document.getElementById('preloader-pct');
+  var liquidDisplace = document.getElementById('liquidDisplace');
+  var MAX_DISTORTION = 26; // qué tan "aguado" se ve el logo al arrancar
 
   if (!preloader || !barFill) {
     // Fallback por si el preloader no existe: comportamiento anterior.
@@ -1290,6 +1298,14 @@
       if (progress > 100) progress = 100;
       barFill.style.width = progress + '%';
       pctLabel.textContent = Math.round(progress) + '%';
+
+      // El logo arranca "aguado" (distorsión líquida) y se va asentando
+      // hasta quedar quieto/nítido justo cuando termina de cargar.
+      if (liquidDisplace) {
+        var remaining = Math.max(0, 1 - progress / 100);
+        var scale = MAX_DISTORTION * Math.pow(remaining, 1.6);
+        liquidDisplace.setAttribute('scale', scale.toFixed(2));
+      }
 
       if (progress >= 100) {
         setTimeout(function () {
