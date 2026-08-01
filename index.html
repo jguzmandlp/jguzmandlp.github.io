@@ -2299,6 +2299,11 @@ function goToHero()      { goTo(0); }
 
 /* Wheel */
 window.addEventListener('wheel', e => {
+  // Si el panel de detalle de proyecto está abierto, su scroll interno
+  // (galería scrub, contenido) debe funcionar solo — no interferir
+  // navegando de sección en la página completa por debajo.
+  const detail = document.getElementById('proj-detail');
+  if (detail && detail.classList.contains('open')) return;
   if (e.deltaY > 10)  goTo(currentSection + 1);
   if (e.deltaY < -10) goTo(currentSection - 1);
 }, { passive: true });
@@ -2307,6 +2312,8 @@ window.addEventListener('wheel', e => {
 let touchStartY = 0;
 window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
 window.addEventListener('touchend', e => {
+  const detail = document.getElementById('proj-detail');
+  if (detail && detail.classList.contains('open')) return;
   const dy = touchStartY - e.changedTouches[0].clientY;
   if (dy >  40) goTo(currentSection + 1);
   if (dy < -40) goTo(currentSection - 1);
