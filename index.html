@@ -2058,8 +2058,18 @@ function showDetail(idx) {
   requestAnimationFrame(() => {
     inner.classList.add('vis');
     setTimeout(() => close.classList.add('vis'), 350);
-    setTimeout(initPdGallery, 500);
   });
+
+  /* Inicializar la galería scrub de forma robusta: en vez de confiar en
+     un único setTimeout fijo (que en equipos/pestañas con carga puede no
+     alcanzar a correr antes de que el usuario empiece a scrollear, dejando
+     el mosaico "muerto" sin ScrollTrigger), se dispara apenas el layout
+     esté pintado (doble rAF) y se reintenta con redes de seguridad.
+     initPdGallery() es seguro de llamar varias veces: revierte cualquier
+     instancia previa antes de crear la nueva. */
+  requestAnimationFrame(() => requestAnimationFrame(initPdGallery));
+  setTimeout(initPdGallery, 600);
+  setTimeout(initPdGallery, 1500);
 }
 
 /* ── Galería bento con scroll-scrub, réplica fiel de
