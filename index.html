@@ -598,7 +598,7 @@
        la grilla pequeña se transforma con Flip en una grilla "gigante"
        (columnas/filas del tamaño del viewport) recortada por overflow:hidden,
        creando el efecto de mosaico/zoom al hacer scroll. ── */
-    .pd-gallery-section { grid-column:1/-1; margin-top:80px; }
+    .pd-gallery-section { grid-column:1/-1; margin:0 0 40px; }
     .pd-gallery-label {
       font-size:9px; letter-spacing:.28em; text-transform:uppercase;
       color:rgba(255,255,255,.35); display:block; margin-bottom:18px;
@@ -2028,10 +2028,12 @@ function showDetail(idx) {
         </div>`;
 
   /* ── Galería bento con scroll-scrub, con fotos temporales de internet
-     acordes al rubro de cada proyecto (reemplazar por fotos reales luego) ── */
+     acordes al rubro de cada proyecto (reemplazar por fotos reales luego).
+     Va PRIMERO, igual que el demo original: lo primero que se ve al abrir
+     el proyecto es el mosaico a pantalla completa; solo al seguir
+     scrolleando aparece el resto de la info (título, desc, video). ── */
   const galleryHTML = p.gallery ? `
     <div class="pd-gallery-section">
-      <span class="pd-gallery-label">Galería</span>
       <div class="pd-gallery-wrap">
         <div class="pd-gallery pd-gallery--bento" id="pd-gallery">
           ${p.gallery.map(src=>`<div class="pd-gallery__item"><img src="${src}" alt="${p.name}" draggable="false"></div>`).join('')}
@@ -2041,6 +2043,7 @@ function showDetail(idx) {
     <div class="pd-gallery-spacer"></div>` : '';
 
   inner.innerHTML = `
+    ${galleryHTML}
     <div>
       <span class="pd-eye">${p.role}</span>
       <h2 class="pd-title">${p.name}</h2>
@@ -2049,8 +2052,7 @@ function showDetail(idx) {
       <p class="pd-tech">${p.tech}</p>
       ${p.url?`<a class="pd-url" href="https://${p.url}" target="_blank">${p.url} ↗</a>`:''}
     </div>
-    ${rightCol}
-    ${galleryHTML}`;
+    ${rightCol}`;
 
   detail.classList.add('open');
   requestAnimationFrame(() => {
