@@ -2092,17 +2092,23 @@ function initPdGallery() {
     }
   });
 
+  /* z-index base ascendente para que el orden de apilado esté fijo desde
+     el inicio (evita el "fantasma" cuando dos imágenes quedan semi-visibles
+     a la vez por depender de z-index:auto antes de que empiece su tween) */
+  gsap.set(items, { zIndex: (i) => 10 + i });
+
   states.forEach((s, i) => {
     const pos = i;
+    /* Cada imagen crece hasta cubrir el pin, sube por encima de TODAS
+       las anteriores (60+i siempre es mayor que cualquier 10+j o 60+j previo)
+       y se queda 100% opaca — no hace falta desvanecerla, la siguiente imagen
+       simplemente la tapa por completo al pasar arriba en el z-index. */
     tl.to(s.el, {
       x:s.dx, y:s.dy, scaleX:s.sx, scaleY:s.sy,
-      borderRadius:0, zIndex:20+i,
+      borderRadius:0, zIndex:60+i,
       duration:.8, ease:'power2.inOut'
     }, pos)
-    .to(s.el, { duration:.3 }, pos + .8);
-    if (i < states.length - 1) {
-      tl.to(s.el, { autoAlpha:0, duration:.4 }, pos + 1.0);
-    }
+    .to(s.el, { duration:.4 }, pos + .8); // pausa de lectura antes de la siguiente
   });
 
   window._pdGalleryST = [tl.scrollTrigger];
