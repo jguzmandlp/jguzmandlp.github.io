@@ -64,6 +64,33 @@
       color:rgba(255,255,255,.4);
     }
 
+    /* ── Menú radial (favicon) ── */
+    .radial-fab-wrap {
+      position:fixed; bottom:28px; right:28px; z-index:9999;
+    }
+    .radial-fab {
+      width:52px; height:52px; border-radius:50%;
+      border:1px solid rgba(255,255,255,.22);
+      background:rgba(6,6,6,.72); backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
+      cursor:pointer; padding:0;
+      display:flex; align-items:center; justify-content:center;
+      position:relative; z-index:2;
+      box-shadow:0 4px 18px rgba(0,0,0,.35);
+    }
+    .radial-fab img { width:26px; height:26px; display:block; }
+    .radial-item {
+      position:absolute; bottom:6px; right:6px;
+      width:42px; height:42px; border-radius:50%;
+      border:1px solid rgba(255,255,255,.18);
+      background:#0f0f0f; color:rgba(255,255,255,.85);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; scale:0; padding:0; cursor:pointer;
+      z-index:1; text-decoration:none;
+    }
+    .radial-item:hover { color:#e8823a; border-color:#e8823a; }
+    .radial-item svg { width:18px; height:18px; pointer-events:none; }
+
     /* ── Intro morph reveal ── */
     .shape-overlays {
       width:100%; height:100%;
@@ -153,6 +180,7 @@
       margin-bottom:28px;
       width:363px;
       max-width:100%;
+      opacity:0; /* SplitText lo pone en 1 cuando ya puede armar el mask de líneas */
     }
     .hero-socials { display:flex; gap:28px; }
     .hero-socials a {
@@ -565,6 +593,33 @@
     }
     .pd-private a:hover { color:#fff; border-color:#fff; }
 
+    /* ── Galería bento con scroll-scrub (estilo demos.gsap.com/demo/scrubbed-bento-gallery) ── */
+    .pd-gallery-section { grid-column:1/-1; margin-top:80px; }
+    .pd-gallery-label {
+      font-size:9px; letter-spacing:.28em; text-transform:uppercase;
+      color:rgba(255,255,255,.35); display:block; margin-bottom:18px;
+    }
+    .gallery-scroll { position:relative; height:420vh; }
+    .gallery-pin {
+      position:sticky; top:0; height:100vh; width:100%;
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden; border-radius:8px;
+    }
+    .gallery-bento {
+      position:relative; width:100%; height:100%;
+      display:grid; gap:10px; padding:32px;
+      grid-template-columns:repeat(6,1fr); grid-template-rows:repeat(4,1fr);
+    }
+    .gallery-item {
+      position:relative; overflow:hidden; border-radius:8px;
+      background:rgba(255,255,255,.04); will-change:transform;
+    }
+    .gallery-item img { width:100%; height:100%; object-fit:cover; display:block; }
+    .gallery-item:nth-child(1) { grid-column:1/4; grid-row:1/3; }
+    .gallery-item:nth-child(2) { grid-column:4/6; grid-row:1/2; }
+    .gallery-item:nth-child(3) { grid-column:6/7; grid-row:1/3; }
+    .gallery-item:nth-child(4) { grid-column:1/3; grid-row:3/5; }
+    .gallery-item:nth-child(5) { grid-column:3/7; grid-row:3/5; }
 
     /* ════════════════════════════════════════
        RESPONSIVE
@@ -642,6 +697,7 @@
       .pd-title { font-size:clamp(36px,10vw,52px); }
       .pd-desc { font-size:12px; max-width:100%; }
       .proj-close { right:16px; top:16px; width:38px; height:38px; font-size:14px; }
+      .gallery-bento { padding:16px; gap:6px; }
     }
 
     /* ── Scroll reveal ── */
@@ -1236,6 +1292,37 @@
 
 <!-- GSAP -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+
+<!-- Texto del hero con "masking" de líneas — adaptado de https://demos.gsap.com/demo/text-masking/ -->
+<script>
+(function(){
+  if (!window.gsap || !window.SplitText) return;
+  gsap.registerPlugin(SplitText);
+  var tagline = document.querySelector('.hero-tagline');
+  if (!tagline) return;
+  document.fonts.ready.then(function(){
+    gsap.set(tagline, { opacity: 1 });
+    SplitText.create(tagline, {
+      type: 'words,lines',
+      linesClass: 'line',
+      autoSplit: true,
+      mask: 'lines',
+      onSplit: function (self) {
+        return gsap.from(self.lines, {
+          duration: 0.7,
+          yPercent: 100,
+          opacity: 0,
+          stagger: 0.09,
+          ease: 'expo.out',
+          delay: 1.35 // sincronizado con el fade del resto del hero (setTimeout de 1200ms)
+        });
+      }
+    });
+  });
+})();
+</script>
 
 <!-- Intro morph reveal — adaptado de https://demos.gsap.com/demo/dynamic-morphing/ -->
 <script>
@@ -1337,7 +1424,11 @@
 
     for (var p = 0; p < numPaths; p++) {
       var pts = allPoints[p];
-      var pathDelay = delayPerPath * p;
+      // La capa pintada ENCIMA (índice más alto en el DOM) debe retirarse
+      // PRIMERO, para dejar ver momentáneamente la capa de abajo antes de
+      // que también se retire y aparezca el sitio. Si no, la capa de arriba
+      // tapa a la de abajo durante todo su delay y solo se ve un degradado.
+      var pathDelay = delayPerPath * (numPaths - 1 - p);
 
       for (var q = 0; q < numPoints; q++) {
         var delay = pointsDelay[q];
@@ -1657,37 +1748,79 @@ const PROJECTS = [
     desc:'Marketplace de servicios locales en Costa Rica con tres paneles independientes — proveedor, cliente y administrador. Búsqueda geolocalizada con filtro por distancia y cobertura por provincia, perfiles verificados con sistema de reviews, mensajería en tiempo real y pagos integrados con Tilopay. Logo 3D animado en Three.js que reacciona al scroll.',
     tech:'HTML · CSS · JS · Supabase · Cloudflare Workers · Three.js · Tilopay', url:'serviciodirectocr.com',
     logo:'img/logos/sdcr-logo.svg',
-    video:null, private:true },
+    video:null, private:true,
+    gallery:[
+      'https://source.unsplash.com/900x1200/?costa-rica,city&sig=1',
+      'https://source.unsplash.com/900x1200/?workshop,tools&sig=2',
+      'https://source.unsplash.com/900x1200/?repairman,plumber&sig=3',
+      'https://source.unsplash.com/900x1200/?handyman&sig=4',
+      'https://source.unsplash.com/900x1200/?service,worker&sig=5'
+    ] },
   { id:'sikua',    name:'Sikua Tours',          role:'Brand · Web · Turismo',
     color:'#051209', grad:'linear-gradient(135deg,#06130a,#103220)', accent:'#1a5c2a',
     tags:['Canvas API','Vanilla JS','AVIF','Cloudflare Pages'],
     desc:'Plataforma de turismo cultural Bribri en Talamanca, Costa Rica. Secuencia cinemática de scroll con más de 180 frames AVIF dibujados a mano sobre canvas (sin librerías de animación), tres tipos de tour, itinerarios armados a medida por cliente, tienda de artesanías Bribri con checkout por WhatsApp y panel admin de travel planning.',
     tech:'HTML · CSS · JS Vanilla · Canvas API · Cloudflare Pages', url:'sikuatours.com',
-    video:null },
+    video:null,
+    gallery:[
+      'https://source.unsplash.com/900x1200/?rainforest&sig=6',
+      'https://source.unsplash.com/900x1200/?waterfall,jungle&sig=7',
+      'https://source.unsplash.com/900x1200/?indigenous,craft&sig=8',
+      'https://source.unsplash.com/900x1200/?river,canoe&sig=9',
+      'https://source.unsplash.com/900x1200/?tropical,costa-rica&sig=10'
+    ] },
   { id:'fragancia',name:'Fragancia Urbana',     role:'E-commerce · 3D · Luxury',
     color:'#120f04', grad:'linear-gradient(135deg,#130f04,#2e2508)', accent:'#5a4a18',
     tags:['E-commerce','Three.js','GSAP','SINPE Móvil'],
     desc:'Tienda de perfumería de lujo con estética dark gold. Isotipo 3D animado desde Blender/GLB, transiciones GSAP entre páginas y pagos con SINPE Móvil.',
     tech:'HTML · CSS · JS · Three.js · GSAP · Cloudflare Pages', url:null,
-    video:'videos/fragancia.mp4' },
+    video:'videos/fragancia.mp4',
+    gallery:[
+      'https://source.unsplash.com/900x1200/?perfume&sig=11',
+      'https://source.unsplash.com/900x1200/?luxury,gold&sig=12',
+      'https://source.unsplash.com/900x1200/?perfume,bottle&sig=13',
+      'https://source.unsplash.com/900x1200/?fragrance&sig=14',
+      'https://source.unsplash.com/900x1200/?elegant,cosmetics&sig=15'
+    ] },
   { id:'pame',     name:'Pame Salón',            role:'Brand · Web',
     color:'#14050d', grad:'linear-gradient(135deg,#150510,#360d22)', accent:'#5a1535',
     tags:['Brand','Three.js','GSAP','Web'],
     desc:'Identidad y sitio web para salón en Moravia. Mariposa 3D con GLB desde Blender, paleta hot pink, tipografía Great Vibes / Poppins.',
     tech:'HTML · CSS · JS · Three.js · GSAP', url:null,
-    video:'videos/pame.mp4' },
+    video:'videos/pame.mp4',
+    gallery:[
+      'https://source.unsplash.com/900x1200/?hair-salon&sig=16',
+      'https://source.unsplash.com/900x1200/?hairstyle&sig=17',
+      'https://source.unsplash.com/900x1200/?beauty,salon&sig=18',
+      'https://source.unsplash.com/900x1200/?haircut&sig=19',
+      'https://source.unsplash.com/900x1200/?hairdresser&sig=20'
+    ] },
   { id:'orozco',   name:'Dra. Orozco',           role:'Web · Booking · Dashboard',
     color:'#08140a', grad:'linear-gradient(135deg,#081408,#152e18)', accent:'#2a5a30',
     tags:['Booking','Dashboard','GSAP','WhatsApp'],
     desc:'Sitio para nutricionista con sistema de reservas, dashboard de cliente, panel admin y animaciones GSAP. WhatsApp CTA integrado para consultas.',
     tech:'HTML · CSS · JS · GSAP · localStorage', url:null,
-    video:'videos/orozco.mp4' },
+    video:'videos/orozco.mp4',
+    gallery:[
+      'https://source.unsplash.com/900x1200/?healthy-food&sig=21',
+      'https://source.unsplash.com/900x1200/?nutrition&sig=22',
+      'https://source.unsplash.com/900x1200/?vegetables&sig=23',
+      'https://source.unsplash.com/900x1200/?fitness,health&sig=24',
+      'https://source.unsplash.com/900x1200/?doctor,clinic&sig=25'
+    ] },
   { id:'english',  name:'English Fluency',        role:'App · Electron · AI',
     color:'#06041a', grad:'linear-gradient(135deg,#060418,#120d36)', accent:'#22155a',
     tags:['Electron','Node.js','Groq AI','Google TTS'],
     desc:'App de escritorio para aprender inglés con IA. Speech recognition con Whisper, respuestas con Llama 3.3-70b, text-to-speech Neural2-J.',
     tech:'Electron · Node.js · Groq API · Whisper · Google TTS Neural2', url:null,
-    video:'videos/english.mp4' }
+    video:'videos/english.mp4',
+    gallery:[
+      'https://source.unsplash.com/900x1200/?language,book&sig=26',
+      'https://source.unsplash.com/900x1200/?study,laptop&sig=27',
+      'https://source.unsplash.com/900x1200/?headphones&sig=28',
+      'https://source.unsplash.com/900x1200/?classroom&sig=29',
+      'https://source.unsplash.com/900x1200/?library,books&sig=30'
+    ] }
 ];
 
 /* ── Estado ── */
@@ -1880,6 +2013,20 @@ function showDetail(idx) {
           </div>
         </div>`;
 
+  /* ── Galería bento con scroll-scrub, con fotos temporales de internet
+     acordes al rubro de cada proyecto (reemplazar por fotos reales luego) ── */
+  const galleryHTML = p.gallery ? `
+    <div class="pd-gallery-section">
+      <span class="pd-gallery-label">Galería</span>
+      <div class="gallery-scroll">
+        <div class="gallery-pin">
+          <div class="gallery-bento">
+            ${p.gallery.map(src=>`<div class="gallery-item"><img src="${src}" alt="${p.name}" draggable="false"></div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>` : '';
+
   inner.innerHTML = `
     <div>
       <span class="pd-eye">${p.role}</span>
@@ -1889,13 +2036,76 @@ function showDetail(idx) {
       <p class="pd-tech">${p.tech}</p>
       ${p.url?`<a class="pd-url" href="https://${p.url}" target="_blank">${p.url} ↗</a>`:''}
     </div>
-    ${rightCol}`;
+    ${rightCol}
+    ${galleryHTML}`;
 
   detail.classList.add('open');
   requestAnimationFrame(() => {
     inner.classList.add('vis');
     setTimeout(() => close.classList.add('vis'), 350);
+    setTimeout(initPdGallery, 500);
   });
+}
+
+/* ── Galería bento con scroll-scrub (estilo demos.gsap.com/demo/scrubbed-bento-gallery)
+   Cada imagen crece secuencialmente hasta cubrir pantalla completa a medida que
+   el usuario hace scroll dentro del panel de detalle, luego se desvanece dando
+   paso a la siguiente. Implementado a mano (sin plugin Flip) usando getBoundingClientRect
+   para calcular el delta de posición/escala necesario. ── */
+function initPdGallery() {
+  if (window._pdGalleryST) {
+    window._pdGalleryST.forEach(st => st.kill());
+    window._pdGalleryST = null;
+  }
+  if (!window.gsap || !window.ScrollTrigger) return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  const pin        = document.querySelector('.gallery-pin');
+  const scrollWrap = document.querySelector('.gallery-scroll');
+  const detail     = document.getElementById('proj-detail');
+  const items       = pin ? [].slice.call(pin.querySelectorAll('.gallery-item')) : [];
+  if (!pin || !scrollWrap || !items.length) return;
+
+  const pinRect = pin.getBoundingClientRect();
+  const states  = items.map(el => {
+    const r = el.getBoundingClientRect();
+    return {
+      el,
+      dx: pinRect.left - r.left,
+      dy: pinRect.top  - r.top,
+      sx: pinRect.width  / r.width,
+      sy: pinRect.height / r.height
+    };
+  });
+
+  gsap.set(items, { transformOrigin:'top left' });
+
+  const tl = gsap.timeline({
+    scrollTrigger:{
+      trigger: scrollWrap,
+      scroller: detail,
+      start:'top top',
+      end:'bottom bottom',
+      scrub:.6,
+      pin: pin,
+      pinSpacing:false
+    }
+  });
+
+  states.forEach((s, i) => {
+    const pos = i;
+    tl.to(s.el, {
+      x:s.dx, y:s.dy, scaleX:s.sx, scaleY:s.sy,
+      borderRadius:0, zIndex:20+i,
+      duration:.8, ease:'power2.inOut'
+    }, pos)
+    .to(s.el, { duration:.3 }, pos + .8);
+    if (i < states.length - 1) {
+      tl.to(s.el, { autoAlpha:0, duration:.4 }, pos + 1.0);
+    }
+  });
+
+  window._pdGalleryST = [tl.scrollTrigger];
 }
 
 /* ── Cerrar proyecto ── */
@@ -1904,6 +2114,11 @@ function closeProject() {
   const detail = document.getElementById('proj-detail');
   const inner  = document.getElementById('pd-inner');
   const close  = document.getElementById('proj-close');
+
+  if (window._pdGalleryST) {
+    window._pdGalleryST.forEach(st => st.kill());
+    window._pdGalleryST = null;
+  }
 
   close.classList.remove('vis');
   inner.classList.remove('vis');
@@ -2090,6 +2305,76 @@ window.addEventListener('touchend', e => {
 
 /* Scroll-hint */
 document.querySelector('.scroll-hint')?.addEventListener('click', () => goTo(1));
+</script>
+
+<!-- ══════════════════════════════════════
+     MENÚ RADIAL — adaptado de https://demos.gsap.com/demo/radial-menu/
+══════════════════════════════════════ -->
+<div class="radial-fab-wrap" id="radialFabWrap">
+  <a class="radial-item" href="mailto:javier.guzman.dlp@gmail.com" aria-label="Email" title="Email">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2"/>
+      <path d="m2 6 10 7L22 6"/>
+    </svg>
+  </a>
+  <a class="radial-item" href="https://github.com/jguzmandlp" target="_blank" aria-label="GitHub" title="GitHub">
+    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.09 3.29 9.4 7.86 10.94.57.1.78-.25.78-.55 0-.27-.01-1-.02-1.94-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.73-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.23 2.75.11 3.04.74.81 1.19 1.84 1.19 3.1 0 4.43-2.69 5.4-5.25 5.69.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .3.2.66.79.55A11.5 11.5 0 0 0 23.5 12c0-6.27-5.23-11.5-11.5-11.5z"/>
+    </svg>
+  </a>
+  <a class="radial-item" href="https://arc.dev" target="_blank" aria-label="Arc.dev" title="Arc.dev">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="8 6 2 12 8 18"/>
+      <polyline points="16 6 22 12 16 18"/>
+    </svg>
+  </a>
+  <button class="radial-fab" id="radialFabBtn" aria-label="Abrir menú" aria-expanded="false" type="button">
+    <img src="img/favicon.svg" alt="">
+  </button>
+</div>
+<script>
+(function(){
+  var wrap = document.getElementById('radialFabWrap');
+  var btn = document.getElementById('radialFabBtn');
+  if (!wrap || !btn || !window.gsap) return;
+
+  var items = gsap.utils.toArray(wrap.querySelectorAll('.radial-item'));
+  var radius = 90;
+  var startAngle = 180, endAngle = 270;
+  var angleStep = (endAngle - startAngle) / (items.length - 1);
+  var tl, isOpen = false;
+
+  function build(){
+    if (tl) tl.kill();
+    gsap.set(items, { x: 0, y: 0, scale: 0, opacity: 0 });
+    tl = gsap.timeline({ paused: true });
+    items.forEach(function(item, i){
+      var angle = (startAngle + angleStep * i) * (Math.PI / 180);
+      var tx = Math.cos(angle) * radius;
+      var ty = Math.sin(angle) * radius;
+      tl.to(item, {
+        x: tx, y: ty, scale: 1, opacity: 1,
+        duration: 0.6, ease: 'elastic.out(1, 0.5)', easeReverse: true
+      }, i * 0.05);
+    });
+    tl.to(btn, { scale: 0.92, duration: 0.15, yoyo: true, repeat: 1 }, 0);
+  }
+  build();
+
+  function toggle(){
+    if (isOpen) tl.reverse();
+    else tl.play();
+    isOpen = !isOpen;
+    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
+  btn.addEventListener('click', toggle);
+  document.addEventListener('click', function(e){
+    if (isOpen && !wrap.contains(e.target)) toggle();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && isOpen) toggle();
+  });
+})();
 </script>
 
 </body>
