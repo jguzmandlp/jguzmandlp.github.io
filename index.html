@@ -491,7 +491,20 @@
 
     /* ── DETAIL FULLSCREEN ── */
     .proj-detail { position:fixed; inset:0; z-index:200; overflow-y:auto; display:none; }
-    .proj-detail.open { display:block; }
+    /* Al abrir, en vez de scrollear su propio div interno (overflow-y:auto),
+       pasa a scrollear el documento/ventana real — position:absolute en vez
+       de fixed. Un <div overflow:auto> anidado no tiene el mismo fast-path
+       de scroll compuesto que el scroll nativo del documento; por más que el
+       CSS/JS de la galería fuera idéntico al demo, ese contenedor nunca iba
+       a rendir igual. El resto de la página nunca usa scroll real (navega
+       con transforms de GSAP, body tiene overflow:hidden), así que la
+       ventana queda libre para usarla acá sin chocar con nada. */
+    .proj-detail.open {
+      display:block;
+      position:absolute;
+      top:0; left:0; right:0; bottom:auto;
+      overflow-y:visible;
+    }
     .proj-close {
       position:fixed; top:28px; right:36px; z-index:210;
       width:44px; height:44px; border-radius:50%;
@@ -2119,6 +2132,13 @@ function showDetail(idx) {
      scroll interno del panel (galería + contenido), sin competir por nada. */
   window.__modalScrollLock = true;
 
+  /* Habilitar scroll real del documento (el body normalmente tiene
+     overflow:hidden porque la página navega con transforms) y arrancar
+     desde arriba, para que el pin 'center center' de la galería coincida
+     justo con el tope, igual que en el demo. */
+  document.body.style.overflow = 'auto';
+  window.scrollTo(0, 0);
+
   /* Inicializar la galería scrub de forma robusta: en vez de confiar en
      un único setTimeout fijo (que en equipos/pestañas con carga puede no
      alcanzar a correr antes de que el usuario empiece a scrollear, dejando
@@ -2146,7 +2166,6 @@ function initPdGallery() {
   gsap.registerPlugin(ScrollTrigger, Flip);
 
   const galleryEl = document.getElementById('pd-gallery');
-  const detail    = document.getElementById('proj-detail');
   if (!galleryEl) return;
 
   /* El tirón final justo antes de pasar al texto pasa por dos motivos:
@@ -2183,19 +2202,12 @@ function initPdGallery() {
       const tl = gsap.timeline({
         scrollTrigger:{
           trigger: galleryEl,
-          scroller: detail,
+          /* Sin "scroller" — usa la ventana por defecto, EXACTO como el
+             demo. #proj-detail ahora scrollea el documento real cuando está
+             abierto (ver CSS .proj-detail.open), así que ya no hace falta
+             (ni conviene) apuntar a un scroller custom. */
           start:'center center',
           end:'+=100%',
-          /* Volví a scrub:true — EXACTO como el demo original. Un scrub
-             numérico (lo que había puesto antes) agrega un pequeño retraso:
-             la animación queda "persiguiendo" el scroll, y cuando el usuario
-             deja de scrollear, sigue moviéndose sola un instante hasta
-             alcanzarlo — eso es lo que se sentía brusco/con salto. scrub:true
-             pega el Flip 1:1 al scroll real, sin ningún rezago ni "catch-up".
-             Las causas reales del tirón (los renders WebGL de fondo
-             compitiendo por GPU, el padding que descuadraba el layout, la
-             grilla de 5 en vez de 8 items) ya están resueltas — con eso
-             corregido, scrub:true debería comportarse igual que en el demo. */
           scrub:true,
           pin: galleryEl.parentNode
         }
@@ -2275,6 +2287,7 @@ function closeProject() {
         appState = 'stack';
         openIdx  = null;
         document.body.style.overflow = '';
+        window.scrollTo(0, 0);
 
         /* Reanudar los renders WebGL/WebGPU de fondo (océano + pájaros)
            que se pausaron al abrir el proyecto. */
