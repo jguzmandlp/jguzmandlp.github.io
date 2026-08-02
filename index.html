@@ -1873,7 +1873,9 @@ const PROJECTS = [
     ],
     problem:'Los oficios y servicios locales en Costa Rica se contratan casi siempre por recomendación de boca en boca o grupos de Facebook: no hay forma de comparar proveedores cercanos, verificar si son confiables, cotizar antes de comprometerse ni pagar de forma segura. El proveedor, por su lado, no tiene una vitrina propia — depende de referidos y pierde tiempo cotizando por WhatsApp sin ningún filtro.',
     solution:'Un marketplace con tres paneles independientes que resuelve cada lado del problema: el cliente busca por cercanía real (geolocalización + cobertura por provincia) y ve perfiles verificados con reseñas antes de contactar; el proveedor recibe solicitudes calificadas, cotiza con un generador de PDF integrado y cobra con Tilopay o SINPE sin salir de la plataforma; el admin aprueba credenciales (ICT, CFIA, CCSS, CPA) y cuida la calidad de la red. Mensajería en tiempo real conecta a los tres roles sin fricción.',
-    diagram:'proyectos/sdcr-arquitectura.html' },
+    diagram:'proyectos/sdcr-arquitectura.html',
+    myRole:'Diseñé y desarrollé la plataforma completa de punta a punta: la arquitectura de los tres paneles independientes (cliente, proveedor, admin), el flujo de verificación de proveedores (credenciales ICT, CFIA, CCSS, CPA), la búsqueda geolocalizada, la mensajería en tiempo real y la integración de pagos. También diseñé y animé el logo 3D en Three.js.',
+    stackNotes:'Supabase (Postgres + Auth + Realtime) para no reconstruir autenticación ni mensajería desde cero; Cloudflare Workers por su latencia baja y costo casi nulo en lógica serverless; Tilopay porque soporta SINPE, clave para el mercado costarricense; Three.js reservado solo para el logo animado, evitando cargar una librería 3D pesada en el resto del sitio.' },
   { id:'sikua',    name:'Sikua Tours',          role:'Brand · Web · Turismo',
     color:'#051209', grad:'linear-gradient(135deg,#06130a,#103220)', accent:'#1a5c2a',
     tags:['Canvas API','Vanilla JS','AVIF','Cloudflare Pages'],
@@ -1892,7 +1894,9 @@ const PROJECTS = [
     ],
     problem:'El turismo cultural Bribri en Talamanca dependía casi por completo de operadores intermediarios: la comunidad no tenía una vitrina digital propia para mostrar sus tours, itinerarios y artesanías, y quien buscaba la experiencia en internet solo encontraba paquetes genéricos de agencias externas, sin poder armar un recorrido a su medida ni comprarle directo a la comunidad.',
     solution:'Un sitio-experiencia que arranca con una secuencia cinemática de scroll (180+ frames dibujados a mano) para transmitir el territorio antes de cualquier texto, y que resuelve todo el recorrido sin salir de la página: tres tipos de tour, un itinerario que el cliente arma a su medida, confirmación directa por WhatsApp con el guía, y una tienda de artesanías Bribri con checkout también por WhatsApp — todo coordinado desde un panel admin de travel planning para la comunidad.',
-    diagram:'proyectos/sikua-arquitectura.html' },
+    diagram:'proyectos/sikua-arquitectura.html',
+    myRole:'Diseñé y construí toda la experiencia: dirigí el guion visual de la secuencia cinemática (qué mostrar en cada tramo del scroll), organicé los 180+ frames AVIF dibujados a mano y desarrollé la lógica de scroll-scrubbing en canvas sin librerías de animación. También diseñé el flujo de itinerario a medida y la tienda de artesanías.',
+    stackNotes:'Canvas API + JS vanilla en vez de una librería de animación, para tener control total del scroll-scrubbing y mantener el peso de página bajo pese a 180+ frames; AVIF por su compresión muy superior a JPEG/WebP en secuencias de imagen; Cloudflare Pages porque el sitio no necesita backend propio — las reservas y compras se resuelven directo por WhatsApp.' },
   { id:'fragancia',name:'Fragancia Urbana',     role:'E-commerce · 3D · Luxury',
     color:'#120f04', grad:'linear-gradient(135deg,#130f04,#2e2508)', accent:'#5a4a18',
     tags:['E-commerce','Three.js','GSAP','SINPE Móvil'],
@@ -1911,7 +1915,9 @@ const PROJECTS = [
     ],
     problem:'Comprar un perfume de nicho a ciegas es caro y arriesgado: un frasco completo cuesta mucho para "probar" si una fragancia le queda bien a alguien, y en Costa Rica no había una tienda que resolviera ese problema con un método de pago simple y directo — sin pasarelas complicadas ni tarjetas internacionales.',
     solution:'Una tienda que separa cada perfume en dos formatos — frasco completo o decant (muestra en mililitros a precio accesible) — organizada por catálogo de hombre y mujer, con una sección educativa ("¿Qué es un decant?") que resuelve la duda antes de comprar. El checkout es deliberadamente manual: pago único por SINPE Móvil y confirmación por WhatsApp, reforzado en cada página por un isotipo 3D dorado (Blender → GLB, Three.js) que gira con el scroll y transiciones GSAP que sostienen la estética "dark gold" de lujo.',
-    diagram:'proyectos/fragancia-arquitectura.html' },
+    diagram:'proyectos/fragancia-arquitectura.html',
+    myRole:'Diseñé la identidad "dark gold" de la marca, modelé el isotipo 3D en Blender y lo integré con Three.js, y construí toda la tienda: catálogo segmentado por género, el sistema de decants vs. frasco completo, y el checkout manual por SINPE Móvil.',
+    stackNotes:'Three.js solo para el isotipo animado, mismo enfoque liviano que en Servicio Directo CR; GSAP para las transiciones entre páginas, sosteniendo la estética premium sin saltos bruscos; sin pasarela de pago automatizada — decisión deliberada de usar SINPE Móvil + confirmación manual por WhatsApp, evitando comisiones y simplificando el pago para el mercado costarricense.' },
   { id:'pame',     name:'Pame Salón',            role:'Brand · Web',
     color:'#14050d', grad:'linear-gradient(135deg,#150510,#360d22)', accent:'#5a1535',
     tags:['Brand','Three.js','GSAP','Web'],
@@ -1946,7 +1952,9 @@ const PROJECTS = [
     ],
     problem:'Quienes buscaban ayuda nutricional llegaban con historias muy distintas — bajar grasa sin perder músculo, controlar diabetes o resistencia a la insulina, o simplemente no saber cómo comer de forma equilibrada — pero se topaban con planes genéricos en papel, sin acompañamiento real ni un camino claro entre "solo quiero un plan" y "quiero resultados más rápidos con entrenamiento supervisado".',
     solution:'Una landing que arranca validando esas situaciones ("¿te identificas con alguna de estas?") antes de vender nada, presenta dos caminos claros — nutrición sola o nutrición + gimnasio exclusivo — y los lleva a un sistema de reservas real: login/registro, agenda con selección de fecha y hora, y un dashboard de cliente con próxima cita, historial y membresía. Del otro lado, la doctora tiene su propio panel privado para gestionar horarios, bloquear días y llevar la ficha de cada paciente (peso, notas de seguimiento). Beneficios, testimonios y FAQ resuelven las objeciones sin que el usuario tenga que buscarlas.',
-    diagram:'proyectos/orozco-arquitectura.html' },
+    diagram:'proyectos/orozco-arquitectura.html',
+    myRole:'Diseñé el sitio completo — landing, identidad visual y el sistema de reservas (login, agenda con calendario, dashboard de cliente) — y también el panel privado de administración para la doctora, con gestión de horarios, días bloqueados y ficha de paciente.',
+    stackNotes:'JS vanilla + GSAP para las animaciones, sin el overhead de un framework: es el sitio de una sola profesional, no la complejidad de una plataforma multi-usuario; localStorage para persistir sesión y datos del sistema de reservas sin necesitar backend con base de datos, manteniendo el hosting gratuito.' },
   { id:'english',  name:'English Fluency',        role:'App · Electron · AI',
     color:'#06041a', grad:'linear-gradient(135deg,#060418,#120d36)', accent:'#22155a',
     tags:['Electron','Node.js','Groq AI','Google TTS'],
@@ -2254,7 +2262,9 @@ function showDetail(idx) {
         </span>
       </a>` } : null,
     p.problem  ? { label:'El problema', html:`<p class="pd-extra-text">${p.problem}</p>` } : null,
-    p.solution ? { label:'La solución', html:`<p class="pd-extra-text">${p.solution}</p>` } : null
+    p.solution ? { label:'La solución', html:`<p class="pd-extra-text">${p.solution}</p>` } : null,
+    p.myRole   ? { label:'Mi rol', html:`<p class="pd-extra-text">${p.myRole}</p>` } : null,
+    p.stackNotes ? { label:'Stack y decisiones técnicas', html:`<p class="pd-extra-text">${p.stackNotes}</p>` } : null
   ].filter(Boolean);
 
   const extraHTML = extraBlocks.length ? `
