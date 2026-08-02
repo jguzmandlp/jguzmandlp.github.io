@@ -2253,6 +2253,10 @@ function showDetail(idx) {
      mismo patrón de acordeón exclusivo que "Sobre mí" (ver bindPdReveal
      más abajo). Solo se renderizan si el proyecto trae esos datos. ── */
   const extraBlocks = [
+    p.problem  ? { label:'El problema', html:`<p class="pd-extra-text">${p.problem}</p>` } : null,
+    p.solution ? { label:'La solución', html:`<p class="pd-extra-text">${p.solution}</p>` } : null,
+    p.myRole   ? { label:'Mi rol', html:`<p class="pd-extra-text">${p.myRole}</p>` } : null,
+    p.stackNotes ? { label:'Stack y decisiones técnicas', html:`<p class="pd-extra-text">${p.stackNotes}</p>` } : null,
     p.diagram ? { label:'Diagrama del sitio', html:`
       <a class="pd-diagram-card" href="${p.diagram}" target="_blank" rel="noopener">
         <span class="pd-diagram-card-icon">🗺️</span>
@@ -2260,11 +2264,7 @@ function showDetail(idx) {
           <span class="pd-diagram-card-title">Ver diagrama de arquitectura</span>
           <span class="pd-diagram-card-sub">Se abre en una pestaña nueva ↗</span>
         </span>
-      </a>` } : null,
-    p.problem  ? { label:'El problema', html:`<p class="pd-extra-text">${p.problem}</p>` } : null,
-    p.solution ? { label:'La solución', html:`<p class="pd-extra-text">${p.solution}</p>` } : null,
-    p.myRole   ? { label:'Mi rol', html:`<p class="pd-extra-text">${p.myRole}</p>` } : null,
-    p.stackNotes ? { label:'Stack y decisiones técnicas', html:`<p class="pd-extra-text">${p.stackNotes}</p>` } : null
+      </a>` } : null
   ].filter(Boolean);
 
   const extraHTML = extraBlocks.length ? `
