@@ -14,6 +14,7 @@
   <meta name="twitter:title" content="Javier Guzmán — Frontend Developer & UX/UI Designer">
   <meta name="twitter:description" content="Portafolio de diseño de marca y desarrollo web. Disponible para trabajo remoto internacional.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     /* ── Reset ── */
@@ -1509,7 +1510,7 @@ import { Water } from 'three/addons/objects/Water.js';
 import { Sky }   from 'three/addons/objects/Sky.js';
 
 const renderer=new THREE.WebGLRenderer({antialias:true,outputBufferType:THREE.HalfFloatType});
-renderer.setPixelRatio(devicePixelRatio);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); /* cap a 2x — en pantallas 3x/4x renderizar a resolución nativa completa no se nota pero cuesta muchísima más GPU por frame, constantemente */
 renderer.setSize(innerWidth,innerHeight);
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=0.14;
@@ -1574,7 +1575,7 @@ import {
 } from 'three/tsl';
 
 const renderer=new THREE.WebGPURenderer({antialias:false,alpha:true});
-renderer.setPixelRatio(devicePixelRatio);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); /* cap a 2x — en pantallas 3x/4x renderizar a resolución nativa completa no se nota pero cuesta muchísima más GPU por frame, constantemente */
 renderer.setSize(innerWidth,innerHeight);
 renderer.setClearAlpha(0);
 document.getElementById('canvas-birds').appendChild(renderer.domElement);
@@ -1583,7 +1584,10 @@ const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,1,20000);
 camera.position.set(0,18,0); camera.lookAt(0,15,-1000);
 
-const BIRDS=8192;
+/* Menos pájaros en pantallas chicas / equipos con pocos núcleos — cada
+   pájaro corre 3 compute shaders por frame, así que este número pesa
+   directo en el costo del loop más caro de toda la página. */
+const BIRDS = (innerWidth < 768 || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4)) ? 2048 : 8192;
 
 const SVG_VERTS=[0,0,0,3.1,-3.6,0,0.4,-4.4,0,0,0,0,0.4,-4.4,0,-2.3,-5.1,0,0,0,0,-2.3,-5.1,0,-5.3,-5.3,0,0,0,0,-5.3,-5.3,0,-8.4,-5.1,0,0,0,0,-8.4,-5.1,0,-11.4,-4.8,0,0,0,0,-11.4,-4.8,0,-14.5,-4.7,0,0,0,0,-14.5,-4.7,0,-17.1,-4.4,0,0,0,0,-17.1,-4.4,0,-17.4,-3.0,0,0,0,0,-17.4,-3.0,0,-15.0,-3.1,0,0,0,0,-15.0,-3.1,0,-11.5,-3.0,0,0,0,0,-11.5,-3.0,0,-11.9,-2.3,0,0,0,0,-11.9,-2.3,0,-14.4,-1.5,0,0,0,0,-14.4,-1.5,0,-16.3,-0.4,0,0,0,0,-16.3,-0.4,0,-18.0,1.1,0,0,0,0,-18.0,1.1,0,-19.4,2.3,0,0,0,0,-19.4,2.3,0,-20.0,3.8,0,0,0,0,-20.0,3.8,0,-19.8,5.3,0,0,0,0,-19.8,5.3,0,-18.5,4.8,0,0,0,0,-18.5,4.8,0,-16.7,3.4,0,0,0,0,-16.7,3.4,0,-14.7,2.3,0,0,0,0,-14.7,2.3,0,-12.5,1.3,0,0,0,0,-12.5,1.3,0,-10.0,0.4,0,0,0,0,-10.0,0.4,0,-7.5,-0.5,0,0,0,0,-7.5,-0.5,0,-5.2,-1.5,0,0,0,0,-5.2,-1.5,0,-2.4,-2.2,0,0,0,0,-2.4,-2.2,0,0.7,-2.2,0,0,0,0,0.7,-2.2,0,3.7,-1.9,0,0,0,0,3.7,-1.9,0,6.7,-1.5,0,0,0,0,6.7,-1.5,0,9.4,-0.8,0,0,0,0,9.4,-0.8,0,12.0,0.0,0,0,0,0,12.0,0.0,0,14.5,0.9,0,0,0,0,14.5,0.9,0,17.3,1.5,0,0,0,0,17.3,1.5,0,20.0,1.0,0,0,0,0,20.0,1.0,0,17.7,-0.1,0,0,0,0,17.7,-0.1,0,15.3,-1.0,0,0,0,0,15.3,-1.0,0,12.6,-1.7,0,0,0,0,12.6,-1.7,0,9.7,-2.1,0,0,0,0,9.7,-2.1,0,6.7,-2.4,0,0,0,0,6.7,-2.4,0,4.0,-2.9,0,0,0,0,4.0,-2.9,0,3.1,-3.6,0];
 
