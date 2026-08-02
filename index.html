@@ -1304,6 +1304,7 @@
 <!-- Detail overlay (fuera del section para no clippearse) -->
 <div class="proj-detail" id="proj-detail">
   <button class="proj-close" id="proj-close">✕</button>
+  <div id="pd-gallery-outer"></div>
   <div class="pd-inner" id="pd-inner"></div>
 </div>
 
@@ -2063,8 +2064,14 @@ function showDetail(idx) {
       </div>
     </div>` : '';
 
+  /* La galería va FUERA de #pd-inner (que tiene padding:110px 80px) para que
+     sea full-bleed real, pantalla completa borde a borde, igual que el demo
+     original — si quedara dentro del padding, no llega a los bordes ni
+     arranca en top:0, y el desfase de tamaño real vs 100vh calculado
+     también generaba el tirón al hacer scroll. */
+  document.getElementById('pd-gallery-outer').innerHTML = galleryHTML;
+
   inner.innerHTML = `
-    ${galleryHTML}
     <div>
       <span class="pd-eye">${p.role}</span>
       <h2 class="pd-title">${p.name}</h2>
@@ -2138,6 +2145,16 @@ function initPdGallery() {
   ScrollTrigger.refresh();
 }
 
+/* Igual que el demo original (window.addEventListener('resize', createTween)):
+   si la ventana cambia de tamaño con la galería abierta, hay que recrear el
+   Flip con las medidas nuevas — si no, queda animando contra el layout viejo. */
+window.addEventListener('resize', () => {
+  const detail = document.getElementById('proj-detail');
+  if (detail && detail.classList.contains('open') && document.getElementById('pd-gallery')) {
+    initPdGallery();
+  }
+});
+
 /* ── Cerrar proyecto ── */
 function closeProject() {
   if (appState !== 'open') return;
@@ -2182,6 +2199,7 @@ function closeProject() {
 
         /* Limpiar el DOM del detalle */
         document.getElementById('pd-inner').innerHTML = '';
+        document.getElementById('pd-gallery-outer').innerHTML = '';
 
         /* Restaurar transitions en el siguiente frame */
         requestAnimationFrame(() => {
