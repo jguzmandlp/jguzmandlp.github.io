@@ -569,6 +569,15 @@
       transition:color .2s,border-color .2s;
     }
     .pd-url:hover { color:#fff; border-color:#fff; }
+    /* ── Diagrama del sitio / Problema / Solución (desplegables) ── */
+    .pd-extra { grid-column:1/-1; margin-top:24px; max-width:900px; }
+    .pd-extra .reveal-trigger { padding:22px 2px; }
+    .pd-extra-text { font-size:13px; line-height:2; color:rgba(255,255,255,.6); max-width:720px; }
+    .pd-diagram-wrap {
+      width:100%; height:560px; border-radius:10px; overflow:hidden;
+      border:1px solid rgba(255,255,255,.14); margin-bottom:14px; background:#f8fafc;
+    }
+    .pd-diagram-wrap iframe { width:100%; height:100%; border:0; }
     /* ── Video player ── */
     .pd-video-wrap {
       position:sticky; top:100px;
@@ -1835,15 +1844,18 @@ const PROJECTS = [
     logo:'img/logos/sdcr-logo.svg',
     video:null, private:true,
     gallery:[
-      'https://picsum.photos/seed/costa-rica-city-1/800/1067',
-      'https://picsum.photos/seed/workshop-tools-2/800/1067',
-      'https://picsum.photos/seed/repairman-plumber-3/800/1067',
-      'https://picsum.photos/seed/handyman-4/800/1067',
+      'img/gallery/sdcr/1.avif',
+      'img/gallery/sdcr/2.avif',
+      'img/gallery/sdcr/3.avif',
+      'img/gallery/sdcr/4.avif',
       'img/gallery/sdcr/bg-cta.avif',
-      'https://picsum.photos/seed/toolbox-6/800/1067',
-      'https://picsum.photos/seed/electrician-7/800/1067',
-      'https://picsum.photos/seed/homerepair-8/800/1067'
-    ] },
+      'img/gallery/sdcr/5.avif',
+      'img/gallery/sdcr/7.avif',
+      'img/gallery/sdcr/8.avif'
+    ],
+    problem:'Los oficios y servicios locales en Costa Rica se contratan casi siempre por recomendación de boca en boca o grupos de Facebook: no hay forma de comparar proveedores cercanos, verificar si son confiables, cotizar antes de comprometerse ni pagar de forma segura. El proveedor, por su lado, no tiene una vitrina propia — depende de referidos y pierde tiempo cotizando por WhatsApp sin ningún filtro.',
+    solution:'Un marketplace con tres paneles independientes que resuelve cada lado del problema: el cliente busca por cercanía real (geolocalización + cobertura por provincia) y ve perfiles verificados con reseñas antes de contactar; el proveedor recibe solicitudes calificadas, cotiza con un generador de PDF integrado y cobra con Tilopay o SINPE sin salir de la plataforma; el admin aprueba credenciales (ICT, CFIA, CCSS, CPA) y cuida la calidad de la red. Mensajería en tiempo real conecta a los tres roles sin fricción.',
+    diagram:'proyectos/sdcr-arquitectura.html' },
   { id:'sikua',    name:'Sikua Tours',          role:'Brand · Web · Turismo',
     color:'#051209', grad:'linear-gradient(135deg,#06130a,#103220)', accent:'#1a5c2a',
     tags:['Canvas API','Vanilla JS','AVIF','Cloudflare Pages'],
@@ -2119,6 +2131,38 @@ function videoFallback(el) {
     </div>`;
 }
 
+/* ── Diagrama del sitio / Problema / Solución dentro del detalle de
+   proyecto: mismo acordeón exclusivo con altura animada por GSAP que
+   usa "Sobre mí", pero scoped a #pd-inner .pd-extra porque el contenido
+   se re-inyecta cada vez que se abre un proyecto (los listeners viejos
+   ya no existen sobre nodos que fueron reemplazados por innerHTML). ── */
+function bindPdReveal() {
+  const blocks = document.querySelectorAll('#pd-inner .pd-extra .reveal-block');
+  if (!blocks.length) return;
+  function closeB(block, animate = true) {
+    const panel = block.querySelector('.reveal-panel');
+    block.classList.remove('open');
+    if (!animate) { gsap.set(panel, {height:0, opacity:0}); return; }
+    gsap.to(panel, {height:0, opacity:0, duration:.4, ease:'power2.inOut'});
+  }
+  function openB(block) {
+    const panel = block.querySelector('.reveal-panel');
+    block.classList.add('open');
+    gsap.set(panel, {height:'auto'});
+    const target = panel.offsetHeight;
+    gsap.fromTo(panel, {height:0, opacity:0}, {height:target, opacity:1, duration:.55, ease:'power3.out',
+      onComplete(){ gsap.set(panel, {height:'auto'}); }});
+  }
+  blocks.forEach(b => closeB(b, false));
+  blocks.forEach(block => {
+    block.querySelector('.reveal-trigger').addEventListener('click', () => {
+      const isOpen = block.classList.contains('open');
+      blocks.forEach(b => { if (b !== block) closeB(b); });
+      isOpen ? closeB(block) : openB(block);
+    });
+  });
+}
+
 /* ── Mostrar contenido del proyecto ── */
 function showDetail(idx) {
   const p      = PROJECTS[idx];
@@ -2170,6 +2214,29 @@ function showDetail(idx) {
      también generaba el tirón al hacer scroll. */
   document.getElementById('pd-gallery-outer').innerHTML = galleryHTML;
 
+  /* ── Diagrama del sitio / Problema / Solución: desplegables clickeables,
+     mismo patrón de acordeón exclusivo que "Sobre mí" (ver bindPdReveal
+     más abajo). Solo se renderizan si el proyecto trae esos datos. ── */
+  const extraBlocks = [
+    p.diagram ? { label:'Diagrama del sitio', html:`
+      <div class="pd-diagram-wrap"><iframe src="${p.diagram}" loading="lazy" title="Diagrama de arquitectura"></iframe></div>
+      <a class="pd-url" href="${p.diagram}" target="_blank">Ver en pantalla completa ↗</a>` } : null,
+    p.problem  ? { label:'El problema', html:`<p class="pd-extra-text">${p.problem}</p>` } : null,
+    p.solution ? { label:'La solución', html:`<p class="pd-extra-text">${p.solution}</p>` } : null
+  ].filter(Boolean);
+
+  const extraHTML = extraBlocks.length ? `
+    <div class="pd-extra">
+      ${extraBlocks.map(b => `
+        <div class="reveal-block">
+          <div class="reveal-trigger">
+            <span class="reveal-label">${b.label}</span>
+            <span class="reveal-plus">＋</span>
+          </div>
+          <div class="reveal-panel">${b.html}</div>
+        </div>`).join('')}
+    </div>` : '';
+
   inner.innerHTML = `
     <div>
       <span class="pd-eye">${p.role}</span>
@@ -2179,7 +2246,10 @@ function showDetail(idx) {
       <p class="pd-tech">${p.tech}</p>
       ${p.url?`<a class="pd-url" href="https://${p.url}" target="_blank">${p.url} ↗</a>`:''}
     </div>
-    ${rightCol}`;
+    ${rightCol}
+    ${extraHTML}`;
+
+  bindPdReveal();
 
   detail.classList.add('open');
   requestAnimationFrame(() => {

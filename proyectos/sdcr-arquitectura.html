@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arquitectura de sitio — Servicio Directo CR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-dark:#0f2d6b; --blue-accent:#2563eb; --green:#10b981;
+    --gray-800:#1e293b; --gray-50:#f8fafc; --amber:#d97706;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body{
+    background:var(--gray-50); color:var(--gray-800);
+    font-family:'DM Sans',sans-serif; padding:48px 24px 80px;
+  }
+  h1{
+    font-family:'Sora',sans-serif; font-weight:700; letter-spacing:-0.03em;
+    font-size:clamp(24px,3vw,34px); color:var(--blue-dark);
+    text-align:center; margin-bottom:6px;
+  }
+  .subtitle{ text-align:center; color:#64748b; font-size:14px; margin-bottom:28px; }
+
+  .legend{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:22px;
+    background:#fff; border:1px solid #e2e8f0; border-radius:12px;
+    padding:16px 24px; max-width:920px; margin:0 auto 40px;
+    box-shadow:0 4px 16px rgba(15,45,107,.06);
+  }
+  .legend-item{ display:flex; align-items:center; gap:9px; font-size:12.5px; color:var(--gray-800); }
+  .legend-shape{ width:20px; height:20px; flex-shrink:0; }
+
+  .diagram-wrap{
+    max-width:1400px; margin:0 auto; overflow-x:auto;
+    background:#fff; border:1px solid #e2e8f0; border-radius:16px;
+    box-shadow:0 8px 32px rgba(15,45,107,.08); padding:20px;
+  }
+  svg{ display:block; margin:0 auto; }
+
+  .node-rect{ fill:#fff; stroke:var(--blue-accent); stroke-width:1.6; }
+  .node-rect.provider{ stroke:var(--green); }
+  .node-rect.admin{ stroke:var(--amber); }
+  .node-diamond{ fill:#eef2ff; stroke:var(--blue-dark); stroke-width:1.6; }
+  .node-oval{ fill:var(--blue-dark); stroke:var(--blue-dark); }
+  .node-oval.end{ fill:var(--green); stroke:var(--green); }
+  .node-text{ font-family:'DM Sans',sans-serif; font-size:12px; fill:var(--gray-800); text-anchor:middle; }
+  .node-text.on-dark{ fill:#fff; font-weight:500; }
+  .node-text.small{ font-size:10.5px; }
+  .lane-label{
+    font-family:'Sora',sans-serif; font-weight:700; font-size:14px;
+    letter-spacing:.04em; text-transform:uppercase;
+  }
+  .edge{ stroke:#94a3b8; stroke-width:1.4; fill:none; }
+  .edge-label{ font-family:'DM Sans',sans-serif; font-size:10px; fill:#64748b; text-anchor:middle; }
+
+  .footer-note{
+    max-width:920px; margin:32px auto 0; text-align:center;
+    font-size:12px; color:#94a3b8; line-height:1.7;
+  }
+</style>
+</head>
+<body>
+
+<h1>Arquitectura de sitio — Servicio Directo CR</h1>
+<p class="subtitle">Marketplace de servicios locales · tres paneles independientes (Cliente / Proveedor / Admin)</p>
+
+<div class="legend">
+  <div class="legend-item">
+    <svg class="legend-shape" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="9" ry="7" fill="#0f2d6b"/></svg>
+    Inicio / Fin del flujo
+  </div>
+  <div class="legend-item">
+    <svg class="legend-shape" viewBox="0 0 20 20"><rect x="1.5" y="4" width="17" height="12" rx="2" fill="#fff" stroke="#2563eb" stroke-width="1.6"/></svg>
+    Pantalla / vista del sitio
+  </div>
+  <div class="legend-item">
+    <svg class="legend-shape" viewBox="0 0 20 20"><polygon points="10,1 19,10 10,19 1,10" fill="#eef2ff" stroke="#0f2d6b" stroke-width="1.6"/></svg>
+    Decisión / bifurcación
+  </div>
+  <div class="legend-item">
+    <svg class="legend-shape" viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="9" ry="7" fill="#10b981"/></svg>
+    Fin exitoso (conversión)
+  </div>
+</div>
+
+<div class="diagram-wrap">
+<svg id="chart" viewBox="0 0 1360 1720" width="1360" height="1720" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <!-- ═══════════ TRONCO COMÚN ═══════════ -->
+  <ellipse class="node-oval" cx="680" cy="40" rx="80" ry="26"/>
+  <text class="node-text on-dark" x="680" y="44">Inicio</text>
+
+  <rect class="node-rect" x="590" y="96" width="180" height="52" rx="8"/>
+  <text class="node-text" x="680" y="118">Landing (index.html)</text>
+  <text class="node-text small" x="680" y="134" fill="#64748b">Hero KB · búsqueda semántica</text>
+
+  <polygon class="node-diamond" points="680,178 800,238 680,298 560,238"/>
+  <text class="node-text" x="680" y="234">¿Qué usuario</text>
+  <text class="node-text" x="680" y="248">eres?</text>
+
+  <!-- edges tronco -->
+  <path class="edge" d="M680,66 L680,94" marker-end="url(#arrow)"/>
+  <path class="edge" d="M680,148 L680,176" marker-end="url(#arrow)"/>
+
+  <!-- ramas desde el rombo -->
+  <path class="edge" d="M600,258 C440,320 260,340 260,360" marker-end="url(#arrow)"/>
+  <text class="edge-label" x="420" y="308">Cliente</text>
+
+  <path class="edge" d="M680,298 L680,360" marker-end="url(#arrow)"/>
+  <text class="edge-label" x="705" y="330">Proveedor</text>
+
+  <path class="edge" d="M760,258 C980,330 1120,340 1120,360" marker-end="url(#arrow)"/>
+  <text class="edge-label" x="1000" y="308">Admin (login directo)</text>
+
+  <!-- ═══════════ LANE LABELS ═══════════ -->
+  <text class="lane-label" x="260" y="392" fill="#2563eb" text-anchor="middle">Cliente</text>
+  <text class="lane-label" x="680" y="392" fill="#10b981" text-anchor="middle">Proveedor</text>
+  <text class="lane-label" x="1120" y="392" fill="#d97706" text-anchor="middle">Admin</text>
+
+  <!-- ═══════════ COLUMNA CLIENTE ═══════════ -->
+  <rect class="node-rect" x="170" y="416" width="180" height="52" rx="8"/>
+  <text class="node-text" x="260" y="438">Buscador (search.html)</text>
+  <text class="node-text small" x="260" y="454" fill="#64748b">geolocalización · filtro cantón</text>
+  <path class="edge" d="M260,362 L260,414" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect" x="170" y="496" width="180" height="52" rx="8"/>
+  <text class="node-text" x="260" y="518">Resultados</text>
+  <text class="node-text small" x="260" y="534" fill="#64748b">proveedores cercanos + destacados</text>
+  <path class="edge" d="M260,468 L260,494" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect" x="170" y="576" width="180" height="52" rx="8"/>
+  <text class="node-text" x="260" y="598">Perfil de proveedor</text>
+  <text class="node-text small" x="260" y="614" fill="#64748b">profile.html · reseñas</text>
+  <path class="edge" d="M260,548 L260,574" marker-end="url(#arrow)"/>
+
+  <polygon class="node-diamond" points="260,656 340,700 260,744 180,700"/>
+  <text class="node-text" x="260" y="696">¿Tiene</text>
+  <text class="node-text" x="260" y="710">cuenta?</text>
+  <path class="edge" d="M260,628 L260,654" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect" x="80" y="774" width="150" height="46" rx="8"/>
+  <text class="node-text" x="155" y="794">Login (email / Google)</text>
+  <path class="edge" d="M215,715 C160,740 155,755 155,772" marker-end="url(#arrow)"/>
+  <text class="edge-label" x="150" y="750">Sí</text>
+
+  <rect class="node-rect" x="270" y="774" width="150" height="46" rx="8"/>
+  <text class="node-text" x="345" y="794">Registro de cliente</text>
+  <path class="edge" d="M305,715 C330,740 345,755 345,772" marker-end="url(#arrow)"/>
+  <text class="edge-label" x="340" y="750">No</text>
+
+  <rect class="node-rect" x="170" y="840" width="180" height="52" rx="8"/>
+  <text class="node-text" x="260" y="862">Solicitar cotización</text>
+  <text class="node-text small" x="260" y="878" fill="#64748b">quotations + quote_items</text>
+  <path class="edge" d="M155,820 C155,860 190,866 168,866" marker-end="url(#arrow)"/>
+  <path class="edge" d="M345,820 C345,860 320,866 352,866" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect" x="170" y="920" width="180" height="52" rx="8"/>
+  <text class="node-text" x="260" y="942">Chat en tiempo real</text>
+  <text class="node-text small" x="260" y="958" fill="#64748b">messages · chat_sessions</text>
+  <path class="edge" d="M260,892 L260,918" marker-end="url(#arrow)"/>
+
+  <polygon class="node-diamond" points="260,1000 350,1046 260,1092 170,1046"/>
+  <text class="node-text" x="260" y="1042">¿Acepta la</text>
+  <text class="node-text" x="260" y="1056">cotización?</text>
+  <path class="edge" d="M260,972 L260,998" marker-end="url(#arrow)"/>
+
+  <ellipse class="node-oval" cx="120" cy="1046" rx="66" ry="24"/>
+  <text class="node-text on-dark" x="120" y="1050" font-size="10.5">Fin sin conversión</text>
+  <path class="edge" d="M172,1046 L186,1046" marker-end="url(#arrow)"/>
+  <text class="edge-label" x="180" y="1032">No</text>
+
+  <rect class="node-rect" x="170" y="1122" width="180" height="52" rx="8"/>
+  <text class="node-text" x="260" y="1144">Pago</text>
+  <text class="node-text small" x="260" y="1160" fill="#64748b">SINPE / Tilopay (payments)</text>
+  <path class="edge" d="M260,1092 L260,1120" marker-end="url(#arrow)"/>
+  <text class="edge-label" x="290" y="1108">Sí</text>
+
+  <rect class="node-rect" x="170" y="1202" width="180" height="52" rx="8"/>
+  <text class="node-text" x="260" y="1224">Dashboard cliente</text>
+  <text class="node-text small" x="260" y="1240" fill="#64748b">tracking_code · estado</text>
+  <path class="edge" d="M260,1174 L260,1200" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect" x="170" y="1282" width="180" height="52" rx="8"/>
+  <text class="node-text" x="260" y="1304">Dejar reseña</text>
+  <text class="node-text small" x="260" y="1320" fill="#64748b">review_tokens</text>
+  <path class="edge" d="M260,1254 L260,1280" marker-end="url(#arrow)"/>
+
+  <ellipse class="node-oval end" cx="260" cy="1372" rx="90" ry="26"/>
+  <text class="node-text on-dark" x="260" y="1376">Servicio completado</text>
+  <path class="edge" d="M260,1334 L260,1348" marker-end="url(#arrow)"/>
+
+  <!-- ═══════════ COLUMNA PROVEEDOR ═══════════ -->
+  <rect class="node-rect provider" x="590" y="416" width="180" height="52" rx="8"/>
+  <text class="node-text" x="680" y="438">Registrarse como proveedor</text>
+  <text class="node-text small" x="680" y="454" fill="#64748b">registration</text>
+  <path class="edge" d="M680,362 L680,414" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect provider" x="590" y="496" width="180" height="52" rx="8"/>
+  <text class="node-text" x="680" y="518">Formulario + documentos</text>
+  <text class="node-text small" x="680" y="534" fill="#64748b">ICT · CFIA · CCSS · CPA</text>
+  <path class="edge" d="M680,468 L680,494" marker-end="url(#arrow)"/>
+
+  <polygon class="node-diamond" points="680,576 770,622 680,668 590,622"/>
+  <text class="node-text" x="680" y="618">¿Aprobado</text>
+  <text class="node-text" x="680" y="632">por admin?</text>
+  <path class="edge" d="M680,548 L680,574" marker-end="url(#arrow)"/>
+
+  <ellipse class="node-oval" cx="820" cy="622" rx="70" ry="24"/>
+  <text class="node-text on-dark" x="820" y="626" font-size="10.5">Fin — rechazado</text>
+  <path class="edge" d="M772,622 L750,622" marker-end="url(#arrow)"/>
+  <text class="edge-label" x="800" y="608">No</text>
+
+  <rect class="node-rect provider" x="590" y="700" width="180" height="52" rx="8"/>
+  <text class="node-text" x="680" y="722">Perfil público</text>
+  <text class="node-text small" x="680" y="738" fill="#64748b">profile.html · destacado</text>
+  <path class="edge" d="M680,668 L680,698" marker-end="url(#arrow)"/>
+  <text class="edge-label" x="705" y="684">Sí</text>
+
+  <rect class="node-rect provider" x="590" y="780" width="180" height="52" rx="8"/>
+  <text class="node-text" x="680" y="802">Panel de proveedor</text>
+  <text class="node-text small" x="680" y="818" fill="#64748b">dashboard</text>
+  <path class="edge" d="M680,752 L680,778" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect provider" x="590" y="860" width="180" height="52" rx="8"/>
+  <text class="node-text" x="680" y="882">Cotizador + PDF</text>
+  <text class="node-text small" x="680" y="898" fill="#64748b">quote_items_catalog</text>
+  <path class="edge" d="M680,832 L680,858" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect provider" x="590" y="940" width="180" height="52" rx="8"/>
+  <text class="node-text" x="680" y="962">Chat con cliente</text>
+  <text class="node-text small" x="680" y="978" fill="#64748b">imágenes · tiempo real</text>
+  <path class="edge" d="M680,912 L680,938" marker-end="url(#arrow)"/>
+
+  <polygon class="node-diamond" points="680,1020 770,1066 680,1112 590,1066"/>
+  <text class="node-text" x="680" y="1062">¿Pago</text>
+  <text class="node-text" x="680" y="1076">recibido?</text>
+  <path class="edge" d="M680,992 L680,1018" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect provider" x="590" y="1142" width="180" height="52" rx="8"/>
+  <text class="node-text" x="680" y="1164">Disponibilidad</text>
+  <text class="node-text small" x="680" y="1180" fill="#64748b">availability_blocks</text>
+  <path class="edge" d="M680,1112 L680,1140" marker-end="url(#arrow)"/>
+  <text class="edge-label" x="705" y="1128">Sí</text>
+
+  <rect class="node-rect provider" x="590" y="1222" width="180" height="52" rx="8"/>
+  <text class="node-text" x="680" y="1244">Reseñas recibidas</text>
+  <text class="node-text small" x="680" y="1260" fill="#64748b">reviews</text>
+  <path class="edge" d="M680,1194 L680,1220" marker-end="url(#arrow)"/>
+
+  <ellipse class="node-oval end" cx="680" cy="1312" rx="90" ry="26"/>
+  <text class="node-text on-dark" x="680" y="1316">Servicio completado</text>
+  <path class="edge" d="M680,1274 L680,1288" marker-end="url(#arrow)"/>
+
+  <!-- ═══════════ COLUMNA ADMIN ═══════════ -->
+  <rect class="node-rect admin" x="1030" y="416" width="180" height="52" rx="8"/>
+  <text class="node-text" x="1120" y="438">Login admin</text>
+  <text class="node-text small" x="1120" y="454" fill="#64748b">tabla admins</text>
+  <path class="edge" d="M1120,362 L1120,414" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect admin" x="1030" y="496" width="180" height="52" rx="8"/>
+  <text class="node-text" x="1120" y="518">Panel admin</text>
+  <text class="node-text small" x="1120" y="534" fill="#64748b">vista general</text>
+  <path class="edge" d="M1120,468 L1120,494" marker-end="url(#arrow)"/>
+
+  <polygon class="node-diamond" points="1120,576 1220,626 1120,676 1020,626"/>
+  <text class="node-text" x="1120" y="622">¿Qué</text>
+  <text class="node-text" x="1120" y="636">gestión?</text>
+  <path class="edge" d="M1120,548 L1120,574" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect admin" x="900" y="740" width="150" height="46" rx="8"/>
+  <text class="node-text" x="975" y="760">Aprobar proveedores</text>
+  <path class="edge" d="M1040,650 C1000,690 975,710 975,738" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect admin" x="1070" y="740" width="150" height="46" rx="8"/>
+  <text class="node-text" x="1145" y="760">Destacados</text>
+  <path class="edge" d="M1130,676 C1140,700 1145,715 1145,738" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect admin" x="900" y="806" width="150" height="46" rx="8"/>
+  <text class="node-text" x="975" y="826">Mensajes / soporte</text>
+  <path class="edge" d="M975,786 L975,804" marker-end="url(#arrow)"/>
+
+  <rect class="node-rect admin" x="1070" y="806" width="150" height="46" rx="8"/>
+  <text class="node-text" x="1145" y="826">Facturación / comisiones</text>
+  <path class="edge" d="M1145,786 L1145,804" marker-end="url(#arrow)"/>
+
+  <ellipse class="node-oval end" cx="1060" cy="900" rx="90" ry="26"/>
+  <text class="node-text on-dark" x="1060" y="904">Plataforma sana</text>
+  <path class="edge" d="M975,852 C1000,880 1030,890 1005,894" marker-end="url(#arrow)"/>
+  <path class="edge" d="M1145,852 C1120,880 1090,890 1115,894" marker-end="url(#arrow)"/>
+
+</svg>
+</div>
+
+<p class="footer-note">
+  Rombos = puntos de decisión del usuario · Rectángulos = pantallas reales del sitio (nombre de archivo o módulo entre paréntesis) ·
+  Óvalos azules = inicio del flujo · Óvalo verde = conversión exitosa · Óvalo gris = salida sin conversión.
+  Basado en la arquitectura actual de serviciodirectocr.com (Cloudflare Pages + Supabase).
+</p>
+
+</body>
+</html>
