@@ -575,8 +575,8 @@
     /* ── Diagrama del sitio / Problema / Solución (desplegables) ── */
     .pd-extra { margin-top:8px; max-width:900px; }
     .pd-extra .reveal-label {
-      font-family:'Unbounded',sans-serif; font-weight:700;
-      font-size:clamp(20px,2.2vw,28px); letter-spacing:0;
+      font-family:'Space Mono',monospace; font-weight:700;
+      font-size:clamp(17px,1.8vw,22px); letter-spacing:.01em;
     }
     .pd-extra .reveal-trigger { padding:22px 2px; }
     .pd-extra-text { font-size:13px; line-height:2; color:rgba(255,255,255,.6); max-width:720px; }
@@ -1881,15 +1881,18 @@ const PROJECTS = [
     tech:'HTML · CSS · JS Vanilla · Canvas API · Cloudflare Pages', url:'sikuatours.com',
     video:null,
     gallery:[
-      'https://picsum.photos/seed/rainforest-6/800/1067',
-      'https://picsum.photos/seed/waterfall-jungle-7/800/1067',
-      'https://picsum.photos/seed/indigenous-craft-8/800/1067',
-      'https://picsum.photos/seed/river-canoe-9/800/1067',
-      'https://picsum.photos/seed/tropical-costa-rica-10/800/1067',
-      'https://picsum.photos/seed/jungle-trail-11/800/1067',
-      'https://picsum.photos/seed/exotic-birds-12/800/1067',
-      'https://picsum.photos/seed/rainforest-canopy-13/800/1067'
-    ] },
+      'img/gallery/sikua/g1.avif',
+      'img/gallery/sikua/g2.avif',
+      'img/gallery/sikua/g3.avif',
+      'img/gallery/sikua/g4.avif',
+      'img/gallery/sikua/g5.avif',
+      'img/gallery/sikua/g6.avif',
+      'img/gallery/sikua/g7.avif',
+      'img/gallery/sikua/g8.avif'
+    ],
+    problem:'El turismo cultural Bribri en Talamanca dependía casi por completo de operadores intermediarios: la comunidad no tenía una vitrina digital propia para mostrar sus tours, itinerarios y artesanías, y quien buscaba la experiencia en internet solo encontraba paquetes genéricos de agencias externas, sin poder armar un recorrido a su medida ni comprarle directo a la comunidad.',
+    solution:'Un sitio-experiencia que arranca con una secuencia cinemática de scroll (180+ frames dibujados a mano) para transmitir el territorio antes de cualquier texto, y que resuelve todo el recorrido sin salir de la página: tres tipos de tour, un itinerario que el cliente arma a su medida, confirmación directa por WhatsApp con el guía, y una tienda de artesanías Bribri con checkout también por WhatsApp — todo coordinado desde un panel admin de travel planning para la comunidad.',
+    diagram:'proyectos/sikua-arquitectura.html' },
   { id:'fragancia',name:'Fragancia Urbana',     role:'E-commerce · 3D · Luxury',
     color:'#120f04', grad:'linear-gradient(135deg,#130f04,#2e2508)', accent:'#5a4a18',
     tags:['E-commerce','Three.js','GSAP','SINPE Móvil'],
