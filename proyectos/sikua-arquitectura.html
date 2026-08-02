@@ -53,6 +53,7 @@
     letter-spacing:.04em; text-transform:uppercase;
   }
   .edge{ stroke:#94a3b8; stroke-width:1.4; fill:none; }
+  .edge-label-bg{ fill:#fff; opacity:.92; }
   .edge-label{ font-family:'DM Sans',sans-serif; font-size:10px; fill:#64748b; text-anchor:middle; }
 
   .footer-note{
@@ -86,7 +87,7 @@
 </div>
 
 <div class="diagram-wrap">
-<svg viewBox="0 0 1000 1360" width="1000" height="1360" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 1050 1404" width="1050" height="1404" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
       <path d="M0,0 L7,3 L0,6 Z" fill="#94a3b8"/>
@@ -105,90 +106,93 @@
   <polygon class="node-diamond" points="500,182 610,238 500,294 390,238"/>
   <text class="node-text" x="500" y="234">¿Qué tipo</text>
   <text class="node-text" x="500" y="248">de tour busca?</text>
-  <path class="edge" d="M500,294 L500,320" marker-end="url(#arrow)"/>
 
-  <rect class="node-rect" x="130" y="200" width="150" height="46" rx="8"/>
-  <text class="node-text" x="205" y="220">Tour cultural</text>
-  <text class="node-text small" x="205" y="234" fill="#64748b">comunidad Bribri</text>
-  <path class="edge" d="M392,232 C330,225 280,222 282,222" marker-end="url(#arrow)"/>
+  <!-- tres ramas del rombo → canal horizontal común y=300, sin cruzar cajas -->
+  <rect class="node-rect" x="90" y="306" width="170" height="46" rx="8"/>
+  <text class="node-text" x="175" y="326">Tour cultural</text>
+  <text class="node-text small" x="175" y="340" fill="#64748b">comunidad Bribri</text>
+  <path class="edge" d="M390,238 L390,300 L175,300 L175,304" marker-end="url(#arrow)"/>
 
-  <rect class="node-rect" x="130" y="266" width="150" height="46" rx="8"/>
-  <text class="node-text" x="205" y="286">Tour de naturaleza</text>
-  <text class="node-text small" x="205" y="300" fill="#64748b">senderos · río</text>
-  <path class="edge" d="M392,246 C330,270 280,288 282,288" marker-end="url(#arrow)"/>
+  <rect class="node-rect" x="330" y="306" width="170" height="46" rx="8"/>
+  <text class="node-text" x="415" y="326">Tour de naturaleza</text>
+  <text class="node-text small" x="415" y="340" fill="#64748b">senderos · río</text>
+  <path class="edge" d="M500,294 L500,300 L415,300 L415,304" marker-end="url(#arrow)"/>
 
-  <rect class="node-rect" x="720" y="200" width="150" height="46" rx="8"/>
-  <text class="node-text" x="795" y="220">Tour a medida</text>
-  <text class="node-text small" x="795" y="234" fill="#64748b">itinerario armado por cliente</text>
-  <path class="edge" d="M608,232 C660,225 715,222 718,222" marker-end="url(#arrow)"/>
+  <rect class="node-rect" x="580" y="306" width="170" height="46" rx="8"/>
+  <text class="node-text" x="665" y="326">Tour a medida</text>
+  <text class="node-text small" x="665" y="340" fill="#64748b">itinerario armado por cliente</text>
+  <path class="edge" d="M610,238 L610,300 L665,300 L665,304" marker-end="url(#arrow)"/>
 
-  <rect class="node-rect" x="410" y="320" width="180" height="52" rx="8"/>
-  <text class="node-text" x="500" y="342">Armar itinerario</text>
-  <text class="node-text small" x="500" y="358" fill="#64748b">fechas · nº personas · extras</text>
-  <path class="edge" d="M205,246 C300,290 420,320 415,332" marker-end="url(#arrow)"/>
-  <path class="edge" d="M205,312 C300,340 400,345 408,346" marker-end="url(#arrow)"/>
-  <path class="edge" d="M795,246 C700,290 580,320 588,332" marker-end="url(#arrow)"/>
+  <!-- convergen en canal y=358 hacia la caja de itinerario -->
+  <rect class="node-rect" x="410" y="386" width="180" height="52" rx="8"/>
+  <text class="node-text" x="500" y="408">Armar itinerario</text>
+  <text class="node-text small" x="500" y="424" fill="#64748b">fechas · nº personas · extras</text>
+  <path class="edge" d="M175,352 L175,368 L445,368 L445,384" marker-end="url(#arrow)"/>
+  <path class="edge" d="M415,352 L415,376 L500,376 L500,384" marker-end="url(#arrow)"/>
+  <path class="edge" d="M665,352 L665,368 L555,368 L555,384" marker-end="url(#arrow)"/>
 
-  <rect class="node-rect" x="410" y="400" width="180" height="52" rx="8"/>
-  <text class="node-text" x="500" y="422">Solicitud de reserva</text>
-  <text class="node-text small" x="500" y="438" fill="#64748b">formulario de contacto</text>
-  <path class="edge" d="M500,372 L500,398" marker-end="url(#arrow)"/>
+  <rect class="node-rect" x="410" y="466" width="180" height="52" rx="8"/>
+  <text class="node-text" x="500" y="488">Solicitud de reserva</text>
+  <text class="node-text small" x="500" y="504" fill="#64748b">formulario de contacto</text>
+  <path class="edge" d="M500,438 L500,464" marker-end="url(#arrow)"/>
 
-  <polygon class="node-diamond" points="500,480 590,526 500,572 410,526"/>
-  <text class="node-text" x="500" y="522">¿Confirma</text>
-  <text class="node-text" x="500" y="536">disponibilidad?</text>
-  <path class="edge" d="M500,452 L500,478" marker-end="url(#arrow)"/>
+  <polygon class="node-diamond" points="500,546 590,592 500,638 410,592"/>
+  <text class="node-text" x="500" y="588">¿Confirma</text>
+  <text class="node-text" x="500" y="602">disponibilidad?</text>
+  <path class="edge" d="M500,518 L500,544" marker-end="url(#arrow)"/>
 
-  <ellipse class="node-oval" cx="670" cy="526" rx="80" ry="24"/>
-  <text class="node-text on-dark" x="670" y="530" font-size="10.5">Fin — reprograma</text>
-  <path class="edge" d="M592,526 L590,526" marker-end="url(#arrow)"/>
-  <text class="edge-label" x="620" y="512">No</text>
+  <ellipse class="node-oval" cx="710" cy="592" rx="80" ry="24"/>
+  <text class="node-text on-dark" x="710" y="596" font-size="10.5">Fin — reprograma</text>
+  <path class="edge" d="M590,592 L628,592" marker-end="url(#arrow)"/>
+  <rect class="edge-label-bg" x="599.8" y="570.5" width="20.4" height="14" rx="3"/>
+  <text class="edge-label" x="610" y="581">No</text>
 
-  <rect class="node-rect" x="410" y="606" width="180" height="52" rx="8"/>
-  <text class="node-text" x="500" y="628">Confirmación por WhatsApp</text>
-  <text class="node-text small" x="500" y="644" fill="#64748b">contacto directo con guía</text>
-  <path class="edge" d="M500,572 L500,604" marker-end="url(#arrow)"/>
-  <text class="edge-label" x="530" y="588">Sí</text>
+  <rect class="node-rect" x="410" y="672" width="180" height="52" rx="8"/>
+  <text class="node-text" x="500" y="694">Confirmación por WhatsApp</text>
+  <text class="node-text small" x="500" y="710" fill="#64748b">contacto directo con guía</text>
+  <path class="edge" d="M500,638 L500,670" marker-end="url(#arrow)"/>
+  <rect class="edge-label-bg" x="509.8" y="647.5" width="20.4" height="14" rx="3"/>
+  <text class="edge-label" x="520" y="658">Sí</text>
 
-  <ellipse class="node-oval end" cx="500" cy="700" rx="100" ry="26"/>
-  <text class="node-text on-dark" x="500" y="704">Tour reservado</text>
-  <path class="edge" d="M500,658 L500,674" marker-end="url(#arrow)"/>
+  <ellipse class="node-oval end" cx="500" cy="766" rx="100" ry="26"/>
+  <text class="node-text on-dark" x="500" y="770">Tour reservado</text>
+  <path class="edge" d="M500,724 L500,740" marker-end="url(#arrow)"/>
 
   <!-- ═══════════ TIENDA DE ARTESANÍAS ═══════════ -->
-  <text class="lane-label" x="500" y="800" fill="#1a5c2a" text-anchor="middle">Tienda de artesanías Bribri</text>
+  <text class="lane-label" x="500" y="866" fill="#1a5c2a" text-anchor="middle">Tienda de artesanías Bribri</text>
 
-  <rect class="node-rect" x="410" y="826" width="180" height="52" rx="8"/>
-  <text class="node-text" x="500" y="848">Catálogo de artesanías</text>
-  <text class="node-text small" x="500" y="864" fill="#64748b">productos comunitarios</text>
-  <path class="edge" d="M500,156 C820,300 900,600 900,826" marker-end="url(#arrow)"/>
-  <text class="edge-label" x="870" y="500">acceso directo desde nav</text>
+  <rect class="node-rect" x="410" y="892" width="180" height="52" rx="8"/>
+  <text class="node-text" x="500" y="914">Catálogo de artesanías</text>
+  <text class="node-text small" x="500" y="930" fill="#64748b">productos comunitarios</text>
+  <path class="edge" d="M620,120 L960,120 L960,918 L592,918" marker-end="url(#arrow)"/>
+  <rect class="edge-label-bg" x="881.6" y="500.5" width="156.8" height="14" rx="3"/>
+  <text class="edge-label" x="960" y="511">acceso directo desde nav</text>
 
-  <rect class="node-rect" x="410" y="906" width="180" height="52" rx="8"/>
-  <text class="node-text" x="500" y="928">Carrito</text>
-  <text class="node-text small" x="500" y="944" fill="#64748b">selección de piezas</text>
-  <path class="edge" d="M500,878 L500,904" marker-end="url(#arrow)"/>
+  <rect class="node-rect" x="410" y="972" width="180" height="52" rx="8"/>
+  <text class="node-text" x="500" y="994">Carrito</text>
+  <text class="node-text small" x="500" y="1010" fill="#64748b">selección de piezas</text>
+  <path class="edge" d="M500,944 L500,970" marker-end="url(#arrow)"/>
 
-  <rect class="node-rect" x="410" y="986" width="180" height="52" rx="8"/>
-  <text class="node-text" x="500" y="1008">Checkout por WhatsApp</text>
-  <text class="node-text small" x="500" y="1024" fill="#64748b">cierre de compra manual</text>
-  <path class="edge" d="M500,958 L500,984" marker-end="url(#arrow)"/>
+  <rect class="node-rect" x="410" y="1052" width="180" height="52" rx="8"/>
+  <text class="node-text" x="500" y="1074">Checkout por WhatsApp</text>
+  <text class="node-text small" x="500" y="1090" fill="#64748b">cierre de compra manual</text>
+  <path class="edge" d="M500,1024 L500,1050" marker-end="url(#arrow)"/>
 
-  <ellipse class="node-oval end" cx="500" cy="1078" rx="100" ry="26"/>
-  <text class="node-text on-dark" x="500" y="1082">Compra realizada</text>
-  <path class="edge" d="M500,1038 L500,1052" marker-end="url(#arrow)"/>
+  <ellipse class="node-oval end" cx="500" cy="1144" rx="100" ry="26"/>
+  <text class="node-text on-dark" x="500" y="1148">Compra realizada</text>
+  <path class="edge" d="M500,1104 L500,1118" marker-end="url(#arrow)"/>
 
   <!-- ═══════════ ADMIN ═══════════ -->
-  <text class="lane-label" x="500" y="1170" fill="#c99a3a" text-anchor="middle">Admin</text>
+  <text class="lane-label" x="500" y="1236" fill="#c99a3a" text-anchor="middle">Admin</text>
 
-  <rect class="node-rect admin" x="410" y="1196" width="180" height="52" rx="8"/>
-  <text class="node-text" x="500" y="1218">Panel de travel planning</text>
-  <text class="node-text small" x="500" y="1234" fill="#64748b">reservas · itinerarios · disponibilidad</text>
-  <path class="edge" d="M900,826 C900,1050 700,1180 592,1216" marker-end="url(#arrow)"/>
-  <path class="edge" d="M590,412 C750,500 900,700 900,826" marker-end="url(#arrow)"/>
+  <rect class="node-rect admin" x="410" y="1262" width="180" height="52" rx="8"/>
+  <text class="node-text" x="500" y="1284">Panel de travel planning</text>
+  <text class="node-text small" x="500" y="1300" fill="#64748b">reservas · itinerarios · disponibilidad</text>
+  <path class="edge" d="M590,492 L1000,492 L1000,1288 L592,1288" marker-end="url(#arrow)"/>
 
-  <ellipse class="node-oval end" cx="500" cy="1300" rx="90" ry="26"/>
-  <text class="node-text on-dark" x="500" y="1304">Operación coordinada</text>
-  <path class="edge" d="M500,1248 L500,1274" marker-end="url(#arrow)"/>
+  <ellipse class="node-oval end" cx="500" cy="1366" rx="90" ry="26"/>
+  <text class="node-text on-dark" x="500" y="1370">Operación coordinada</text>
+  <path class="edge" d="M500,1314 L500,1340" marker-end="url(#arrow)"/>
 
 </svg>
 </div>

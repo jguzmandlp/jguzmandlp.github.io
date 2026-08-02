@@ -54,6 +54,7 @@
     letter-spacing:.04em; text-transform:uppercase;
   }
   .edge{ stroke:#94a3b8; stroke-width:1.4; fill:none; }
+  .edge-label-bg{ fill:#fff; opacity:.92; }
   .edge-label{ font-family:'DM Sans',sans-serif; font-size:10px; fill:#64748b; text-anchor:middle; }
 
   .footer-note{
@@ -110,15 +111,18 @@
   <path class="edge" d="M680,66 L680,94" marker-end="url(#arrow)"/>
   <path class="edge" d="M680,148 L680,176" marker-end="url(#arrow)"/>
 
-  <!-- ramas desde el rombo -->
-  <path class="edge" d="M600,258 C440,320 260,340 260,360" marker-end="url(#arrow)"/>
-  <text class="edge-label" x="420" y="308">Cliente</text>
+  <!-- ramas desde el rombo — routing ortogonal, sin cruzar cajas -->
+  <path class="edge" d="M560,238 L260,238 L260,360" marker-end="url(#arrow)"/>
+  <rect class="edge-label-bg" x="234.7" y="219.5" width="51.4" height="14" rx="3"/>
+  <text class="edge-label" x="260" y="230">Cliente</text>
 
   <path class="edge" d="M680,298 L680,360" marker-end="url(#arrow)"/>
-  <text class="edge-label" x="705" y="330">Proveedor</text>
+  <rect class="edge-label-bg" x="648.1" y="319.5" width="63.8" height="14" rx="3"/>
+  <text class="edge-label" x="680" y="330">Proveedor</text>
 
-  <path class="edge" d="M760,258 C980,330 1120,340 1120,360" marker-end="url(#arrow)"/>
-  <text class="edge-label" x="1000" y="308">Admin (login directo)</text>
+  <path class="edge" d="M800,238 L1120,238 L1120,360" marker-end="url(#arrow)"/>
+  <rect class="edge-label-bg" x="1050.9" y="219.5" width="138.2" height="14" rx="3"/>
+  <text class="edge-label" x="1120" y="230">Admin (login directo)</text>
 
   <!-- ═══════════ LANE LABELS ═══════════ -->
   <text class="lane-label" x="260" y="392" fill="#2563eb" text-anchor="middle">Cliente</text>
@@ -148,19 +152,21 @@
 
   <rect class="node-rect" x="80" y="774" width="150" height="46" rx="8"/>
   <text class="node-text" x="155" y="794">Login (email / Google)</text>
-  <path class="edge" d="M215,715 C160,740 155,755 155,772" marker-end="url(#arrow)"/>
-  <text class="edge-label" x="150" y="750">Sí</text>
+  <path class="edge" d="M180,700 L155,700 L155,772" marker-end="url(#arrow)"/>
+  <rect class="edge-label-bg" x="139.8" y="729.5" width="20.4" height="14" rx="3"/>
+  <text class="edge-label" x="150" y="740">Sí</text>
 
   <rect class="node-rect" x="270" y="774" width="150" height="46" rx="8"/>
   <text class="node-text" x="345" y="794">Registro de cliente</text>
-  <path class="edge" d="M305,715 C330,740 345,755 345,772" marker-end="url(#arrow)"/>
-  <text class="edge-label" x="340" y="750">No</text>
+  <path class="edge" d="M340,700 L345,700 L345,772" marker-end="url(#arrow)"/>
+  <rect class="edge-label-bg" x="357" y="729.5" width="20.4" height="14" rx="3"/>
+  <text class="edge-label" x="367" y="740">No</text>
 
   <rect class="node-rect" x="170" y="840" width="180" height="52" rx="8"/>
   <text class="node-text" x="260" y="862">Solicitar cotización</text>
   <text class="node-text small" x="260" y="878" fill="#64748b">quotations + quote_items</text>
-  <path class="edge" d="M155,820 C155,860 190,866 168,866" marker-end="url(#arrow)"/>
-  <path class="edge" d="M345,820 C345,860 320,866 352,866" marker-end="url(#arrow)"/>
+  <path class="edge" d="M155,820 L155,866 L168,866" marker-end="url(#arrow)"/>
+  <path class="edge" d="M345,820 L345,866 L352,866" marker-end="url(#arrow)"/>
 
   <rect class="node-rect" x="170" y="920" width="180" height="52" rx="8"/>
   <text class="node-text" x="260" y="942">Chat en tiempo real</text>
@@ -172,15 +178,17 @@
   <text class="node-text" x="260" y="1056">cotización?</text>
   <path class="edge" d="M260,972 L260,998" marker-end="url(#arrow)"/>
 
-  <ellipse class="node-oval" cx="120" cy="1046" rx="66" ry="24"/>
-  <text class="node-text on-dark" x="120" y="1050" font-size="10.5">Fin sin conversión</text>
-  <path class="edge" d="M172,1046 L186,1046" marker-end="url(#arrow)"/>
-  <text class="edge-label" x="180" y="1032">No</text>
+  <ellipse class="node-oval" cx="88" cy="1046" rx="66" ry="24"/>
+  <text class="node-text on-dark" x="88" y="1050" font-size="10.5">Fin sin conversión</text>
+  <path class="edge" d="M170,1046 L154,1046" marker-end="url(#arrow)"/>
+  <rect class="edge-label-bg" x="151.8" y="1025.5" width="20.4" height="14" rx="3"/>
+  <text class="edge-label" x="162" y="1036">No</text>
 
   <rect class="node-rect" x="170" y="1122" width="180" height="52" rx="8"/>
   <text class="node-text" x="260" y="1144">Pago</text>
   <text class="node-text small" x="260" y="1160" fill="#64748b">SINPE / Tilopay (payments)</text>
   <path class="edge" d="M260,1092 L260,1120" marker-end="url(#arrow)"/>
+  <rect class="edge-label-bg" x="279.8" y="1097.5" width="20.4" height="14" rx="3"/>
   <text class="edge-label" x="290" y="1108">Sí</text>
 
   <rect class="node-rect" x="170" y="1202" width="180" height="52" rx="8"/>
@@ -213,15 +221,17 @@
   <text class="node-text" x="680" y="632">por admin?</text>
   <path class="edge" d="M680,548 L680,574" marker-end="url(#arrow)"/>
 
-  <ellipse class="node-oval" cx="820" cy="622" rx="70" ry="24"/>
-  <text class="node-text on-dark" x="820" y="626" font-size="10.5">Fin — rechazado</text>
-  <path class="edge" d="M772,622 L750,622" marker-end="url(#arrow)"/>
-  <text class="edge-label" x="800" y="608">No</text>
+  <ellipse class="node-oval" cx="880" cy="622" rx="70" ry="24"/>
+  <text class="node-text on-dark" x="880" y="626" font-size="10.5">Fin — rechazado</text>
+  <path class="edge" d="M770,622 L810,622" marker-end="url(#arrow)"/>
+  <rect class="edge-label-bg" x="779.8" y="600.5" width="20.4" height="14" rx="3"/>
+  <text class="edge-label" x="790" y="611">No</text>
 
   <rect class="node-rect provider" x="590" y="700" width="180" height="52" rx="8"/>
   <text class="node-text" x="680" y="722">Perfil público</text>
   <text class="node-text small" x="680" y="738" fill="#64748b">profile.html · destacado</text>
   <path class="edge" d="M680,668 L680,698" marker-end="url(#arrow)"/>
+  <rect class="edge-label-bg" x="694.8" y="673.5" width="20.4" height="14" rx="3"/>
   <text class="edge-label" x="705" y="684">Sí</text>
 
   <rect class="node-rect provider" x="590" y="780" width="180" height="52" rx="8"/>
@@ -248,6 +258,7 @@
   <text class="node-text" x="680" y="1164">Disponibilidad</text>
   <text class="node-text small" x="680" y="1180" fill="#64748b">availability_blocks</text>
   <path class="edge" d="M680,1112 L680,1140" marker-end="url(#arrow)"/>
+  <rect class="edge-label-bg" x="694.8" y="1117.5" width="20.4" height="14" rx="3"/>
   <text class="edge-label" x="705" y="1128">Sí</text>
 
   <rect class="node-rect provider" x="590" y="1222" width="180" height="52" rx="8"/>
@@ -277,11 +288,11 @@
 
   <rect class="node-rect admin" x="900" y="740" width="150" height="46" rx="8"/>
   <text class="node-text" x="975" y="760">Aprobar proveedores</text>
-  <path class="edge" d="M1040,650 C1000,690 975,710 975,738" marker-end="url(#arrow)"/>
+  <path class="edge" d="M1020,626 L975,626 L975,738" marker-end="url(#arrow)"/>
 
   <rect class="node-rect admin" x="1070" y="740" width="150" height="46" rx="8"/>
   <text class="node-text" x="1145" y="760">Destacados</text>
-  <path class="edge" d="M1130,676 C1140,700 1145,715 1145,738" marker-end="url(#arrow)"/>
+  <path class="edge" d="M1220,626 L1145,626 L1145,738" marker-end="url(#arrow)"/>
 
   <rect class="node-rect admin" x="900" y="806" width="150" height="46" rx="8"/>
   <text class="node-text" x="975" y="826">Mensajes / soporte</text>
@@ -293,8 +304,8 @@
 
   <ellipse class="node-oval end" cx="1060" cy="900" rx="90" ry="26"/>
   <text class="node-text on-dark" x="1060" y="904">Plataforma sana</text>
-  <path class="edge" d="M975,852 C1000,880 1030,890 1005,894" marker-end="url(#arrow)"/>
-  <path class="edge" d="M1145,852 C1120,880 1090,890 1115,894" marker-end="url(#arrow)"/>
+  <path class="edge" d="M975,852 L975,900 L968,900" marker-end="url(#arrow)"/>
+  <path class="edge" d="M1145,852 L1145,900 L1152,900" marker-end="url(#arrow)"/>
 
 </svg>
 </div>
