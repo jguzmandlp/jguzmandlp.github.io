@@ -910,12 +910,11 @@
 }
 .certs-col-label:first-child { margin-top:0; }
 .cert-row {
-  /* El bloque completo queda centrado dentro del panel (width:fit-content
-     + margin:auto), pero el texto adentro se alinea a la izquierda en
-     vez de centrarse línea por línea — así los certificados con nombres
-     largos que ocupan 2 líneas no quedan en zigzag. */
+  /* Ancho completo, texto alineado a la izquierda: todas las filas
+     arrancan desde el mismo borde izquierdo del panel (ya centrado
+     en la página), en vez de centrarse cada una por separado. */
   display:flex; flex-direction:column; align-items:flex-start; gap:2px;
-  width:fit-content; max-width:100%; margin:0 auto; text-align:left;
+  width:100%; text-align:left;
   padding:10px 2px; border-bottom:1px solid rgba(255,255,255,.06);
 }
 .cert-name { font-size:12px; color:rgba(255,255,255,.72); }
@@ -1246,7 +1245,7 @@
 
         <div class="reveal-block" id="courses-block">
           <div class="reveal-trigger">
-            <span class="reveal-label">Curso</span>
+            <span class="reveal-label">Cursos</span>
             <span class="reveal-plus">＋</span>
           </div>
           <div class="reveal-panel">
