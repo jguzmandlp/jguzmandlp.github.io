@@ -606,7 +606,7 @@
     .pd-gallery-wrap {
       position:relative; width:100%; height:100vh;
       display:flex; align-items:center; justify-content:center;
-      overflow:hidden; border-radius:8px;
+      overflow:hidden;
     }
     /* Nota: ya no se usa un spacer manual después de la galería — el propio
        ScrollTrigger inserta su pin-spacer, y el contenido real del proyecto
@@ -2132,7 +2132,16 @@ function initPdGallery() {
         scroller: detail,
         start:'center center',
         end:'+=100%',
-        scrub:true,
+        /* El demo original usa scrub:true (pega el Flip exacto al scrollTop
+           crudo, sin suavizar). En una demo aislada eso se ve bien, pero con
+           scroll real de trackpad/mouse los eventos de wheel llegan en
+           ráfagas irregulares, y sin amortiguación cada salto de scroll se
+           nota como un tirón visual. Un scrub numérico hace que la animación
+           persiga el scroll con una pequeña inercia — sigue sincronizada,
+           pero deja de saltar en cada evento crudo. Fix estándar de GSAP
+           para "jittery scrub". */
+        scrub:0.4,
+        anticipatePin:1,
         pin: galleryEl.parentNode
       }
     });
