@@ -2180,18 +2180,18 @@ function initPdGallery() {
           trigger: galleryEl,
           scroller: detail,
           start:'center center',
-          /* Más recorrido de scroll = la parte final (rápida) de la ease
-             exponencial queda repartida en más pixeles = cambio más suave
-             frame a frame justo donde antes se notaba el salto. */
-          end:'+=140%',
-          /* El demo original usa scrub:true (pega el Flip exacto al scrollTop
-             crudo, sin suavizar). Con scroll real de trackpad/mouse los
-             eventos de wheel llegan en ráfagas irregulares; sin amortiguación
-             cada salto se nota como tirón. Un scrub numérico chico sigue el
-             scroll con una inercia mínima — suficiente para suavizar sin
-             sentirse "atrasado". */
-          scrub:0.25,
-          anticipatePin:1,
+          end:'+=100%',
+          /* Volví a scrub:true — EXACTO como el demo original. Un scrub
+             numérico (lo que había puesto antes) agrega un pequeño retraso:
+             la animación queda "persiguiendo" el scroll, y cuando el usuario
+             deja de scrollear, sigue moviéndose sola un instante hasta
+             alcanzarlo — eso es lo que se sentía brusco/con salto. scrub:true
+             pega el Flip 1:1 al scroll real, sin ningún rezago ni "catch-up".
+             Las causas reales del tirón (los renders WebGL de fondo
+             compitiendo por GPU, el padding que descuadraba el layout, la
+             grilla de 5 en vez de 8 items) ya están resueltas — con eso
+             corregido, scrub:true debería comportarse igual que en el demo. */
+          scrub:true,
           pin: galleryEl.parentNode
         }
       });
