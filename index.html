@@ -1535,11 +1535,19 @@ window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camer
 camera.position.set(0,18,0);
 camera.lookAt(0,15,-1000);
 
-renderer.setAnimationLoop(()=>{
+function __oceanTick(){
   timer.update();
   water.material.uniforms['time'].value+=timer.getDelta();
   renderer.render(scene,camera);
-});
+}
+renderer.setAnimationLoop(__oceanTick);
+
+/* Este loop WebGL corre siempre, incluso con el panel de proyecto abierto
+   tapando toda la pantalla — sigue renderizando el océano de fondo aunque
+   no se vea, compitiendo por GPU/hilo principal con el scrub de la galería.
+   Se expone para poder pausarlo/reanudarlo desde showDetail/closeProject. */
+window.__oceanRenderer = renderer;
+window.__oceanTick = __oceanTick;
 </script>
 
 <!-- ── BIRDS ── -->
@@ -1715,7 +1723,7 @@ camera.position.set(0, 18, 0);
 camera.lookAt(0, 15, -1000);
 
 let last=performance.now();
-renderer.setAnimationLoop(async()=>{
+async function __birdsTick(){
   const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;
   /* Solo raycast para los pájaros — cámara no se toca */
   ray.setFromCamera(pointer,camera);
@@ -1725,7 +1733,18 @@ renderer.setAnimationLoop(async()=>{
   await renderer.computeAsync(compWrap);
   renderer.render(scene,camera);
   pointer.y=10;
-});
+}
+renderer.setAnimationLoop(__birdsTick);
+
+/* Este loop es el más pesado de la página: 3 compute shaders WebGPU
+   (velocidad/posición/wrap de cada pájaro) + raycast + render, TODO por
+   frame, siempre — incluso con el panel de proyecto tapando la pantalla.
+   Corriendo a la par del scrub de la galería, compite directo por GPU y
+   es la causa más probable de que el scroll no se sienta tan fluido como
+   en la demo aislada de GSAP (que no tiene nada más corriendo). Se expone
+   para pausarlo/reanudarlo desde showDetail/closeProject. */
+window.__birdsRenderer = renderer;
+window.__birdsTick = __birdsTick;
 </script>
 
 <!-- ── Portfolio JS (cursor + reveals) ── -->
@@ -2089,6 +2108,12 @@ function showDetail(idx) {
     setTimeout(() => close.classList.add('vis'), 350);
   });
 
+  /* Pausar los renders WebGL/WebGPU del fondo (océano + pájaros) mientras
+     el panel está abierto — quedan tapados igual, pero sin esto siguen
+     renderizando y compitiendo por GPU con el scrub de la galería. */
+  window.__oceanRenderer?.setAnimationLoop(null);
+  window.__birdsRenderer?.setAnimationLoop(null);
+
   /* Inicializar la galería scrub de forma robusta: en vez de confiar en
      un único setTimeout fijo (que en equipos/pestañas con carga puede no
      alcanzar a correr antes de que el usuario empiece a scrollear, dejando
@@ -2219,6 +2244,11 @@ function closeProject() {
         appState = 'stack';
         openIdx  = null;
         document.body.style.overflow = '';
+
+        /* Reanudar los renders WebGL/WebGPU de fondo (océano + pájaros)
+           que se pausaron al abrir el proyecto. */
+        if (window.__oceanRenderer && window.__oceanTick) window.__oceanRenderer.setAnimationLoop(window.__oceanTick);
+        if (window.__birdsRenderer && window.__birdsTick) window.__birdsRenderer.setAnimationLoop(window.__birdsTick);
       }
     });
   }, 250);
