@@ -849,15 +849,14 @@
    de texto + foto (nunca se superpone) ── */
 .about-right {
   flex:1 1 auto; min-width:260px;
-  display:flex; flex-direction:column; gap:1px; align-items:center; text-align:center;
+  display:flex; flex-direction:column; gap:1px; align-items:flex-start; text-align:left;
 }
 .reveal-block { border-top:1px solid rgba(255,255,255,.08); width:100%; }
 .reveal-block:last-child { border-bottom:1px solid rgba(255,255,255,.08); }
 .reveal-trigger {
-  display:flex; align-items:center; justify-content:center; gap:14px;
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
   cursor:pointer; padding:20px 2px; position:relative;
 }
-.reveal-trigger .reveal-plus { position:absolute; right:2px; }
 .reveal-label {
   font-family:'Pirata One',cursive; font-weight:400;
   font-size:clamp(32px,3.8vw,46px);
@@ -870,53 +869,71 @@
   transition:transform .35s ease, color .3s;
 }
 .reveal-block.open .reveal-plus { transform:rotate(135deg); color:#c0201a; }
-.reveal-panel {
-  max-height:0; opacity:0; overflow:hidden;
-  transition:max-height .5s cubic-bezier(.2,1,.3,1), opacity .4s ease;
+/* Altura animada por GSAP (acordeón exclusivo, ver script al final) */
+.reveal-panel { overflow:hidden; height:0; opacity:0; }
+.reveal-block.open .reveal-panel { padding-bottom:26px; }
+
+/* ── Liquid glass: superficie compartida por los recuadros
+   (tabs de Habilidades, certificados/cursos, chips de intereses) ── */
+.skill-tabs, .skill-tab-panels, .certs-glass, .interest-tag {
+  position:relative; isolation:isolate;
+  background:rgba(255,255,255,.06);
+  backdrop-filter:blur(24px) saturate(220%) brightness(1.08);
+  -webkit-backdrop-filter:blur(24px) saturate(220%) brightness(1.08);
+  border:1px solid transparent; background-clip:padding-box;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,.55),
+    inset 0 -1px 0 rgba(0,0,0,.35),
+    inset 1px 0 0 rgba(255,255,255,.12),
+    0 20px 50px rgba(0,0,0,.5);
 }
-.reveal-block.open .reveal-panel { max-height:640px; opacity:1; padding-bottom:26px; }
+.skill-tabs::before, .skill-tab-panels::before, .certs-glass::before, .interest-tag::before {
+  content:''; position:absolute; inset:0; z-index:-1; border-radius:inherit; padding:1px;
+  background:linear-gradient(135deg, rgba(255,255,255,.65), rgba(255,255,255,.04) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,.2));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+  pointer-events:none;
+}
 
 /* Pestañas de categoría dentro de Habilidades */
-.skill-tabs { display:flex; border:1px solid rgba(255,255,255,.1); margin-bottom:0; }
+.skill-tabs { display:flex; margin-bottom:0; border-radius:14px 14px 0 0; overflow:hidden; }
 .skill-tab {
   flex:1; text-align:center; padding:11px 6px;
   font-size:9px; letter-spacing:.14em; text-transform:uppercase;
-  color:rgba(255,255,255,.35); cursor:pointer;
-  border-right:1px solid rgba(255,255,255,.08);
+  color:rgba(255,255,255,.4); cursor:pointer;
+  border-right:1px solid rgba(255,255,255,.1);
   transition:color .2s, background .2s;
 }
 .skill-tab:last-child { border-right:none; }
-.skill-tab:hover, .skill-tab.chosen { color:#fff; background:rgba(192,32,26,.16); }
-.skill-tab-panels { border:1px solid rgba(255,255,255,.1); border-top:none; }
+.skill-tab:hover, .skill-tab.chosen { color:#fff; background:rgba(192,32,26,.22); }
+.skill-tab-panels { border-top:none; border-radius:0 0 14px 14px; }
 .skill-tab-panel { display:none; flex-direction:column; padding:6px 14px; }
 .skill-tab-panel.chosen { display:flex; }
 .skill-row {
-  display:flex; align-items:center; justify-content:center; gap:12px;
+  display:flex; align-items:center; justify-content:flex-start; gap:12px;
   font-size:12px; color:rgba(255,255,255,.6);
-  padding:11px 2px; border-bottom:1px solid rgba(255,255,255,.06);
+  padding:11px 2px; border-bottom:1px solid rgba(255,255,255,.08);
   transition:color .2s;
 }
 .skill-row:last-child { border-bottom:none; }
 .skill-row:hover { color:#fff; }
-.skill-dot {
-  width:5px; height:5px; border-radius:50%;
-  background:#c0201a; flex-shrink:0;
-}
 
-/* Certificados dentro del panel desplegable */
+/* Certificados / Cursos dentro del panel desplegable */
 .certs-col-label {
   font-size:9px; letter-spacing:.2em; text-transform:uppercase;
   color:rgba(255,255,255,.3); margin:16px 0 4px; padding-top:4px;
 }
 .certs-col-label:first-child { margin-top:0; }
+.certs-glass { border-radius:18px; padding:6px 16px; }
 .cert-row {
   /* Ancho completo, texto alineado a la izquierda: todas las filas
      arrancan desde el mismo borde izquierdo del panel (ya centrado
      en la página), en vez de centrarse cada una por separado. */
   display:flex; flex-direction:column; align-items:flex-start; gap:2px;
   width:100%; text-align:left;
-  padding:10px 2px; border-bottom:1px solid rgba(255,255,255,.06);
+  padding:10px 2px; border-bottom:1px solid rgba(255,255,255,.08);
 }
+.cert-row:last-child { border-bottom:none; }
 .cert-name { font-size:12px; color:rgba(255,255,255,.72); }
 .cert-meta {
   font-size:9px; letter-spacing:.1em; text-transform:uppercase;
@@ -924,15 +941,14 @@
 }
 
 /* Intereses: chips */
-.interest-tags { display:flex; flex-wrap:wrap; justify-content:center; gap:9px; padding-top:4px; }
+.interest-tags { display:flex; flex-wrap:wrap; justify-content:flex-start; gap:9px; padding-top:4px; }
 .interest-tag {
   font-size:10px; letter-spacing:.06em;
   color:rgba(255,255,255,.6);
-  border:1px solid rgba(255,255,255,.18);
   padding:8px 14px; border-radius:20px;
-  transition:background .2s, color .2s, border-color .2s;
+  transition:background .2s, color .2s;
 }
-.interest-tag:hover { background:#c0201a; border-color:#c0201a; color:#fff; }
+.interest-tag:hover { background:#c0201a !important; color:#fff; }
 
 /* ════════════════════════════════
    SECCIÓN CONTACTO
@@ -1210,22 +1226,29 @@
               <div class="skill-tab chosen" data-panel="tab-diseno">Diseño</div>
               <div class="skill-tab" data-panel="tab-codigo">Código</div>
               <div class="skill-tab" data-panel="tab-gestion">Gestión</div>
+              <div class="skill-tab" data-panel="tab-produccion">Producción</div>
             </div>
             <div class="skill-tab-panels">
               <div class="skill-tab-panel chosen" id="tab-diseno">
-                <div class="skill-row"><span class="skill-dot"></span>Adobe Photoshop / Illustrator</div>
-                <div class="skill-row"><span class="skill-dot"></span>Adobe InDesign / Express / Premiere</div>
-                <div class="skill-row"><span class="skill-dot"></span>Figma — UX / UI Design</div>
+                <div class="skill-row">Adobe Photoshop / Illustrator</div>
+                <div class="skill-row">Adobe InDesign / Express / Premiere</div>
+                <div class="skill-row">Figma — UX / UI Design</div>
+                <div class="skill-row">Impresión 3D / prototipado</div>
               </div>
               <div class="skill-tab-panel" id="tab-codigo">
-                <div class="skill-row"><span class="skill-dot"></span>HTML / CSS / JavaScript</div>
-                <div class="skill-row"><span class="skill-dot"></span>Three.js / WebGPU / GSAP</div>
-                <div class="skill-row"><span class="skill-dot"></span>Supabase / Cloudflare</div>
-                <div class="skill-row"><span class="skill-dot"></span>Claude Code / IA aplicada</div>
+                <div class="skill-row">HTML / CSS / JavaScript</div>
+                <div class="skill-row">Three.js / WebGPU / GSAP</div>
+                <div class="skill-row">Supabase / Cloudflare</div>
+                <div class="skill-row">Claude Code / IA aplicada</div>
               </div>
               <div class="skill-tab-panel" id="tab-gestion">
-                <div class="skill-row"><span class="skill-dot"></span>Meta Business / Marketing Digital</div>
-                <div class="skill-row"><span class="skill-dot"></span>Gestión de proyectos</div>
+                <div class="skill-row">Meta Business / Marketing Digital</div>
+                <div class="skill-row">Gestión de proyectos</div>
+              </div>
+              <div class="skill-tab-panel" id="tab-produccion">
+                <div class="skill-row">Producción de eventos</div>
+                <div class="skill-row">Instalación y montaje en altura</div>
+                <div class="skill-row">Pilotaje de drones (foto/video aéreo)</div>
               </div>
             </div>
           </div>
@@ -1237,9 +1260,11 @@
             <span class="reveal-plus">＋</span>
           </div>
           <div class="reveal-panel">
-            <div class="cert-row"><span class="cert-name">Google UX Design Professional Certificate</span><span class="cert-meta">Google — 2026</span></div>
-            <div class="cert-row"><span class="cert-name">Full Stack Development Certification</span><span class="cert-meta">Mimo.org — 2026</span></div>
-            <div class="cert-row"><span class="cert-name">Inglés — Intermedio alto (B2, CEFR)</span><span class="cert-meta">EFSET</span></div>
+            <div class="certs-glass">
+              <div class="cert-row"><span class="cert-name">Google UX Design Professional Certificate</span><span class="cert-meta">Google — 2026</span></div>
+              <div class="cert-row"><span class="cert-name">Full Stack Development Certification</span><span class="cert-meta">Mimo.org — 2026</span></div>
+              <div class="cert-row"><span class="cert-name">Inglés — Intermedio alto (B2, CEFR)</span><span class="cert-meta">EFSET</span></div>
+            </div>
           </div>
         </div>
 
@@ -1249,10 +1274,12 @@
             <span class="reveal-plus">＋</span>
           </div>
           <div class="reveal-panel">
-            <div class="cert-row"><span class="cert-name">Claude 101</span><span class="cert-meta">Anthropic — 2026</span></div>
-            <div class="cert-row"><span class="cert-name">Claude Code 101</span><span class="cert-meta">Anthropic — 2026</span></div>
-            <div class="cert-row"><span class="cert-name">Introduction to Claude Cowork</span><span class="cert-meta">Anthropic — 2026</span></div>
-            <div class="cert-row"><span class="cert-name">Diseño Web UI/UX en Figma — IA y Grandes Proyectos</span><span class="cert-meta">Udemy — 2026</span></div>
+            <div class="certs-glass">
+              <div class="cert-row"><span class="cert-name">Claude 101</span><span class="cert-meta">Anthropic — 2026</span></div>
+              <div class="cert-row"><span class="cert-name">Claude Code 101</span><span class="cert-meta">Anthropic — 2026</span></div>
+              <div class="cert-row"><span class="cert-name">Introduction to Claude Cowork</span><span class="cert-meta">Anthropic — 2026</span></div>
+              <div class="cert-row"><span class="cert-name">Diseño Web UI/UX en Figma — IA y Grandes Proyectos</span><span class="cert-meta">Udemy — 2026</span></div>
+            </div>
           </div>
         </div>
 
@@ -2342,10 +2369,29 @@ function closeProject() {
 document.getElementById('proj-close').addEventListener('click', closeProject);
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeProject(); });
 
-/* Habilidades / Certificados: desplegables por click */
-document.querySelectorAll('.reveal-block').forEach(block => {
+/* Habilidades / Certificados / Cursos / Intereses: acordeón exclusivo
+   (solo un panel abierto a la vez, altura animada con GSAP) */
+const revealBlocks = document.querySelectorAll('.reveal-block');
+function closeRevealBlock(block, animate = true) {
+  const panel = block.querySelector('.reveal-panel');
+  block.classList.remove('open');
+  if (!animate) { gsap.set(panel, {height:0, opacity:0}); return; }
+  gsap.to(panel, {height:0, opacity:0, duration:.4, ease:'power2.inOut'});
+}
+function openRevealBlock(block) {
+  const panel = block.querySelector('.reveal-panel');
+  block.classList.add('open');
+  gsap.set(panel, {height:'auto'});
+  const target = panel.offsetHeight;
+  gsap.fromTo(panel, {height:0, opacity:0}, {height:target, opacity:1, duration:.55, ease:'power3.out',
+    onComplete(){ gsap.set(panel, {height:'auto'}); }});
+}
+revealBlocks.forEach(b => closeRevealBlock(b, false));
+revealBlocks.forEach(block => {
   block.querySelector('.reveal-trigger').addEventListener('click', () => {
-    block.classList.toggle('open');
+    const isOpen = block.classList.contains('open');
+    revealBlocks.forEach(b => { if (b !== block) closeRevealBlock(b); });
+    isOpen ? closeRevealBlock(block) : openRevealBlock(block);
   });
 });
 
