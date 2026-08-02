@@ -47,7 +47,8 @@
   .node-oval.end{ fill:var(--gold-accent); stroke:var(--gold-accent); }
   .node-text{ font-family:'DM Sans',sans-serif; font-size:12px; fill:var(--gray-800); text-anchor:middle; }
   .node-text.on-dark{ fill:#fff; font-weight:500; }
-  .node-text.small{ font-size:10.5px; }
+  .node-text.small{ font-size:9.6px; }
+  .lane-label-bg{ fill:#fff; opacity:.94; }
   .lane-label{
     font-family:'Sora',sans-serif; font-weight:700; font-size:14px;
     letter-spacing:.04em; text-transform:uppercase;
@@ -100,7 +101,7 @@
 
   <rect class="node-rect" x="380" y="96" width="240" height="52" rx="8"/>
   <text class="node-text" x="500" y="118">Landing (Home)</text>
-  <text class="node-text small" x="500" y="134" fill="#64748b">isotipo 3D dorado (GLB) + transiciones GSAP</text>
+  <text class="node-text small" x="500" y="134" fill="#64748b">isotipo 3D (GLB) + GSAP</text>
   <path class="edge" d="M500,148 L500,174" marker-end="url(#arrow)"/>
 
   <polygon class="node-diamond" points="500,174 610,230 500,286 390,230"/>
@@ -160,7 +161,7 @@
 
   <rect class="node-rect" x="410" y="706" width="180" height="58" rx="8"/>
   <text class="node-text" x="500" y="728">Pago con SINPE Móvil</text>
-  <text class="node-text small" x="500" y="744" fill="#64748b">único método · nº y nombre visibles</text>
+  <text class="node-text small" x="500" y="744" fill="#64748b">único método de pago</text>
   <path class="edge" d="M500,678 L500,704" marker-end="url(#arrow)"/>
 
   <rect class="node-rect" x="410" y="792" width="180" height="52" rx="8"/>
@@ -173,6 +174,7 @@
   <path class="edge" d="M500,844 L500,866" marker-end="url(#arrow)"/>
 
   <!-- ═══════════ MARCA / IDENTIDAD ═══════════ -->
+  <rect class="lane-label-bg" x="317.2" y="987.5" width="365.6" height="22" rx="4"/>
   <text class="lane-label" x="500" y="1004" fill="#8a6a14" text-anchor="middle">Identidad de marca (presente en todo el sitio)</text>
 
   <rect class="node-rect admin" x="120" y="1030" width="200" height="52" rx="8"/>

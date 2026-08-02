@@ -48,7 +48,8 @@
   .node-oval.end{ fill:var(--green); stroke:var(--green); }
   .node-text{ font-family:'DM Sans',sans-serif; font-size:12px; fill:var(--gray-800); text-anchor:middle; }
   .node-text.on-dark{ fill:#fff; font-weight:500; }
-  .node-text.small{ font-size:10.5px; }
+  .node-text.small{ font-size:9.6px; }
+  .lane-label-bg{ fill:#fff; opacity:.94; }
   .lane-label{
     font-family:'Sora',sans-serif; font-weight:700; font-size:14px;
     letter-spacing:.04em; text-transform:uppercase;
@@ -125,8 +126,11 @@
   <text class="edge-label" x="1120" y="230">Admin (login directo)</text>
 
   <!-- ═══════════ LANE LABELS ═══════════ -->
+  <rect class="lane-label-bg" x="225.4" y="375.5" width="69.2" height="22" rx="4"/>
   <text class="lane-label" x="260" y="392" fill="#2563eb" text-anchor="middle">Cliente</text>
+  <rect class="lane-label-bg" x="637.8" y="375.5" width="84.4" height="22" rx="4"/>
   <text class="lane-label" x="680" y="392" fill="#10b981" text-anchor="middle">Proveedor</text>
+  <rect class="lane-label-bg" x="1093.0" y="375.5" width="54.0" height="22" rx="4"/>
   <text class="lane-label" x="1120" y="392" fill="#d97706" text-anchor="middle">Admin</text>
 
   <!-- ═══════════ COLUMNA CLIENTE ═══════════ -->
@@ -137,7 +141,7 @@
 
   <rect class="node-rect" x="170" y="496" width="180" height="52" rx="8"/>
   <text class="node-text" x="260" y="518">Resultados</text>
-  <text class="node-text small" x="260" y="534" fill="#64748b">proveedores cercanos + destacados</text>
+  <text class="node-text small" x="260" y="534" fill="#64748b">cercanos y destacados</text>
   <path class="edge" d="M260,468 L260,494" marker-end="url(#arrow)"/>
 
   <rect class="node-rect" x="170" y="576" width="180" height="52" rx="8"/>

@@ -47,7 +47,8 @@
   .node-oval.end{ fill:var(--green-accent); stroke:var(--green-accent); }
   .node-text{ font-family:'DM Sans',sans-serif; font-size:12px; fill:var(--gray-800); text-anchor:middle; }
   .node-text.on-dark{ fill:#fff; font-weight:500; }
-  .node-text.small{ font-size:10.5px; }
+  .node-text.small{ font-size:9.6px; }
+  .lane-label-bg{ fill:#fff; opacity:.94; }
   .lane-label{
     font-family:'Sora',sans-serif; font-weight:700; font-size:14px;
     letter-spacing:.04em; text-transform:uppercase;
@@ -159,6 +160,7 @@
   <path class="edge" d="M500,724 L500,740" marker-end="url(#arrow)"/>
 
   <!-- ═══════════ TIENDA DE ARTESANÍAS ═══════════ -->
+  <rect class="lane-label-bg" x="389.4" y="849.5" width="221.2" height="22" rx="4"/>
   <text class="lane-label" x="500" y="866" fill="#1a5c2a" text-anchor="middle">Tienda de artesanías Bribri</text>
 
   <rect class="node-rect" x="410" y="892" width="180" height="52" rx="8"/>
@@ -183,11 +185,12 @@
   <path class="edge" d="M500,1104 L500,1118" marker-end="url(#arrow)"/>
 
   <!-- ═══════════ ADMIN ═══════════ -->
+  <rect class="lane-label-bg" x="473.0" y="1219.5" width="54.0" height="22" rx="4"/>
   <text class="lane-label" x="500" y="1236" fill="#c99a3a" text-anchor="middle">Admin</text>
 
   <rect class="node-rect admin" x="410" y="1262" width="180" height="52" rx="8"/>
   <text class="node-text" x="500" y="1284">Panel de travel planning</text>
-  <text class="node-text small" x="500" y="1300" fill="#64748b">reservas · itinerarios · disponibilidad</text>
+  <text class="node-text small" x="500" y="1300" fill="#64748b">reservas · itinerarios</text>
   <path class="edge" d="M590,492 L1000,492 L1000,1288 L592,1288" marker-end="url(#arrow)"/>
 
   <ellipse class="node-oval end" cx="500" cy="1366" rx="90" ry="26"/>

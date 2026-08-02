@@ -47,7 +47,8 @@
   .node-oval.end{ fill:var(--green-accent); stroke:var(--green-accent); }
   .node-text{ font-family:'DM Sans',sans-serif; font-size:12px; fill:var(--gray-800); text-anchor:middle; }
   .node-text.on-dark{ fill:#fff; font-weight:500; }
-  .node-text.small{ font-size:10.5px; }
+  .node-text.small{ font-size:9.6px; }
+  .lane-label-bg{ fill:#fff; opacity:.94; }
   .lane-label{
     font-family:'Sora',sans-serif; font-weight:700; font-size:14px;
     letter-spacing:.04em; text-transform:uppercase;
@@ -123,6 +124,7 @@
   <path class="edge" d="M560,308 L588,308" marker-end="url(#arrow)"/>
 
   <!-- ambos caminos convergen en el sistema de reservas -->
+  <rect class="lane-label-bg" x="369.8" y="361.5" width="160.4" height="22" rx="4"/>
   <text class="lane-label" x="450" y="378" fill="#2a5a30" text-anchor="middle">Sistema de reservas</text>
 
   <rect class="node-rect" x="330" y="392" width="240" height="52" rx="8"/>
@@ -141,6 +143,7 @@
   <text class="node-text small" x="450" y="586" fill="#64748b">por WhatsApp + sistema</text>
   <path class="edge" d="M450,522 L450,546" marker-end="url(#arrow)"/>
 
+  <rect class="lane-label-bg" x="385.0" y="597.5" width="130.0" height="22" rx="4"/>
   <text class="lane-label" x="450" y="614" fill="#2a5a30" text-anchor="middle">Proceso clínico</text>
 
   <rect class="node-rect" x="330" y="628" width="240" height="52" rx="8"/>
@@ -186,6 +189,7 @@
   <path class="edge" d="M450,1130 L450,1180" marker-end="url(#arrow)"/>
 
   <!-- ═══════════ PANEL DE LA DOCTORA (STAFF) ═══════════ -->
+  <rect class="lane-label-bg" x="769.8" y="435.5" width="160.4" height="22" rx="4"/>
   <text class="lane-label" x="850" y="452" fill="#c99a3a" text-anchor="middle">Panel de la doctora</text>
 
   <rect class="node-rect admin" x="760" y="470" width="180" height="52" rx="8"/>
@@ -204,15 +208,16 @@
   <path class="edge" d="M850,608 L850,624" marker-end="url(#arrow)"/>
 
   <!-- ═══════════ CONTENIDO DE APOYO ═══════════ -->
+  <rect class="lane-label-bg" x="290.0" y="1281.5" width="320.0" height="22" rx="4"/>
   <text class="lane-label" x="450" y="1298" fill="#c99a3a" text-anchor="middle">Contenido de apoyo (en la misma landing)</text>
 
   <rect class="node-rect admin" x="120" y="1324" width="190" height="50" rx="8"/>
   <text class="node-text" x="215" y="1344">Beneficios reales</text>
-  <text class="node-text small" x="215" y="1360" fill="#64748b">energía · composición · salud metabólica</text>
+  <text class="node-text small" x="215" y="1360" fill="#64748b">energía · composición corporal</text>
 
   <rect class="node-rect admin" x="355" y="1324" width="190" height="50" rx="8"/>
   <text class="node-text" x="450" y="1344">Testimonios</text>
-  <text class="node-text small" x="450" y="1360" fill="#64748b">resultados que hablan por sí solos</text>
+  <text class="node-text small" x="450" y="1360" fill="#64748b">resultados que hablan solos</text>
 
   <rect class="node-rect admin" x="590" y="1324" width="190" height="50" rx="8"/>
   <text class="node-text" x="685" y="1344">FAQ</text>
