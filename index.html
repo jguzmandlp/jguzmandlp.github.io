@@ -575,8 +575,8 @@
     /* ── Diagrama del sitio / Problema / Solución (desplegables) ── */
     .pd-extra { margin-top:8px; max-width:900px; }
     .pd-extra .reveal-label {
-      font-family:'Unbounded',sans-serif; font-weight:700;
-      font-size:clamp(20px,2.2vw,28px); letter-spacing:0;
+      font-family:'Space Mono',monospace; font-weight:700;
+      font-size:clamp(17px,1.8vw,22px); letter-spacing:.01em;
     }
     .pd-extra .reveal-trigger { padding:22px 2px; }
     .pd-extra-text { font-size:13px; line-height:2; color:rgba(255,255,255,.6); max-width:720px; }
@@ -1879,33 +1879,39 @@ const PROJECTS = [
     tags:['Canvas API','Vanilla JS','AVIF','Cloudflare Pages'],
     desc:'Plataforma de turismo cultural Bribri en Talamanca, Costa Rica. Secuencia cinemática de scroll con más de 180 frames AVIF dibujados a mano sobre canvas (sin librerías de animación), tres tipos de tour, itinerarios armados a medida por cliente, tienda de artesanías Bribri con checkout por WhatsApp y panel admin de travel planning.',
     tech:'HTML · CSS · JS Vanilla · Canvas API · Cloudflare Pages', url:'sikuatours.com',
-    video:null,
+    video:null, logo:'img/logos/sikua-logo.png', chipBg:'#81994e',
     gallery:[
-      'https://picsum.photos/seed/rainforest-6/800/1067',
-      'https://picsum.photos/seed/waterfall-jungle-7/800/1067',
-      'https://picsum.photos/seed/indigenous-craft-8/800/1067',
-      'https://picsum.photos/seed/river-canoe-9/800/1067',
-      'https://picsum.photos/seed/tropical-costa-rica-10/800/1067',
-      'https://picsum.photos/seed/jungle-trail-11/800/1067',
-      'https://picsum.photos/seed/exotic-birds-12/800/1067',
-      'https://picsum.photos/seed/rainforest-canopy-13/800/1067'
-    ] },
+      'img/gallery/sikua/g1.avif',
+      'img/gallery/sikua/g2.avif',
+      'img/gallery/sikua/g3.avif',
+      'img/gallery/sikua/g4.avif',
+      'img/gallery/sikua/g5.avif',
+      'img/gallery/sikua/g6.avif',
+      'img/gallery/sikua/g7.avif',
+      'img/gallery/sikua/g8.avif'
+    ],
+    problem:'El turismo cultural Bribri en Talamanca dependía casi por completo de operadores intermediarios: la comunidad no tenía una vitrina digital propia para mostrar sus tours, itinerarios y artesanías, y quien buscaba la experiencia en internet solo encontraba paquetes genéricos de agencias externas, sin poder armar un recorrido a su medida ni comprarle directo a la comunidad.',
+    solution:'Un sitio-experiencia que arranca con una secuencia cinemática de scroll (180+ frames dibujados a mano) para transmitir el territorio antes de cualquier texto, y que resuelve todo el recorrido sin salir de la página: tres tipos de tour, un itinerario que el cliente arma a su medida, confirmación directa por WhatsApp con el guía, y una tienda de artesanías Bribri con checkout también por WhatsApp — todo coordinado desde un panel admin de travel planning para la comunidad.',
+    diagram:'proyectos/sikua-arquitectura.html' },
   { id:'fragancia',name:'Fragancia Urbana',     role:'E-commerce · 3D · Luxury',
     color:'#120f04', grad:'linear-gradient(135deg,#130f04,#2e2508)', accent:'#5a4a18',
     tags:['E-commerce','Three.js','GSAP','SINPE Móvil'],
     desc:'Tienda de perfumería de lujo con estética dark gold. Isotipo 3D animado desde Blender/GLB, transiciones GSAP entre páginas y pagos con SINPE Móvil.',
     tech:'HTML · CSS · JS · Three.js · GSAP · Cloudflare Pages', url:null,
-    video:'videos/fragancia.mp4',
+    video:'videos/fragancia.mp4', logo:'img/logos/fragancia-logo.jpg', chipBg:'#000',
     gallery:[
-      'https://picsum.photos/seed/perfume-11/800/1067',
-      'https://picsum.photos/seed/luxury-gold-12/800/1067',
-      'https://picsum.photos/seed/perfume-bottle-13/800/1067',
-      'https://picsum.photos/seed/fragrance-14/800/1067',
-      'https://picsum.photos/seed/elegant-cosmetics-15/800/1067',
-      'https://picsum.photos/seed/perfume-shelf-16/800/1067',
-      'https://picsum.photos/seed/glass-bottle-17/800/1067',
-      'https://picsum.photos/seed/cosmetics-store-18/800/1067'
-    ] },
+      'img/gallery/fragancia/g1.jpg',
+      'img/gallery/fragancia/g2.jpg',
+      'img/gallery/fragancia/g3.jpg',
+      'img/gallery/fragancia/g4.jpg',
+      'img/gallery/fragancia/g5.jpg',
+      'img/gallery/fragancia/g6.jpg',
+      'img/gallery/fragancia/g7.jpg',
+      'img/gallery/fragancia/g8.jpg'
+    ],
+    problem:'Comprar un perfume de nicho a ciegas es caro y arriesgado: un frasco completo cuesta mucho para "probar" si una fragancia le queda bien a alguien, y en Costa Rica no había una tienda que resolviera ese problema con un método de pago simple y directo — sin pasarelas complicadas ni tarjetas internacionales.',
+    solution:'Una tienda que separa cada perfume en dos formatos — frasco completo o decant (muestra en mililitros a precio accesible) — organizada por catálogo de hombre y mujer, con una sección educativa ("¿Qué es un decant?") que resuelve la duda antes de comprar. El checkout es deliberadamente manual: pago único por SINPE Móvil y confirmación por WhatsApp, reforzado en cada página por un isotipo 3D dorado (Blender → GLB, Three.js) que gira con el scroll y transiciones GSAP que sostienen la estética "dark gold" de lujo.',
+    diagram:'proyectos/fragancia-arquitectura.html' },
   { id:'pame',     name:'Pame Salón',            role:'Brand · Web',
     color:'#14050d', grad:'linear-gradient(135deg,#150510,#360d22)', accent:'#5a1535',
     tags:['Brand','Three.js','GSAP','Web'],
@@ -1927,17 +1933,20 @@ const PROJECTS = [
     tags:['Booking','Dashboard','GSAP','WhatsApp'],
     desc:'Sitio para nutricionista con sistema de reservas, dashboard de cliente, panel admin y animaciones GSAP. WhatsApp CTA integrado para consultas.',
     tech:'HTML · CSS · JS · GSAP · localStorage', url:null,
-    video:'videos/orozco.mp4',
+    video:'videos/orozco.mp4', logo:'img/logos/orozco-logo.svg',
     gallery:[
-      'https://picsum.photos/seed/healthy-food-21/800/1067',
-      'https://picsum.photos/seed/nutrition-22/800/1067',
-      'https://picsum.photos/seed/vegetables-23/800/1067',
-      'https://picsum.photos/seed/fitness-health-24/800/1067',
-      'https://picsum.photos/seed/doctor-clinic-25/800/1067',
-      'https://picsum.photos/seed/wellness-26/800/1067',
-      'https://picsum.photos/seed/fruit-bowl-27/800/1067',
-      'https://picsum.photos/seed/medical-checkup-28/800/1067'
-    ] },
+      'img/gallery/orozco/g1.png',
+      'img/gallery/orozco/g2.jpeg',
+      'img/gallery/orozco/g3.jpg',
+      'img/gallery/orozco/g4.jpeg',
+      'img/gallery/orozco/g5.png',
+      'img/gallery/orozco/g6.png',
+      'img/gallery/orozco/g7.avif',
+      'img/gallery/orozco/g8.jpg'
+    ],
+    problem:'Quienes buscaban ayuda nutricional llegaban con historias muy distintas — bajar grasa sin perder músculo, controlar diabetes o resistencia a la insulina, o simplemente no saber cómo comer de forma equilibrada — pero se topaban con planes genéricos en papel, sin acompañamiento real ni un camino claro entre "solo quiero un plan" y "quiero resultados más rápidos con entrenamiento supervisado".',
+    solution:'Una landing que arranca validando esas situaciones ("¿te identificas con alguna de estas?") antes de vender nada, presenta dos caminos claros — nutrición sola o nutrición + gimnasio exclusivo — y guía todo el proceso en 5 pasos simples desde agendar por WhatsApp hasta el seguimiento continuo. Beneficios, testimonios y FAQ resuelven las objeciones sin que el usuario tenga que buscarlas.',
+    diagram:'proyectos/orozco-arquitectura.html' },
   { id:'english',  name:'English Fluency',        role:'App · Electron · AI',
     color:'#06041a', grad:'linear-gradient(135deg,#060418,#120d36)', accent:'#22155a',
     tags:['Electron','Node.js','Groq AI','Google TTS'],
@@ -2016,7 +2025,7 @@ PROJECTS.forEach((p, i) => {
   el.className = 'pc';
   el.innerHTML = p.logo
     ? `<div class="pc-logo-card" style="background:${p.grad}">
-         <div class="pc-logo-chip"><img src="${p.logo}" alt="${p.name}" draggable="false"></div>
+         <div class="pc-logo-chip" style="${p.chipBg ? `background:${p.chipBg}` : ''}"><img src="${p.logo}" alt="${p.name}" draggable="false"></div>
        </div>`
     : `<img class="pc-photo" src="${p.image || cardPlaceholderSVG(p)}" alt="${p.name}" draggable="false" loading="lazy" decoding="async">`;
   scene.appendChild(el);
