@@ -2114,6 +2114,11 @@ function showDetail(idx) {
   window.__oceanRenderer?.setAnimationLoop(null);
   window.__birdsRenderer?.setAnimationLoop(null);
 
+  /* Desactivar por completo el sistema de scroll-jack de sección a sección
+     mientras el proyecto está abierto — la rueda/touch queda 100% para el
+     scroll interno del panel (galería + contenido), sin competir por nada. */
+  window.__modalScrollLock = true;
+
   /* Inicializar la galería scrub de forma robusta: en vez de confiar en
      un único setTimeout fijo (que en equipos/pestañas con carga puede no
      alcanzar a correr antes de que el usuario empiece a scrollear, dejando
@@ -2275,6 +2280,9 @@ function closeProject() {
            que se pausaron al abrir el proyecto. */
         if (window.__oceanRenderer && window.__oceanTick) window.__oceanRenderer.setAnimationLoop(window.__oceanTick);
         if (window.__birdsRenderer && window.__birdsTick) window.__birdsRenderer.setAnimationLoop(window.__birdsTick);
+
+        /* Reactivar el scroll-jack de sección a sección. */
+        window.__modalScrollLock = false;
       }
     });
   }, 250);
@@ -2406,9 +2414,11 @@ function goToHero()      { goTo(0); }
 window.addEventListener('wheel', e => {
   // Si el panel de detalle de proyecto está abierto, su scroll interno
   // (galería scrub, contenido) debe funcionar solo — no interferir
-  // navegando de sección en la página completa por debajo.
-  const detail = document.getElementById('proj-detail');
-  if (detail && detail.classList.contains('open')) return;
+  // navegando de sección en la página completa por debajo. Se usa una
+  // bandera simple (en vez de consultar el DOM en cada tick de rueda)
+  // para que el sistema de salto de sección quede completamente inerte,
+  // sin ningún trabajo de más, mientras la galería está scrolleando.
+  if (window.__modalScrollLock) return;
   if (e.deltaY > 10)  goTo(currentSection + 1);
   if (e.deltaY < -10) goTo(currentSection - 1);
 }, { passive: true });
@@ -2417,8 +2427,7 @@ window.addEventListener('wheel', e => {
 let touchStartY = 0;
 window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
 window.addEventListener('touchend', e => {
-  const detail = document.getElementById('proj-detail');
-  if (detail && detail.classList.contains('open')) return;
+  if (window.__modalScrollLock) return;
   const dy = touchStartY - e.changedTouches[0].clientY;
   if (dy >  40) goTo(currentSection + 1);
   if (dy < -40) goTo(currentSection - 1);
