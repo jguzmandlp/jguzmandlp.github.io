@@ -2144,40 +2144,66 @@ function initPdGallery() {
   const detail    = document.getElementById('proj-detail');
   if (!galleryEl) return;
 
-  window._pdGalleryCtx = gsap.context(() => {
-    galleryEl.classList.add('pd-gallery--final');
-    const flipState = Flip.getState(galleryEl.querySelectorAll('.pd-gallery__item'));
-    galleryEl.classList.remove('pd-gallery--final');
+  /* El tirón final justo antes de pasar al texto pasa por dos motivos:
+     1) expoScale(1,5) es una ease exponencial — el tamaño de las fotos
+        casi no cambia al principio del scroll y cambia MUY rápido al
+        final. Cualquier mínimo lag del scrub se nota mucho más ahí que
+        en el resto, porque el ritmo de cambio por pixel de scroll es
+        más alto justo al final.
+     2) Si alguna imagen todavía no había terminado de decodificar,
+        el layout/paint de ese frame final costaba más, coincidiendo
+        justo con el momento de mayor velocidad de cambio.
+     Fix: esperar a que las 8 fotos estén decodificadas antes de capturar
+     el estado Flip/crear el ScrollTrigger, estirar el recorrido de scroll
+     (end) para que esa cola exponencial tenga más espacio y así cambie
+     más gradual, y ajustar el scrub para que siga el dedo/mouse más de
+     cerca justo donde más importa. */
+  const imgs = [...galleryEl.querySelectorAll('img')];
+  const ready = imgs.length
+    ? Promise.all(imgs.map(img => img.decode ? img.decode().catch(()=>{}) : Promise.resolve()))
+    : Promise.resolve();
 
-    const flip = Flip.to(flipState, { simple:true, ease:'expoScale(1,5)' });
+  ready.then(() => {
+    /* Si en el ínterin se cerró el proyecto o se reinicializó la galería,
+       no crear un ScrollTrigger huérfano sobre un elemento que ya no está. */
+    if (!document.body.contains(galleryEl)) return;
 
-    const tl = gsap.timeline({
-      scrollTrigger:{
-        trigger: galleryEl,
-        scroller: detail,
-        start:'center center',
-        end:'+=100%',
-        /* El demo original usa scrub:true (pega el Flip exacto al scrollTop
-           crudo, sin suavizar). En una demo aislada eso se ve bien, pero con
-           scroll real de trackpad/mouse los eventos de wheel llegan en
-           ráfagas irregulares, y sin amortiguación cada salto de scroll se
-           nota como un tirón visual. Un scrub numérico hace que la animación
-           persiga el scroll con una pequeña inercia — sigue sincronizada,
-           pero deja de saltar en cada evento crudo. Fix estándar de GSAP
-           para "jittery scrub". */
-        scrub:0.4,
-        anticipatePin:1,
-        pin: galleryEl.parentNode
-      }
+    window._pdGalleryCtx = gsap.context(() => {
+      galleryEl.classList.add('pd-gallery--final');
+      const flipState = Flip.getState(galleryEl.querySelectorAll('.pd-gallery__item'));
+      galleryEl.classList.remove('pd-gallery--final');
+
+      const flip = Flip.to(flipState, { simple:true, ease:'expoScale(1,5)' });
+
+      const tl = gsap.timeline({
+        scrollTrigger:{
+          trigger: galleryEl,
+          scroller: detail,
+          start:'center center',
+          /* Más recorrido de scroll = la parte final (rápida) de la ease
+             exponencial queda repartida en más pixeles = cambio más suave
+             frame a frame justo donde antes se notaba el salto. */
+          end:'+=140%',
+          /* El demo original usa scrub:true (pega el Flip exacto al scrollTop
+             crudo, sin suavizar). Con scroll real de trackpad/mouse los
+             eventos de wheel llegan en ráfagas irregulares; sin amortiguación
+             cada salto se nota como tirón. Un scrub numérico chico sigue el
+             scroll con una inercia mínima — suficiente para suavizar sin
+             sentirse "atrasado". */
+          scrub:0.25,
+          anticipatePin:1,
+          pin: galleryEl.parentNode
+        }
+      });
+      tl.add(flip);
+
+      return () => gsap.set(galleryEl.querySelectorAll('.pd-gallery__item'), { clearProps:'all' });
     });
-    tl.add(flip);
 
-    return () => gsap.set(galleryEl.querySelectorAll('.pd-gallery__item'), { clearProps:'all' });
+    /* El spacer recién insertado cambia la altura scrolleable del panel;
+       forzar un recálculo para que el pin tenga el recorrido completo. */
+    ScrollTrigger.refresh();
   });
-
-  /* El spacer recién insertado cambia la altura scrolleable del panel;
-     forzar un recálculo para que el pin tenga el recorrido completo. */
-  ScrollTrigger.refresh();
 }
 
 /* Igual que el demo original (window.addEventListener('resize', createTween)):
