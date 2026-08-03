@@ -113,6 +113,16 @@
       background:transparent;
       border:1px solid rgba(255,255,255,.35);
     }
+    #cur-label {
+      position:fixed; z-index:9999; pointer-events:none;
+      transform:translate(18px,-6px);
+      font-family:'Space Mono',monospace; font-size:11px; font-weight:700;
+      letter-spacing:.06em; text-transform:uppercase;
+      color:#fff; background:rgba(0,0,0,.6); backdrop-filter:blur(4px);
+      padding:6px 12px; border-radius:20px; white-space:nowrap;
+      opacity:0; transition:opacity .18s ease;
+    }
+    #cur-label.show { opacity:1; }
 
     /* ════════════════════════════════
        HERO
@@ -712,6 +722,7 @@
     @media (max-width: 768px) {
       /* Cursor custom: ocultar en touch */
       #cur { display:none; }
+      #cur-label { display:none; }
 
       /* Nav */
       .nav { padding:20px 28px; }
@@ -1080,6 +1091,7 @@
 </head>
 <body>
 <div id="cur"></div>
+<div id="cur-label"></div>
 
 <!-- ══════════════════════════════════════
      PRELOADER
@@ -1823,9 +1835,12 @@ window.__birdsTick = __birdsTick;
 <!-- ── Portfolio JS (cursor + reveals) ── -->
 <script>
 const cur=document.getElementById('cur');
+const curLabel=document.getElementById('cur-label');
 document.addEventListener('mousemove',e=>{
   cur.style.left=e.clientX+'px';
   cur.style.top=e.clientY+'px';
+  curLabel.style.left=e.clientX+'px';
+  curLabel.style.top=e.clientY+'px';
 });
 document.querySelectorAll('a,.pcard,.project-row').forEach(el=>{
   el.addEventListener('mouseenter',()=>cur.classList.add('hov'));
@@ -2045,9 +2060,14 @@ PROJECTS.forEach((p, i) => {
   });
   el.addEventListener('mouseenter', () => {
     document.getElementById('cur').classList.add('hov');
+    curLabel.textContent = p.name;
+    curLabel.classList.add('show');
     preloadProjectGallery(i);
   });
-  el.addEventListener('mouseleave', () => document.getElementById('cur').classList.remove('hov'));
+  el.addEventListener('mouseleave', () => {
+    document.getElementById('cur').classList.remove('hov');
+    curLabel.classList.remove('show');
+  });
 });
 
 /* Precarga las fotos de la galería de un proyecto apenas el usuario pasa
