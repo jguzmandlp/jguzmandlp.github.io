@@ -428,68 +428,51 @@
       font-size:clamp(32px,4.5vw,65px);
       color:rgba(255,255,255,.75); line-height:1;
     }
-    .proj-tap {
-      position:absolute; bottom:48px; left:50%;
-      transform:translateX(-50%);
-      font-size:8px; letter-spacing:.24em; text-transform:uppercase;
-      color:rgba(255,255,255,.28);
-      display:flex; align-items:center; gap:12px;
-      white-space:nowrap; transition:opacity .5s;
-      animation:tapPulse 2.5s ease-in-out infinite;
+    /* ── Infinite card slider (GSAP demo adaptado) ── */
+    .gallery {
+      position:relative; width:100%; height:100%;
+      display:flex; align-items:center; justify-content:center;
     }
-    .proj-tap::before,.proj-tap::after {
-      content:''; display:block; width:28px; height:1px; background:rgba(255,255,255,.18);
+    .cards {
+      position:absolute; width:260px; height:360px;
+      top:50%; left:50%; transform:translate(-50%,-50%);
+      list-style:none; margin:0; padding:0;
     }
-    @keyframes tapPulse { 0%,100%{opacity:.3} 50%{opacity:.7} }
-
-    /* ── Scene: referencia 260×360, igual que las cards ── */
-    .proj-scene {
-      position:relative; width:260px; height:360px;
-      transform-style: preserve-3d;
-    }
-
-    /* ── Card base ── */
-    .pc {
+    .sc {
       position:absolute; top:0; left:0;
       width:260px; height:360px;
       border-radius:4px; overflow:hidden;
-      cursor:pointer; will-change:transform;
-      transition: transform .75s cubic-bezier(.34,1.56,.64,1),
-                  opacity .3s ease,
-                  filter .4s ease;
-      filter: drop-shadow(0 8px 20px rgba(0,0,0,.7));
-      user-select:none;
+      cursor:grab; user-select:none;
+      filter:drop-shadow(0 14px 24px rgba(0,0,0,.75));
+      transition:filter .3s ease;
     }
+    .sc:active { cursor:grabbing; }
+    /* Fade al abrir un proyecto: clase CSS pura, nunca gsap.to/gsap.set —
+       la opacidad de cada .sc ya la controla el timeline del seamless-loop,
+       y un tween de GSAP encima la rompería para siempre en el loop. */
+    .sc.fading-out { opacity:0 !important; transition:opacity .25s ease; pointer-events:none; }
+    .sc:hover { filter:drop-shadow(0 18px 30px rgba(0,0,0,.85)) brightness(1.1); }
 
-    /* Spread: drop-shadow sigue la forma del rombo → volumen real */
-    .proj-scene.spread .pc {
-      filter: drop-shadow(0 22px 18px rgba(0,0,0,.9))
-              drop-shadow(0 4px 8px rgba(0,0,0,.6));
+    .proj-actions {
+      position:absolute; bottom:48px; left:50%;
+      transform:translateX(-50%);
+      display:flex; align-items:center; gap:20px;
     }
-    .proj-scene.spread .pc:hover {
-      filter: drop-shadow(0 28px 22px rgba(0,0,0,.95))
-              drop-shadow(0 6px 12px rgba(0,0,0,.7))
-              brightness(1.2);
+    .proj-nav {
+      width:34px; height:34px; border-radius:50%;
+      border:1px solid rgba(255,255,255,.25); background:transparent;
+      color:rgba(255,255,255,.7); font-size:18px; line-height:1;
+      cursor:pointer; transition:background .2s,border-color .2s,color .2s;
+      display:flex; align-items:center; justify-content:center;
     }
-
-    /* Stack centrado en scene 260×360 */
-    .pc:nth-child(1){ transform:matrix(1,0,0,1,0,0);         z-index:6; }
-    .pc:nth-child(2){ transform:matrix(.98,0,0,.98,2.6,3.6); z-index:5; }
-    .pc:nth-child(3){ transform:matrix(.96,0,0,.96,5.2,7.2); z-index:4; }
-    .pc:nth-child(4){ transform:matrix(.93,0,0,.93,9.1,12.6);z-index:3; }
-    .pc:nth-child(5){ transform:matrix(.90,0,0,.90,13,18);   z-index:2; }
-    .pc:nth-child(6){ transform:matrix(.87,0,0,.87,16.9,23.4);z-index:1; }
-
-    /* Spread */
-    /* SPREAD: orientación espejo (ancha arriba-izq como Figma), separación 80px */
-    .proj-scene.spread .pc:nth-child(1){ transform:matrix(.4227,-.2802,.3314,.2209,0,-200); z-index:6; }
-    .proj-scene.spread .pc:nth-child(2){ transform:matrix(.4227,-.2802,.3314,.2209,0,-120); z-index:5; }
-    .proj-scene.spread .pc:nth-child(3){ transform:matrix(.4227,-.2802,.3314,.2209,0, -40); z-index:4; }
-    .proj-scene.spread .pc:nth-child(4){ transform:matrix(.4227,-.2802,.3314,.2209,0,  40); z-index:3; }
-    .proj-scene.spread .pc:nth-child(5){ transform:matrix(.4227,-.2802,.3314,.2209,0, 120); z-index:2; }
-    .proj-scene.spread .pc:nth-child(6){ transform:matrix(.4227,-.2802,.3314,.2209,0, 200); z-index:1; }
-
-    .proj-scene.spread .pc:hover { filter:brightness(1.3); }
+    .proj-nav:hover { background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.5); color:#fff; }
+    .proj-tap {
+      font-size:8px; letter-spacing:.24em; text-transform:uppercase;
+      color:rgba(255,255,255,.28); white-space:nowrap;
+      animation:tapPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes tapPulse { 0%,100%{opacity:.3} 50%{opacity:.7} }
+    .drag-proxy { visibility:hidden; position:absolute; top:0; left:0; }
 
     /* Card = foto full + overlay con nombre */
     /* img se deforma con la card — perspectiva real */
@@ -508,12 +491,8 @@
       pointer-events:none;
     }
     .pc-logo-chip {
-      width:78%; aspect-ratio:1/0.62;
-      background:rgba(255,255,255,.96);
-      border-radius:10px;
+      width:86%; aspect-ratio:1/0.62;
       display:flex; align-items:center; justify-content:center;
-      padding:8%;
-      box-shadow:0 10px 30px rgba(0,0,0,.35);
     }
     .pc-logo-chip img {
       width:100%; height:100%; object-fit:contain; display:block;
@@ -740,7 +719,7 @@
       .proj-top { left:28px; top:44px; }
 
       /* Proj scene: escalar para tablet */
-      .proj-scene { transform:scale(0.85); transform-origin:center center; }
+      .cards { transform:translate(-50%,-50%) scale(0.85); }
 
       /* Detail */
       .pd-inner { padding:80px 40px 60px; }
@@ -768,20 +747,12 @@
       .proj-top-head { font-size:28px; }
 
       /* Cards: escalar para caber en mobile */
-      .proj-scene {
-        transform:scale(0.65);
-        transform-origin:center center;
-      }
-      /* En spread, ajustar separación vertical para no salirse */
-      .proj-scene.spread .pc:nth-child(1){ transform:matrix(.4227,-.2802,.3314,.2209,0,-140); }
-      .proj-scene.spread .pc:nth-child(2){ transform:matrix(.4227,-.2802,.3314,.2209,0, -84); }
-      .proj-scene.spread .pc:nth-child(3){ transform:matrix(.4227,-.2802,.3314,.2209,0, -28); }
-      .proj-scene.spread .pc:nth-child(4){ transform:matrix(.4227,-.2802,.3314,.2209,0,  28); }
-      .proj-scene.spread .pc:nth-child(5){ transform:matrix(.4227,-.2802,.3314,.2209,0,  84); }
-      .proj-scene.spread .pc:nth-child(6){ transform:matrix(.4227,-.2802,.3314,.2209,0, 140); }
+      .cards { transform:translate(-50%,-50%) scale(0.65); }
 
       /* Hint tap */
-      .proj-tap { font-size:7px; bottom:32px; }
+      .proj-tap { font-size:7px; }
+      .proj-actions { bottom:32px; gap:14px; }
+      .proj-nav { width:28px; height:28px; font-size:15px; }
 
       /* Detail: una columna */
       .pd-inner { padding:72px 20px 48px; }
@@ -997,17 +968,49 @@
   background:#060606;
   will-change:transform;
   z-index:7;
-  display:flex; flex-direction:column;
-  justify-content:space-between;
   overflow:hidden;
 }
-.contact-inner {
-  flex:1; display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:80px;
-  padding:100px 80px 60px;
-  align-items:center;
+/* ── Infinite looped panels (adaptado de demos.gsap.com/demo/infinite-looped-panels)
+   Sin ScrollTrigger propio: el "pin + loop" lo maneja el mismo sistema de
+   wheel/goTo que ya usa el sitio para pasar de sección en sección — acá
+   sencillamente se agrega un sub-estado (contactPanel) para loopear entre
+   estos 2 paneles mientras el usuario está parado en "Contacto". */
+.contact-panels {
+  position:relative; width:100%; height:100%;
 }
+.contact-panel {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center;
+  padding:60px 80px;
+  will-change:transform;
+  background:#060606;
+}
+/* Panel base (Trabajemos juntos, oscuro) queda fijo abajo; el panel de
+   íconos (blanco) siempre por encima, listo para subir y taparlo. */
+#contact-panel-0 { z-index:1; }
+#contact-panel-1 {
+  z-index:2;
+  background:#fff;
+}
+#contact-panel-1 .contact-eye { color:#c0201a; }
+#contact-panel-1 .contact-icons-title { color:rgba(0,0,0,.5); }
+#contact-panel-1 .contact-icon-item { color:rgba(0,0,0,.6); }
+#contact-panel-1 .contact-icon-item:hover { color:#000; }
+#contact-panel-1 .contact-icon-circle { border-color:rgba(0,0,0,.18); }
+#contact-panel-1 .contact-icon-item:hover .contact-icon-circle {
+  border-color:#c0201a; background:rgba(192,32,26,.08);
+}
+#contact-panel-1 .contact-icon-label { color:rgba(0,0,0,.45); }
+#contact-panel-1 .contact-icon-item:hover .contact-icon-label { color:rgba(0,0,0,.85); }
+#contact-panel-1 .contact-location { color:rgba(0,0,0,.3); }
+#contact-panel-1 .contact-footer { border-top-color:rgba(0,0,0,.08); }
+#contact-panel-1 .f-name { color:rgba(0,0,0,.35); }
+#contact-panel-1 .f-copy { color:rgba(0,0,0,.25); }
+
+.contact-logo { margin-bottom:28px; display:flex; justify-content:center; }
+.contact-logo img { height:48px; width:auto; display:block; }
 .contact-eye {
   font-size:9px; letter-spacing:.28em; text-transform:uppercase;
   color:#c0201a; display:block; margin-bottom:14px;
@@ -1023,7 +1026,7 @@
 .contact-desc {
   font-size:13px; line-height:1.9;
   color:rgba(255,255,255,.45);
-  margin-bottom:36px; max-width:400px;
+  margin-bottom:36px; max-width:440px;
 }
 .contact-btn {
   display:inline-flex; align-items:center;
@@ -1036,29 +1039,51 @@
   background:rgba(255,255,255,.07);
   border-color:rgba(255,255,255,.6);
 }
-.contact-links {
-  display:flex; flex-direction:column; gap:1px;
+.contact-scroll-hint {
+  position:absolute; bottom:48px; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  color:rgba(255,255,255,.3);
+  font-size:9px; letter-spacing:.22em; text-transform:uppercase;
+  animation:contactHintBounce 2s ease-in-out infinite;
 }
-.contact-link {
-  display:flex; justify-content:space-between; align-items:center;
-  padding:16px 20px;
-  background:rgba(255,255,255,.02);
-  border:1px solid rgba(255,255,255,.06);
-  border-bottom:none;
-  font-size:12px; color:rgba(255,255,255,.55);
-  transition:background .2s, color .2s;
+.contact-scroll-hint svg { width:16px; height:16px; }
+@keyframes contactHintBounce { 0%,100%{transform:translate(-50%,0)} 50%{transform:translate(-50%,8px)} }
+
+.contact-icons-title {
+  font-size:11px; letter-spacing:.1em; color:rgba(255,255,255,.4);
+  font-weight:400; margin-bottom:44px; text-transform:uppercase;
 }
-.contact-link:last-child { border-bottom:1px solid rgba(255,255,255,.06); }
-.contact-link:hover { background:rgba(255,255,255,.06); color:#fff; }
-.contact-link-label {
-  font-size:8px; letter-spacing:.2em; text-transform:uppercase;
-  color:rgba(255,255,255,.25);
+.contact-icons-row {
+  display:flex; gap:56px; flex-wrap:wrap; justify-content:center;
+  margin-bottom:40px;
 }
+.contact-icon-item {
+  display:flex; flex-direction:column; align-items:center; gap:16px;
+  color:rgba(255,255,255,.55);
+  transition:color .25s;
+}
+.contact-icon-item:hover { color:#fff; }
+.contact-icon-circle {
+  width:64px; height:64px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.18);
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .25s, background .25s;
+}
+.contact-icon-circle svg { width:24px; height:24px; }
+.contact-icon-item:hover .contact-icon-circle {
+  border-color:#c0201a; background:rgba(192,32,26,.12);
+}
+.contact-icon-label {
+  font-size:10px; letter-spacing:.03em; max-width:160px;
+  color:rgba(255,255,255,.4);
+}
+.contact-icon-item:hover .contact-icon-label { color:rgba(255,255,255,.8); }
 .contact-location {
   font-size:10px; color:rgba(255,255,255,.2);
-  margin-top:20px; letter-spacing:.05em;
+  margin-top:4px; letter-spacing:.05em;
 }
 .contact-footer {
+  position:absolute; bottom:0; left:0; width:100%;
   padding:24px 80px;
   border-top:1px solid rgba(255,255,255,.06);
   display:flex; justify-content:space-between; align-items:center;
@@ -1079,13 +1104,17 @@
   .about-photo { flex-basis:auto; width:100%; max-width:330px; }
   .about-p { text-align:left; }
   .about-right { width:100%; min-width:0; margin-top:8px; }
-  .contact-inner { grid-template-columns:1fr; gap:40px; padding:80px 28px 40px; }
+  .contact-panel { padding:40px 28px; }
   .contact-footer { padding:20px 28px; }
+  .contact-icons-row { gap:32px; }
 }
 @media (max-width: 480px) {
   .about-inner { padding:28px 20px; }
-  .contact-inner { padding:64px 20px 32px; }
+  .contact-panel { padding:32px 20px; }
   .contact-title { font-size:clamp(44px,12vw,64px); }
+  .contact-icons-row { gap:24px; }
+  .contact-icon-circle { width:52px; height:52px; }
+  .contact-icon-circle svg { width:20px; height:20px; }
 }
   </style>
 </head>
@@ -1224,8 +1253,15 @@
     <span class="proj-top-eye">Selected Work</span>
     <h2 class="proj-top-head">Proyectos</h2>
   </div>
-  <div class="proj-tap" id="proj-tap">hover para explorar</div>
-  <div class="proj-scene" id="proj-scene"></div>
+  <div class="gallery" id="proj-gallery">
+    <ul class="cards" id="proj-cards"></ul>
+    <div class="proj-actions">
+      <button class="proj-nav prev" id="proj-prev" aria-label="Proyecto anterior">‹</button>
+      <span class="proj-tap">arrastra o usa las flechas</span>
+      <button class="proj-nav next" id="proj-next" aria-label="Proyecto siguiente">›</button>
+    </div>
+  </div>
+  <div class="drag-proxy"></div>
 </section>
 
 <!-- ══════════════════════════════════════
@@ -1349,39 +1385,61 @@
      CONTACTO
 ══════════════════════════════════════ -->
 <section class="contact-section" id="contact-section">
-  <div class="contact-inner">
-    <div class="contact-left">
+  <div class="contact-panels" id="contact-panels">
+
+    <!-- Panel 1: "Trabajemos juntos" -->
+    <div class="contact-panel" id="contact-panel-0">
       <span class="contact-eye">Hablemos</span>
       <h2 class="contact-title">Trabajemos<br><em>juntos.</em></h2>
-      <p class="contact-desc">¿Tienes un proyecto en mente? Estoy disponible para trabajo remoto (freelance o full-time) en diseño gráfico, UX/UI y desarrollo web, sin importar tu zona horaria.</p>
+      <p class="contact-desc">¿Tienes un proyecto en mente? Estoy disponible para trabajo remoto (freelance o full-time) en diseño gráfico, UX/UI y desarrollo web, en horario de Costa Rica (GMT-6).</p>
       <a href="mailto:javier.guzman.dlp@gmail.com" class="contact-btn">Enviar mensaje ↗</a>
+      <div class="contact-scroll-hint">
+        <span>seguí bajando</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M5 13l7 7 7-7"/></svg>
+      </div>
     </div>
-    <div class="contact-right">
-      <div class="contact-links">
-        <a href="mailto:javier.guzman.dlp@gmail.com" class="contact-link">
-          <span class="contact-link-label">Email</span>
-          <span>javier.guzman.dlp@gmail.com ↗</span>
+
+    <!-- Panel 2: iconos de contacto -->
+    <div class="contact-panel" id="contact-panel-1">
+      <div class="contact-logo" id="contact-logo-mount">
+        <img src="img/favicon.svg" alt="Javier Guzmán" width="44" height="48">
+      </div>
+      <span class="contact-eye">Mis datos</span>
+      <h3 class="contact-icons-title">Escribime por acá</h3>
+      <div class="contact-icons-row">
+        <a href="mailto:javier.guzman.dlp@gmail.com" class="contact-icon-item">
+          <span class="contact-icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7L22 6"/></svg>
+          </span>
+          <span class="contact-icon-label">javier.guzman.dlp@gmail.com</span>
         </a>
-        <a href="https://wa.me/50688741052" target="_blank" class="contact-link">
-          <span class="contact-link-label">WhatsApp</span>
-          <span>+506 8874 1052 ↗</span>
+        <a href="https://wa.me/50688741052" target="_blank" class="contact-icon-item">
+          <span class="contact-icon-circle">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.07L2 22l5.09-1.34A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Zm5.2 14.3c-.22.62-1.09 1.15-1.79 1.3-.48.1-1.11.18-3.22-.69-2.71-1.12-4.46-3.86-4.6-4.04-.13-.18-1.1-1.46-1.1-2.78 0-1.32.69-1.97.94-2.24.22-.24.48-.3.64-.3.16 0 .32 0 .46.01.15.01.35-.06.55.42.22.53.73 1.83.8 1.96.06.13.1.29.02.46-.08.18-.12.29-.24.44-.12.15-.26.34-.37.46-.12.13-.25.27-.11.53.14.26.62 1.02 1.33 1.65.91.82 1.68 1.07 1.94 1.19.26.13.41.11.56-.06.16-.18.65-.75.82-1.01.17-.26.34-.21.57-.13.23.08 1.47.7 1.72.82.25.13.42.19.48.3.06.11.06.62-.16 1.24Z"/></svg>
+          </span>
+          <span class="contact-icon-label">+506 8874 1052</span>
         </a>
-        <a href="https://linkedin.com/in/jguzmandlp" target="_blank" class="contact-link">
-          <span class="contact-link-label">LinkedIn</span>
-          <span>linkedin.com/in/jguzmandlp ↗</span>
+        <a href="https://linkedin.com/in/jguzmandlp" target="_blank" class="contact-icon-item">
+          <span class="contact-icon-circle">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47v6.27ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45Z"/></svg>
+          </span>
+          <span class="contact-icon-label">linkedin.com/in/jguzmandlp</span>
         </a>
-        <a href="https://torre.ai/javier-guzman" target="_blank" class="contact-link">
-          <span class="contact-link-label">Torre.ai</span>
-          <span>torre.ai/javier-guzman ↗</span>
+        <a href="https://torre.ai/javier-guzman" target="_blank" class="contact-icon-item">
+          <span class="contact-icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+          </span>
+          <span class="contact-icon-label">torre.ai/javier-guzman</span>
         </a>
       </div>
-      <p class="contact-location">📍 San José, Costa Rica — disponible para trabajo remoto internacional, cualquier zona horaria</p>
+      <p class="contact-location">📍 San José, Costa Rica — trabajo remoto, horario GMT-6</p>
+      <footer class="contact-footer">
+        <span class="f-name">Javier Guzmán</span>
+        <span class="f-copy">© 2026 — Frontend Developer &amp; UX/UI Designer</span>
+      </footer>
     </div>
+
   </div>
-  <footer class="contact-footer">
-    <span class="f-name">Javier Guzmán</span>
-    <span class="f-copy">© 2026 — Frontend Developer & UX/UI Designer</span>
-  </footer>
 </section>
 
 <!-- Detail overlay (fuera del section para no clippearse) -->
@@ -1396,6 +1454,7 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Flip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Draggable.min.js"></script>
 
 <!-- Texto del hero con "masking" de líneas — adaptado de https://demos.gsap.com/demo/text-masking/ -->
 <script>
@@ -1874,7 +1933,7 @@ const PROJECTS = [
     tags:['Supabase','Cloudflare Workers','Three.js','Tilopay'],
     desc:'Marketplace de servicios locales en Costa Rica con tres paneles independientes — proveedor, cliente y administrador. Búsqueda geolocalizada con filtro por distancia y cobertura por provincia, perfiles verificados con sistema de reviews, mensajería en tiempo real y pagos integrados con Tilopay. Logo 3D animado en Three.js que reacciona al scroll.',
     tech:'HTML · CSS · JS · Supabase · Cloudflare Workers · Three.js · Tilopay', url:'serviciodirectocr.com',
-    logo:'img/logos/sdcr-logo.svg',
+    logo:'img/logos/sdcr-logo.svg', cardBg:'#ffffff',
     video:null, private:true,
     gallery:[
       'img/gallery/sdcr/1.avif',
@@ -1896,7 +1955,7 @@ const PROJECTS = [
     tags:['Canvas API','Vanilla JS','AVIF','Cloudflare Pages'],
     desc:'Plataforma de turismo cultural Bribri en Talamanca, Costa Rica. Secuencia cinemática de scroll con más de 180 frames AVIF dibujados a mano sobre canvas (sin librerías de animación), tres tipos de tour, itinerarios armados a medida por cliente, tienda de artesanías Bribri con checkout por WhatsApp y panel admin de travel planning.',
     tech:'HTML · CSS · JS Vanilla · Canvas API · Cloudflare Pages', url:'sikuatours.com',
-    video:null, logo:'img/logos/sikua-logo.png', chipBg:'#81994e',
+    video:null, logo:'img/logos/sikua-logo.png', cardBg:'#80994e',
     gallery:[
       'img/gallery/sikua/g1.avif',
       'img/gallery/sikua/g2.avif',
@@ -1917,7 +1976,7 @@ const PROJECTS = [
     tags:['E-commerce','Three.js','GSAP','SINPE Móvil'],
     desc:'Tienda de perfumería de lujo con estética dark gold. Isotipo 3D animado desde Blender/GLB, transiciones GSAP entre páginas y pagos con SINPE Móvil.',
     tech:'HTML · CSS · JS · Three.js · GSAP · Cloudflare Pages', url:null,
-    video:'videos/fragancia.mp4', logo:'img/logos/fragancia-logo.jpg', chipBg:'#000',
+    video:'videos/fragancia.mp4', logo:'img/logos/fragancia-logo.jpg', cardBg:'#000000',
     gallery:[
       'img/gallery/fragancia/g1.jpg',
       'img/gallery/fragancia/g2.jpg',
@@ -1954,7 +2013,7 @@ const PROJECTS = [
     tags:['Booking','Dashboard','GSAP','WhatsApp'],
     desc:'Sitio para nutricionista con sistema de reservas, dashboard de cliente, panel admin y animaciones GSAP. WhatsApp CTA integrado para consultas.',
     tech:'HTML · CSS · JS · GSAP · localStorage', url:null,
-    video:'videos/orozco.mp4', logo:'img/logos/orozco-logo.svg',
+    video:'videos/orozco.mp4', logo:'img/logos/orozco-logo.svg', cardBg:'#ffffff',
     gallery:[
       'img/gallery/orozco/g1.png',
       'img/gallery/orozco/g2.jpeg',
@@ -1990,14 +2049,14 @@ const PROJECTS = [
 
 /* ── Estado ── */
 let appState = 'stack';
+let leaveTimer = null;
 let openIdx  = null;
 let expander = null;
 const cards  = [];
 
 /* ── Construir cards ── */
-const scene      = document.getElementById('proj-scene');
+const cardsUl    = document.getElementById('proj-cards');
 const projSection= document.getElementById('proj-section');
-const tapEl      = document.getElementById('proj-tap');
 
 /* Isotipo real de Servicio Directo CR (extraído del logo oficial). */
 const SD_ICON_PATH_D = "M100.17,19.68c-5.18-5.57-12.68-8.52-21.69-8.52h-17.8c-2.96,0-5.56,1.63-7.09,4.09-.68-2.52-2.75-4.09-9.13-4.09h-16.33c-12.41,0-20.12,6.7-20.12,17.5v6.87c0,5.22,1.61,8.88,4.02,11.44-2.49,1.39-4.02,4-4.02,7.27v7.65c0,4.92,3.48,8.35,8.46,8.35h21.56c6.34,0,12.05-1.85,15.57-5.12,1.4,3.03,3.74,5.12,7.09,5.12h18.05c17.54,0,28.87-11.73,28.87-29.88,0-8.3-2.57-15.45-7.43-20.68ZM52.15,52.73c0,7.45-5.32,11.51-14.12,11.51h-21.56c-1.71,0-2.46-.72-2.46-2.35v-7.65c0-1.63.75-2.35,2.46-2.35h18.35c1.16,0,1.77-.85,1.77-1.9,0-1.5-.61-2.09-1.77-2.22l-10.23-1.37c-6.41-.92-10.58-3.53-10.58-10.86v-6.87c0-7.45,5.25-11.51,14.12-11.51h15.33s2.51,0,2.51,0c1.71,0,2.41.64,2.41,2.28v7.78c0,1.63-.7,2.43-2.41,2.43h-14.64c-1.16,0-1.84.78-1.84,1.96s.68,1.96,1.84,2.09l10.17,1.31c6.41.92,10.64,3.53,10.64,10.86v6.87ZM78.74,64.24h-17.05c-1.63,0-3.95-1.42-3.95-3.17v-18.19h14.69v6.3c0,1.15,1.28,1.84,2.24,1.21l14.12-9.3c.87-.57.87-1.84,0-2.41l-14.12-9.3c-.96-.63-2.24.06-2.24,1.21v6.3h-14.69v-16.54c0-1.75,1.32-3.17,2.95-3.17h17.8c15.93,0,23.54,10.3,23.54,23.2s-7.49,23.88-23.29,23.88Z";
@@ -2044,19 +2103,19 @@ function cardPlaceholderSVG(p) {
 }
 
 PROJECTS.forEach((p, i) => {
-  const el = document.createElement('div');
-  el.className = 'pc';
+  const el = document.createElement('li');
+  el.className = 'sc';
   el.innerHTML = p.logo
-    ? `<div class="pc-logo-card" style="background:${p.grad}">
-         <div class="pc-logo-chip" style="${p.chipBg ? `background:${p.chipBg}` : ''}"><img src="${p.logo}" alt="${p.name}" draggable="false"></div>
+    ? `<div class="pc-logo-card" style="background:${p.cardBg || p.color}">
+         <div class="pc-logo-chip"><img src="${p.logo}" alt="${p.name}" draggable="false"></div>
        </div>`
     : `<img class="pc-photo" src="${p.image || cardPlaceholderSVG(p)}" alt="${p.name}" draggable="false" loading="lazy" decoding="async">`;
-  scene.appendChild(el);
+  cardsUl.appendChild(el);
   cards.push(el);
 
   el.addEventListener('click', e => {
     e.stopPropagation();
-    if (appState === 'spread') openProject(i);
+    if (!dragMoved) openProject(i);
   });
   el.addEventListener('mouseenter', () => {
     document.getElementById('cur').classList.add('hov');
@@ -2086,47 +2145,120 @@ function preloadProjectGallery(idx) {
 
 const isTouch = () => window.matchMedia('(hover:none)').matches;
 
-/* ── Función spread ── */
-function doSpread() {
-  if (appState !== 'stack') return;
-  appState = 'spread';
-  gsap.to(tapEl, {opacity:0, duration:.2});
-  gsap.timeline()
-    .to(scene, { rotationY:-30, transformPerspective:900, duration:.18, ease:'power2.in' })
-    .to(scene, {
-      rotationY:0, duration:.22, ease:'power2.out',
-      onStart: () => {
-        cards.forEach((c, i) => { c.style.transitionDelay = `${i * 0.07}s`; });
-        scene.classList.add('spread');
-      }
-    });
+/* ── GSAP infinite card slider — port fiel de demos.gsap.com/demo/infinite-card-slider
+   (mismo buildSeamlessLoop/scrub del CodePen original de GreenSock), solo que
+   sin ScrollTrigger: el offset del "scrub" se mueve directo con Draggable +
+   botones prev/next en vez del scroll-pin. */
+const cardEls = gsap.utils.toArray(cardsUl.children);
+let dragMoved = false;
+
+/* Valores afinados a mano con el tuner (slider-tuner.html) hasta calzar
+   con el demo original de GSAP. */
+const XR = 185;         // xPercent: separación horizontal de cada card
+const SCALEMIN = 0.3;   // scale mínimo (profundidad de las cards laterales)
+const OPMIN = 0.85;     // opacidad mínima en los bordes — alta a propósito: así
+                        // las cards en tránsito (no perfectamente centradas)
+                        // se ven sólidas en vez de traslúcidas cuando se
+                        // solapan entre ellas mientras se deslizan.
+const PULSEDUR = 0.5;   // duración del pulso opacidad/escala
+const XDUR = 1;         // duración del recorrido xPercent
+const SPACINGMULT = 0.9;
+
+gsap.set(cardEls, { xPercent:XR, opacity:OPMIN, scale:SCALEMIN });
+
+/* spacing = (1/N) × SPACINGMULT (N = cantidad real de proyectos): así el
+   "viaje" de cada card queda repartido proporcional a cuántos proyectos
+   hay, y en cualquier instante quedan tantas cards a la izquierda del
+   centro como a la derecha. Con un spacing fijo (ej. 0.1 del demo
+   original, pensado para su set de 7 cards) y pocos proyectos, casi
+   todas quedaban del mismo lado — por eso las de la izquierda "se
+   borraban". */
+const spacing = (1 / cardEls.length) * SPACINGMULT;
+
+function animateFunc(element) {
+  const tl = gsap.timeline();
+  tl.fromTo(element,
+    { scale:SCALEMIN, opacity:OPMIN },
+    { scale:1, opacity:1, zIndex:100, duration:PULSEDUR, yoyo:true, repeat:1, ease:'power1.in', immediateRender:false }
+  ).fromTo(element,
+    { xPercent:XR },
+    { xPercent:-XR, duration:XDUR, ease:'none', immediateRender:false }, 0
+  );
+  return tl;
 }
 
-/* ── Función colapsar ── */
-function doCollapse() {
-  if (appState !== 'spread') return;
-  appState = 'stack';
-  gsap.to(tapEl, {opacity:1, duration:.3, delay:.3});
-  cards.forEach(c => { c.style.transitionDelay = '0s'; });
-  scene.classList.remove('spread');
-}
-
-/* ── DESKTOP: hover ── */
-scene.addEventListener('mouseenter', () => { if (!isTouch()) doSpread(); });
-
-let leaveTimer = null;
-cards.forEach(c => {
-  c.addEventListener('mouseenter', () => { if (!isTouch()) clearTimeout(leaveTimer); });
-  c.addEventListener('mouseleave', () => {
-    if (!isTouch()) leaveTimer = setTimeout(doCollapse, 120);
+function buildSeamlessLoop(items, spacing, animateFunc) {
+  const overlap   = Math.ceil(1 / spacing);
+  const startTime = items.length * spacing + 0.5;
+  const loopTime  = (items.length + overlap) * spacing + 1;
+  const rawSequence = gsap.timeline({ paused:true });
+  const seamlessLoop = gsap.timeline({
+    paused:true,
+    repeat:-1,
+    onRepeat(){ this._time === this._dur && (this._tTime += this._dur - 0.01); }
   });
+  const l = items.length + overlap * 2;
+  let time, i, index;
+
+  for (i = 0; i < l; i++) {
+    index = i % items.length;
+    time = i * spacing;
+    rawSequence.add(animateFunc(items[index]), time);
+  }
+
+  rawSequence.time(startTime);
+  seamlessLoop.to(rawSequence, {
+    time: loopTime,
+    duration: loopTime - startTime,
+    ease:'none'
+  }).fromTo(rawSequence, { time: overlap * spacing + 1 }, {
+    time: startTime,
+    duration: startTime - (overlap * spacing + 1),
+    immediateRender:false,
+    ease:'none'
+  });
+  return seamlessLoop;
+}
+
+const seamlessLoop = buildSeamlessLoop(cardEls, spacing, animateFunc);
+const wrapTime = gsap.utils.wrap(0, seamlessLoop.duration());
+const playhead = { offset:0 };
+const scrub = gsap.to(playhead, {
+  offset:0,
+  onUpdate() { seamlessLoop.time(wrapTime(playhead.offset)); },
+  duration:0.5, ease:'power3', paused:true
+});
+seamlessLoop.time(wrapTime(0)); /* frame inicial, sin ScrollTrigger que la dispare sola */
+
+document.getElementById('proj-next').addEventListener('click', () => {
+  scrub.vars.offset += spacing;
+  scrub.invalidate().restart();
+});
+document.getElementById('proj-prev').addEventListener('click', () => {
+  scrub.vars.offset -= spacing;
+  scrub.invalidate().restart();
 });
 
-/* ── TOUCH: tap en stack → spread, tap en spread → colapsar ── */
-scene.addEventListener('touchstart', e => {
-  if (!isTouch()) return;
-  if (appState === 'stack') { e.preventDefault(); doSpread(); }
-}, { passive:false });
+if (window.Draggable) {
+  Draggable.create('.drag-proxy', {
+    type:'x',
+    trigger:'#proj-cards',
+    cursor:'grab',
+    activeCursor:'grabbing',
+    onPress() { dragMoved = false; this.startOffset = scrub.vars.offset; },
+    onDrag() {
+      dragMoved = true;
+      scrub.vars.offset = this.startOffset + (this.startX - this.x) * 0.001;
+      scrub.invalidate().restart();
+    },
+    onDragEnd() {
+      const snapped = gsap.utils.snap(spacing, scrub.vars.offset);
+      scrub.vars.offset = snapped;
+      scrub.invalidate().restart();
+      setTimeout(() => { dragMoved = false; }, 0);
+    }
+  });
+}
 
 /* ── Abrir proyecto: 2 fases ── */
 function openProject(idx) {
@@ -2137,8 +2269,10 @@ function openProject(idx) {
   /* Cancelar timer de colapso si estaba corriendo */
   clearTimeout(leaveTimer);
 
-  /* Fade otras cards */
-  cards.forEach((c, i) => { if (i !== idx) gsap.to(c, {opacity:0, duration:.25, ease:'power2.out'}); });
+  /* Fade otras cards — clase CSS, no gsap.to: la opacidad de cada card ya
+     la anima el timeline interno del seamless-loop, y un tween de GSAP
+     encima la pisaría (overwrite) rompiéndola para siempre en el loop. */
+  cards.forEach((c, i) => { if (i !== idx) c.classList.add('fading-out'); });
 
   /* FASE 1: card se endereza — CSS transition (.75s) anima de isométrico a plano.
      La card sigue position:absolute en el scene, que está centrado en viewport.
@@ -2160,8 +2294,9 @@ function openProject(idx) {
     });
     document.body.appendChild(expander);
 
-    /* Fade card y expand se solapan levemente para suavidad */
-    gsap.to(card, {opacity:0, duration:.4, ease:'power2.in'});
+    /* Fade card y expand se solapan levemente para suavidad — clase CSS,
+       no gsap.to (ver nota arriba sobre el seamless-loop). */
+    card.classList.add('fading-out');
 
     gsap.to(expander, {
       left:0, top:0,
@@ -2450,7 +2585,7 @@ function closeProject() {
     detail.classList.remove('open');
 
     /* Expander se encoge de vuelta al centro (donde está la card) */
-    const sceneRect = scene.getBoundingClientRect();
+    const sceneRect = cardsUl.getBoundingClientRect();
     gsap.to(expander, {
       left: sceneRect.left,
       top:  sceneRect.top,
@@ -2460,18 +2595,18 @@ function closeProject() {
       onComplete:() => {
         expander.remove(); expander = null;
 
-        /* Matar TODOS los tweens de cards antes de resetear */
-        gsap.killTweensOf(cards);
-
-        /* Resetear cards sin transición CSS — evita animaciones residuales */
+        /* Resetear cards: SOLO clase CSS, nunca gsap.set/killTweensOf acá —
+           la opacidad/escala/posición de cada card ya la controla el
+           timeline interno del seamless-loop (buildSeamlessLoop). Si le
+           metemos un tween o un kill de GSAP encima, le pisamos ese tween
+           interno y la card queda rota para siempre en el loop. */
         cards.forEach(el => {
           el.style.transition      = 'none';
           el.style.transitionDelay = '0s';
           el.style.transform       = '';
           el.style.zIndex          = '';
-          gsap.set(el, { opacity: 1, clearProps: 'opacity' });
+          el.classList.remove('fading-out');
         });
-        scene.classList.remove('spread');
 
         /* Limpiar el DOM del detalle */
         document.getElementById('pd-inner').innerHTML = '';
@@ -2587,10 +2722,10 @@ function resetProjectState() {
     const card = cards[openIdx];
     card.style.transform = '';
     card.style.zIndex    = '';
-    gsap.set(card, { opacity: 1 });
+    card.classList.remove('fading-out');
     openIdx = null;
   }
-  cards.forEach(el => { gsap.set(el, { opacity: 1 }); });
+  cards.forEach(el => { el.classList.remove('fading-out'); });
   document.getElementById('proj-detail').classList.remove('open');
   document.getElementById('proj-close').classList.remove('vis');
   document.getElementById('pd-inner').classList.remove('vis');
@@ -2603,7 +2738,6 @@ function collapseCardsInstant() {
     c.style.transition      = 'none';
     c.style.transitionDelay = '0s';
   });
-  scene.classList.remove('spread');
   requestAnimationFrame(() => {
     cards.forEach(c => { c.style.transition = ''; });
   });
@@ -2621,7 +2755,8 @@ function goTo(idx) {
   updateBgRenderState();
 
   gsap.killTweensOf(SECTIONS);
-  gsap.killTweensOf(cards);
+  /* OJO: nunca gsap.killTweensOf(cards) acá — mataría los tweens internos
+     del seamless-loop del carrusel y las cards quedarían rotas para siempre. */
   scrollBusy = true;
 
   /* Limpiar estado si salimos de proyectos */
@@ -2653,10 +2788,128 @@ function goTo(idx) {
     heroEl.style.zIndex = '10';
     gsap.set(heroEl, { yPercent: 0, scale: 1 });
   }
+
+  /* Al entrar a Contacto, siempre arrancar mostrando el panel 0 ("Trabajemos
+     juntos") con el panel 1 escondido debajo, listo para subir a taparlo. */
+  if (idx === CONTACT_INDEX) {
+    contactTop = 0;
+    gsap.set(contactPanelEls[0], { yPercent:0 });
+    gsap.set(contactPanelEls[1], { yPercent:100 });
+    animateContactPanel0();
+  }
 }
 
 function goToProjects() { goTo(1); }
 function goToHero()      { goTo(0); }
+
+/* ── "Layered pinning" de Contacto (igual que
+   demos.gsap.com/demo/infinite-looped-panels): el panel de abajo queda
+   fijo/estático — nunca se anima — y el siguiente panel SUBE por encima
+   y lo tapa completamente (como una hoja que cae encima). Al volver para
+   atrás, el panel de arriba se retira hacia abajo y descubre el de abajo,
+   que siguió estático todo este tiempo. Con solo 2 paneles reales el
+   "loop infinito" es simplemente alternar cuál de los 2 está arriba,
+   en vez de clonar paneles como hace el demo original (que tiene 5+1). */
+const CONTACT_INDEX     = SECTIONS.indexOf(contactEl);
+const contactPanelEls   = [document.getElementById('contact-panel-0'), document.getElementById('contact-panel-1')];
+let contactTop          = 0;   // 0 = panel "Trabajemos juntos" visible, 1 = panel de íconos tapando
+let contactBusy         = false;
+
+/* Entrada animada del panel 0 ("Trabajemos juntos"): ojo → título → texto
+   → botón → hint de scroll, en cascada. Solo la primera vez que se entra
+   a la sección (si el usuario sale y vuelve, ya quedan visibles). */
+gsap.set('#contact-panel-0 .contact-eye, #contact-panel-0 .contact-title, #contact-panel-0 .contact-desc, #contact-panel-0 .contact-btn, #contact-panel-0 .contact-scroll-hint',
+  { y: 26, opacity: 0 });
+let contactPanel0Animated = false;
+function animateContactPanel0() {
+  if (contactPanel0Animated) return;
+  contactPanel0Animated = true;
+  gsap.to('#contact-panel-0 .contact-eye',         { y:0, opacity:1, duration:0.5, ease:'power3.out', delay:0.05 });
+  gsap.to('#contact-panel-0 .contact-title',       { y:0, opacity:1, duration:0.7, ease:'power3.out', delay:0.15 });
+  gsap.to('#contact-panel-0 .contact-desc',        { y:0, opacity:1, duration:0.6, ease:'power3.out', delay:0.32 });
+  gsap.to('#contact-panel-0 .contact-btn',         { y:0, opacity:1, duration:0.5, ease:'power3.out', delay:0.44 });
+  gsap.to('#contact-panel-0 .contact-scroll-hint', { y:0, opacity:1, duration:0.5, ease:'power3.out', delay:0.55 });
+}
+
+/* Scroll hacia abajo: el panel 1 (íconos) sube y tapa al panel 0, que
+   se queda exactamente donde está. */
+function contactCover() {
+  if (contactBusy || contactTop === 1) return;
+  contactBusy = true;
+  contactTop = 1;
+  gsap.to(contactPanelEls[1], {
+    yPercent: 0, duration: 0.6, ease: 'expo.out',
+    onComplete: () => { contactBusy = false; animateContactIcons(); }
+  });
+}
+
+/* Scroll hacia arriba: el panel 1 se retira hacia abajo, descubriendo
+   al panel 0 (que nunca se movió de su lugar). */
+function contactUncover() {
+  if (contactBusy || contactTop === 0) return;
+  contactBusy = true;
+  contactTop = 0;
+  gsap.to(contactPanelEls[1], {
+    yPercent: 100, duration: 0.5, ease: 'power3.in',
+    onComplete: () => { contactBusy = false; }
+  });
+}
+
+/* Animación idle de los íconos de contacto: fade-in escalonado al
+   entrar + un flotado muy leve y lento (para que se note "vivo" sin
+   distraer). Se dispara solo la primera vez que se muestra el panel 1. */
+gsap.set('.contact-icon-item', { y: 24, opacity: 0 });
+gsap.set('#contact-logo-mount', { y: -14, opacity: 0 });
+let contactIconsAnimated = false;
+function animateContactIcons() {
+  if (contactIconsAnimated) return;
+  contactIconsAnimated = true;
+  gsap.to('#contact-logo-mount', { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' });
+  gsap.to('.contact-icon-item', {
+    y: 0, opacity: 1, duration: 0.6, ease: 'power3.out',
+    stagger: 0.08, delay: 0.1
+  });
+  gsap.to('.contact-icon-circle', {
+    y: -3, duration: 2.4, ease: 'sine.inOut',
+    yoyo: true, repeat: -1, stagger: { each: 0.25, from: 'start' }
+  });
+}
+
+/* El logo de arriba del panel de íconos crece un poco al pasar el mouse. */
+(function () {
+  const logo = document.getElementById('contact-logo-mount');
+  if (!logo) return;
+  logo.style.cursor = 'pointer';
+  logo.addEventListener('mouseenter', () => {
+    gsap.killTweensOf(logo);
+    gsap.to(logo, { scale: 1.18, rotate: 6, duration: 0.4, ease: 'back.out(3)' });
+  });
+  logo.addEventListener('mouseleave', () => {
+    gsap.killTweensOf(logo);
+    gsap.to(logo, { scale: 1, rotate: 0, duration: 0.45, ease: 'power3.out' });
+  });
+})();
+
+/* Microinteracciones GSAP en los íconos de contacto: al pasar el mouse,
+   el círculo hace un pop + leve giro y el ícono interno rebota; al salir
+   vuelve suave a su estado base. Reemplaza/complementa el hover CSS. */
+document.querySelectorAll('.contact-icon-item').forEach(item => {
+  const circle = item.querySelector('.contact-icon-circle');
+  const icon   = item.querySelector('.contact-icon-circle svg');
+  const label  = item.querySelector('.contact-icon-label');
+  item.addEventListener('mouseenter', () => {
+    gsap.killTweensOf([circle, icon, label]);
+    gsap.to(circle, { scale: 1.12, rotate: -8, duration: 0.35, ease: 'back.out(3)' });
+    gsap.to(icon,   { scale: 1.15, duration: 0.4, ease: 'elastic.out(1, 0.4)' });
+    gsap.to(label,  { y: -2, duration: 0.25, ease: 'power2.out' });
+  });
+  item.addEventListener('mouseleave', () => {
+    gsap.killTweensOf([circle, icon, label]);
+    gsap.to(circle, { scale: 1, rotate: 0, duration: 0.4, ease: 'power3.out' });
+    gsap.to(icon,   { scale: 1, duration: 0.4, ease: 'power3.out' });
+    gsap.to(label,  { y: 0, duration: 0.25, ease: 'power2.out' });
+  });
+});
 
 /* Wheel */
 window.addEventListener('wheel', e => {
@@ -2667,6 +2920,18 @@ window.addEventListener('wheel', e => {
   // para que el sistema de salto de sección quede completamente inerte,
   // sin ningún trabajo de más, mientras la galería está scrolleando.
   if (window.__modalScrollLock) return;
+
+  /* Dentro de Contacto: taparse/destaparse entre los 2 paneles en vez de
+     intentar saltar a una sección que no existe. */
+  if (currentSection === CONTACT_INDEX && !scrollBusy) {
+    if (e.deltaY > 10) { contactCover(); return; }
+    if (e.deltaY < -10) {
+      if (contactTop === 0) { goTo(currentSection - 1); }
+      else { contactUncover(); }
+      return;
+    }
+  }
+
   if (e.deltaY > 10)  goTo(currentSection + 1);
   if (e.deltaY < -10) goTo(currentSection - 1);
 }, { passive: true });
@@ -2677,6 +2942,15 @@ window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY;
 window.addEventListener('touchend', e => {
   if (window.__modalScrollLock) return;
   const dy = touchStartY - e.changedTouches[0].clientY;
+
+  if (currentSection === CONTACT_INDEX && !scrollBusy) {
+    if (dy > 40)  { contactCover(); return; }
+    if (dy < -40) {
+      if (contactTop === 0) { goTo(currentSection - 1); }
+      else { contactUncover(); }
+      return;
+    }
+  }
   if (dy >  40) goTo(currentSection + 1);
   if (dy < -40) goTo(currentSection - 1);
 }, { passive: true });
