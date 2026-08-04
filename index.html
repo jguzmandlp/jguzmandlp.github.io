@@ -498,6 +498,16 @@
       width:100%; height:100%; object-fit:contain; display:block;
     }
 
+    /* Overlay oscuro para "apagar" las cards laterales sin usar opacity
+       real sobre la card — así no se ve transparencia/mezcla con la card
+       de atrás cuando se solapan en tránsito, solo se ven más oscuras. */
+    .sc-dim {
+      position:absolute; inset:0;
+      background:#000;
+      opacity:0;
+      pointer-events:none;
+    }
+
     /* ── DETAIL FULLSCREEN ── */
     .proj-detail { position:fixed; inset:0; z-index:200; overflow-y:auto; display:none; }
     /* Al abrir, en vez de scrollear su propio div interno (overflow-y:auto),
@@ -2105,11 +2115,12 @@ function cardPlaceholderSVG(p) {
 PROJECTS.forEach((p, i) => {
   const el = document.createElement('li');
   el.className = 'sc';
-  el.innerHTML = p.logo
+  el.innerHTML = (p.logo
     ? `<div class="pc-logo-card" style="background:${p.cardBg || p.color}">
          <div class="pc-logo-chip"><img src="${p.logo}" alt="${p.name}" draggable="false"></div>
        </div>`
-    : `<img class="pc-photo" src="${p.image || cardPlaceholderSVG(p)}" alt="${p.name}" draggable="false" loading="lazy" decoding="async">`;
+    : `<img class="pc-photo" src="${p.image || cardPlaceholderSVG(p)}" alt="${p.name}" draggable="false" loading="lazy" decoding="async">`)
+    + `<div class="sc-dim"></div>`;
   cardsUl.appendChild(el);
   cards.push(el);
 
@@ -2161,7 +2172,16 @@ const PULSEDUR = 0.5;   // duración del pulso opacidad/escala
 const XDUR = 1;         // duración del recorrido xPercent
 const SPACINGMULT = 0.9;
 
-gsap.set(cardEls, { xPercent:XR, opacity:OPMIN, scale:SCALEMIN });
+/* La opacidad de la card NUNCA baja de 1: la card siempre queda 100%
+   sólida (fondo cardBg/foto opacos), así al solaparse con otra en
+   tránsito no se ve transparencia ni mezcla de colores entre ambas.
+   El efecto de "apagado" en los bordes lo da el overlay .sc-dim
+   (fondo negro) subiendo su propia opacidad hasta DIMMAX. */
+const DIMMAX = 1 - OPMIN;
+const dimEls = cardEls.map(el => el.querySelector('.sc-dim'));
+
+gsap.set(cardEls, { xPercent:XR, scale:SCALEMIN });
+gsap.set(dimEls, { opacity:DIMMAX });
 
 /* spacing = (1/N) × SPACINGMULT (N = cantidad real de proyectos): así el
    "viaje" de cada card queda repartido proporcional a cuántos proyectos
@@ -2173,10 +2193,14 @@ gsap.set(cardEls, { xPercent:XR, opacity:OPMIN, scale:SCALEMIN });
 const spacing = (1 / cardEls.length) * SPACINGMULT;
 
 function animateFunc(element) {
+  const dim = element.querySelector('.sc-dim');
   const tl = gsap.timeline();
   tl.fromTo(element,
-    { scale:SCALEMIN, opacity:OPMIN },
-    { scale:1, opacity:1, zIndex:100, duration:PULSEDUR, yoyo:true, repeat:1, ease:'power1.in', immediateRender:false }
+    { scale:SCALEMIN },
+    { scale:1, zIndex:100, duration:PULSEDUR, yoyo:true, repeat:1, ease:'power1.in', immediateRender:false }
+  ).fromTo(dim,
+    { opacity:DIMMAX },
+    { opacity:0, duration:PULSEDUR, yoyo:true, repeat:1, ease:'power1.in', immediateRender:false }, 0
   ).fromTo(element,
     { xPercent:XR },
     { xPercent:-XR, duration:XDUR, ease:'none', immediateRender:false }, 0
