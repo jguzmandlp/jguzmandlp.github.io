@@ -3416,15 +3416,18 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
     requestAnimationFrame(animate);
   }
 
-  function textDrawer(lines, font, align) {
+  function textDrawer(lines, font, align, sizePx) {
     align = align || 'left';
     return function (ctx, w, h) {
       ctx.fillStyle = '#000';
       ctx.font = font;
       ctx.textAlign = align;
       ctx.textBaseline = 'middle';
-      const size = parseInt(font, 10) || 40;
-      const lh = size * 1.05;
+      // OJO: no parsear el tamaño desde el string `font` completo — ese
+      // string empieza con el font-weight (p. ej. "400 130px ...") y
+      // parseInt agarraría el 400 en vez de los 130px reales, rompiendo
+      // el interlineado en textos de más de una línea.
+      const lh = (sizePx || 40) * 1.05;
       const startY = h / 2 - (lh * (lines.length - 1)) / 2;
       const x = align === 'center' ? w / 2 : (align === 'right' ? w : 0);
       lines.forEach((line, i) => ctx.fillText(line, x, startY + i * lh));
@@ -3436,11 +3439,12 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
     if (!el) return;
     const cs = getComputedStyle(el);
     const font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const sizePx = parseFloat(cs.fontSize);
     const align = cs.textAlign === 'start' ? 'left' : cs.textAlign;
     const { wrapper, canvas } = attachCanvas(el);
     // Blanco sólido (sin degradado a rojo) — mismo tratamiento para
     // "Proyectos" y "Sobre mí".
-    initParticles(wrapper, canvas, textDrawer([text], font, align), [WHITE, WHITE]);
+    initParticles(wrapper, canvas, textDrawer([text], font, align, sizePx), [WHITE, WHITE]);
   }
 
   // Espera a que las fuentes (Pirata One, Space Mono, etc.) terminen de
@@ -3471,6 +3475,7 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
     if (ctEl) {
       const cs = getComputedStyle(ctEl);
       const font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      const sizePx = parseFloat(cs.fontSize) || 90;
       const align = cs.textAlign === 'start' ? 'left' : cs.textAlign;
       const { wrapper, canvas } = attachCanvas(ctEl);
       initParticles(wrapper, canvas, function (ctx, w, h) {
@@ -3478,8 +3483,7 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
         ctx.font = font;
         ctx.textAlign = align;
         ctx.textBaseline = 'middle';
-        const size = parseInt(font, 10) || 90;
-        const lh = size * 1.05;
+        const lh = sizePx * 1.05;
         const x = align === 'center' ? w / 2 : (align === 'right' ? w : 0);
         ctx.fillText('Trabajemos', x, h / 2 - lh / 2);
         ctx.fillText('juntos.', x, h / 2 + lh / 2);
