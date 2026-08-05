@@ -419,11 +419,12 @@
     .proj-top {
       position:absolute; top:56px; left:52px; z-index:5; transition:opacity .5s;
     }
-    .grid-distortion-canvas {
-      position:absolute; left:0; right:0; bottom:0;
-      width:100%; height:34%;
-      z-index:1; /* detrás de las cards y de los controles */
+    .grid-mesh-canvas {
+      position:absolute; inset:0;
+      width:100%; height:100%;
       pointer-events:auto;
+      /* sin z-index positivo a propósito: así queda detrás de .proj-top
+         (z-index:5) y de .gallery, simplemente por ir primera en el DOM */
     }
     .proj-top-eye {
       font-size:9px; letter-spacing:.28em; text-transform:uppercase;
@@ -1265,6 +1266,12 @@
      PROJECTS INTERACTIVE
 ══════════════════════════════════════ -->
 <section class="proj-section" id="proj-section">
+  <!-- Grid mesh de fondo — cubre toda la sección, detrás de las cards.
+       Misma malla (gris, no roja) que en Sobre Mí, para que se sienta
+       como un fondo compartido entre ambas pantallas. Adaptado de
+       ui-fx-kit (MIT license) a vanilla JS/Canvas. -->
+  <canvas id="grid-mesh-proj" class="grid-mesh-canvas"></canvas>
+
   <div class="proj-top" id="proj-top">
     <span class="proj-top-eye">Selected Work</span>
     <h2 class="proj-top-head">Proyectos</h2>
@@ -1278,13 +1285,6 @@
     </div>
   </div>
   <div class="drag-proxy"></div>
-
-  <!-- Grid distortion — franja decorativa bajo las cards, dentro de la
-       misma pantalla fija de Proyectos (adaptado de ui-fx-kit, MIT
-       license, a vanilla JS/Canvas; el sitio no tiene scroll normal,
-       usa 4 secciones fijas controladas por JS, así que esto no puede
-       ir en una sección aparte o nunca se vería). -->
-  <canvas id="grid-distortion-canvas" class="grid-distortion-canvas"></canvas>
 </section>
 
 <!-- ══════════════════════════════════════
@@ -1293,6 +1293,9 @@
 <section class="about-section" id="about-section">
 
   <div class="about-bg"><img src="img/about/javier-about.jpg" alt="Javier Guzmán"></div>
+  <!-- Grid mesh de fondo — misma malla que en Proyectos, encima de la
+       foto y debajo del degradado/texto. -->
+  <canvas id="grid-mesh-about" class="grid-mesh-canvas" style="z-index:0;"></canvas>
   <div class="about-fade"></div>
 
   <div class="about-inner">
@@ -3087,8 +3090,17 @@ document.querySelector('.scroll-hint')?.addEventListener('click', () => goTo(1))
       </filter></defs>
     </svg>`);
 
+  // Caja pequeña que sigue al cursor, en vez de un contenedor a pantalla
+  // completa. Filtrar (gooey) toda la pantalla es carísimo para el
+  // navegador (más con el océano/pájaros en WebGL del hero ya
+  // consumiendo GPU) y era la causa de que el efecto se viera "pegado"
+  // — en realidad iba muy retrasado, no roto. Al acotar el área
+  // filtrada a ~460x460px alrededor del cursor, el costo baja
+  // muchísimo y el trail sigue al mouse fluido.
+  const BOX = 460;
   const container = document.createElement('div');
-  container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9998;filter:url(#blob-filter);';
+  container.style.cssText = `position:fixed;top:0;left:0;width:${BOX}px;height:${BOX}px;
+    pointer-events:none;z-index:9998;filter:url(#blob-filter);will-change:transform;`;
   document.body.appendChild(container);
 
   let mx = window.innerWidth / 2, my = window.innerHeight / 2;
@@ -3108,8 +3120,6 @@ document.querySelector('.scroll-hint')?.addEventListener('click', () => goTo(1))
 
   function loop() {
     blobs[0].x = mx; blobs[0].y = my;
-    blobs[0].el.style.left = mx + 'px';
-    blobs[0].el.style.top = my + 'px';
 
     for (let i = 1; i < blobs.length; i++) {
       const prev = blobs[i - 1];
@@ -3128,10 +3138,21 @@ document.querySelector('.scroll-hint')?.addEventListener('click', () => goTo(1))
         cur.x = prev.x + dx * ratio;
         cur.y = prev.y + dy * ratio;
       }
-
-      cur.el.style.left = cur.x + 'px';
-      cur.el.style.top = cur.y + 'px';
     }
+
+    // Centra la caja filtrada en la posición promedio del trail (no en
+    // el mouse directo), para que quepa toda la masa aunque vaya rezagada.
+    let sumX = 0, sumY = 0;
+    for (const b of blobs) { sumX += b.x; sumY += b.y; }
+    const centerX = sumX / blobs.length;
+    const centerY = sumY / blobs.length;
+    container.style.transform = `translate(${centerX - BOX / 2}px, ${centerY - BOX / 2}px)`;
+
+    for (const b of blobs) {
+      b.el.style.left = (b.x - (centerX - BOX / 2)) + 'px';
+      b.el.style.top = (b.y - (centerY - BOX / 2)) + 'px';
+    }
+
     requestAnimationFrame(loop);
   }
   loop();
@@ -3139,21 +3160,23 @@ document.querySelector('.scroll-hint')?.addEventListener('click', () => goTo(1))
 </script>
 
 <script>
-/* ── Grid Distortion — franja bajo las cards de Proyectos ──
+/* ── Grid mesh de fondo — compartida entre Proyectos y Sobre Mí ──
    Adaptado a vanilla JS/Canvas del efecto "GridDistortion" de ui-fx-kit
    (github.com/pptt3300/ui-fx-kit, MIT license): malla de puntos con
-   física de resorte (spring) que se distorsiona cerca del mouse. */
-(function () {
-  const section = document.getElementById('proj-section');
-  const canvas = document.getElementById('grid-distortion-canvas');
-  if (!section || !canvas) return;
-  const ctx = canvas.getContext('2d');
+   física de resorte (spring) que se distorsiona cerca del mouse.
+   Se instancia una vez por sección (misma lógica, mismo color gris) para
+   que ambas pantallas fijas del sitio compartan el mismo fondo. Cada
+   instancia se pausa vía IntersectionObserver cuando su sección no está
+   a la vista, para no gastar CPU en las dos secciones simultáneamente. */
+function initGridMesh(sectionEl, canvasEl) {
+  if (!sectionEl || !canvasEl) return;
+  const ctx = canvasEl.getContext('2d');
 
   const CONFIG = {
-    gridSize: 20,
+    gridSize: 24,
     radius: 150,
     strength: 30,
-    color: [192, 32, 26], // #c0201a, mismo rojo de marca del sitio
+    color: [140, 140, 145], // gris neutro
   };
 
   let grid = [];
@@ -3161,6 +3184,7 @@ document.querySelector('.scroll-hint')?.addEventListener('click', () => goTo(1))
   let mouse = { x: -9999, y: -9999 };
   let dpr = window.devicePixelRatio || 1;
   let canvasW = 0, canvasH = 0;
+  let active = true; // controlado por IntersectionObserver
 
   function tickSpring(s, dt, stiffness, damping) {
     const disp = s.value - s.target;
@@ -3187,22 +3211,22 @@ document.querySelector('.scroll-hint')?.addEventListener('click', () => goTo(1))
   }
 
   function resizeGridCanvas() {
-    const rect = canvas.getBoundingClientRect();
+    const rect = sectionEl.getBoundingClientRect();
     dpr = window.devicePixelRatio || 1;
     canvasW = rect.width;
     canvasH = rect.height;
-    canvas.width = canvasW * dpr;
-    canvas.height = canvasH * dpr;
+    canvasEl.width = canvasW * dpr;
+    canvasEl.height = canvasH * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     buildGrid(canvasW, canvasH);
   }
 
-  canvas.addEventListener('mousemove', e => {
-    const rect = canvas.getBoundingClientRect();
+  sectionEl.addEventListener('mousemove', e => {
+    const rect = sectionEl.getBoundingClientRect();
     mouse.x = e.clientX - rect.left;
     mouse.y = e.clientY - rect.top;
   });
-  canvas.addEventListener('mouseleave', () => {
+  sectionEl.addEventListener('mouseleave', () => {
     mouse.x = -9999; mouse.y = -9999;
   });
 
@@ -3214,74 +3238,85 @@ document.querySelector('.scroll-hint')?.addEventListener('click', () => goTo(1))
     const dt = Math.min((now - lastTime) / 1000, 0.05);
     lastTime = now;
 
-    ctx.clearRect(0, 0, canvasW, canvasH);
+    if (active) {
+      ctx.clearRect(0, 0, canvasW, canvasH);
 
-    const mouseActive = mouse.x !== -9999;
-    const [r, g, b] = CONFIG.color;
+      const mouseActive = mouse.x !== -9999;
+      const [r, g, b] = CONFIG.color;
 
-    for (const pt of grid) {
-      if (mouseActive) {
-        const dx = pt.baseX - mouse.x;
-        const dy = pt.baseY - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < CONFIG.radius && dist > 0) {
-          const force = (1 - dist / CONFIG.radius) * CONFIG.strength;
-          const angle = Math.atan2(dy, dx);
-          pt.sx.target = pt.baseX + Math.cos(angle) * force;
-          pt.sy.target = pt.baseY + Math.sin(angle) * force;
+      for (const pt of grid) {
+        if (mouseActive) {
+          const dx = pt.baseX - mouse.x;
+          const dy = pt.baseY - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < CONFIG.radius && dist > 0) {
+            const force = (1 - dist / CONFIG.radius) * CONFIG.strength;
+            const angle = Math.atan2(dy, dx);
+            pt.sx.target = pt.baseX + Math.cos(angle) * force;
+            pt.sy.target = pt.baseY + Math.sin(angle) * force;
+          } else {
+            pt.sx.target = pt.baseX;
+            pt.sy.target = pt.baseY;
+          }
         } else {
           pt.sx.target = pt.baseX;
           pt.sy.target = pt.baseY;
         }
-      } else {
-        pt.sx.target = pt.baseX;
-        pt.sy.target = pt.baseY;
+        tickSpring(pt.sx, dt, stiffness, damping);
+        tickSpring(pt.sy, dt, stiffness, damping);
       }
-      tickSpring(pt.sx, dt, stiffness, damping);
-      tickSpring(pt.sy, dt, stiffness, damping);
-    }
 
-    const stride = cols + 1;
-    ctx.lineWidth = 0.5;
+      const stride = cols + 1;
+      ctx.lineWidth = 0.5;
 
-    for (let row = 0; row <= rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const i = row * stride + col;
-        const j = i + 1;
-        const a = grid[i], bPt = grid[j];
-        if (!a || !bPt) continue;
-        const disp = Math.hypot(a.sx.value - a.baseX, a.sy.value - a.baseY);
-        const opacity = 0.15 + Math.min(disp / CONFIG.strength, 1) * 0.35;
-        ctx.beginPath();
-        ctx.moveTo(a.sx.value, a.sy.value);
-        ctx.lineTo(bPt.sx.value, bPt.sy.value);
-        ctx.strokeStyle = `rgba(${r},${g},${b},${opacity})`;
-        ctx.stroke();
+      for (let row = 0; row <= rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const i = row * stride + col;
+          const j = i + 1;
+          const a = grid[i], bPt = grid[j];
+          if (!a || !bPt) continue;
+          const disp = Math.hypot(a.sx.value - a.baseX, a.sy.value - a.baseY);
+          const opacity = 0.12 + Math.min(disp / CONFIG.strength, 1) * 0.3;
+          ctx.beginPath();
+          ctx.moveTo(a.sx.value, a.sy.value);
+          ctx.lineTo(bPt.sx.value, bPt.sy.value);
+          ctx.strokeStyle = `rgba(${r},${g},${b},${opacity})`;
+          ctx.stroke();
+        }
       }
-    }
-    for (let col = 0; col <= cols; col++) {
-      for (let row = 0; row < rows; row++) {
-        const i = row * stride + col;
-        const j = i + stride;
-        const a = grid[i], bPt = grid[j];
-        if (!a || !bPt) continue;
-        const disp = Math.hypot(a.sx.value - a.baseX, a.sy.value - a.baseY);
-        const opacity = 0.15 + Math.min(disp / CONFIG.strength, 1) * 0.35;
-        ctx.beginPath();
-        ctx.moveTo(a.sx.value, a.sy.value);
-        ctx.lineTo(bPt.sx.value, bPt.sy.value);
-        ctx.strokeStyle = `rgba(${r},${g},${b},${opacity})`;
-        ctx.stroke();
+      for (let col = 0; col <= cols; col++) {
+        for (let row = 0; row < rows; row++) {
+          const i = row * stride + col;
+          const j = i + stride;
+          const a = grid[i], bPt = grid[j];
+          if (!a || !bPt) continue;
+          const disp = Math.hypot(a.sx.value - a.baseX, a.sy.value - a.baseY);
+          const opacity = 0.12 + Math.min(disp / CONFIG.strength, 1) * 0.3;
+          ctx.beginPath();
+          ctx.moveTo(a.sx.value, a.sy.value);
+          ctx.lineTo(bPt.sx.value, bPt.sy.value);
+          ctx.strokeStyle = `rgba(${r},${g},${b},${opacity})`;
+          ctx.stroke();
+        }
       }
     }
 
     requestAnimationFrame(gridLoop);
   }
 
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(entries => {
+      entries.forEach(entry => { active = entry.isIntersecting; });
+    }, { threshold: 0.05 }).observe(sectionEl);
+  }
+
   window.addEventListener('resize', resizeGridCanvas);
   resizeGridCanvas();
   requestAnimationFrame(gridLoop);
-})();
+}
+
+initGridMesh(document.getElementById('proj-section'), document.getElementById('grid-mesh-proj'));
+initGridMesh(document.getElementById('about-section'), document.getElementById('grid-mesh-about'));
 </script>
 
 </body>
