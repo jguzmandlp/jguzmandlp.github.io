@@ -2715,7 +2715,22 @@ revealBlocks.forEach(block => {
   block.querySelector('.reveal-trigger').addEventListener('click', () => {
     const isOpen = block.classList.contains('open');
     revealBlocks.forEach(b => { if (b !== block) closeRevealBlock(b); });
-    isOpen ? closeRevealBlock(block) : openRevealBlock(block);
+    if (isOpen) {
+      closeRevealBlock(block);
+    } else {
+      openRevealBlock(block);
+      // "Intereses": cada tag entra cayendo con rotación random y
+      // rebote, igual que el demo de SplitText de GSAP — como cada
+      // interés ya es su propio <span>, se anima directo sin necesidad
+      // de dividir texto.
+      if (block.id === 'interests-block') {
+        const tags = block.querySelectorAll('.interest-tag');
+        gsap.fromTo(tags,
+          { y: -100, opacity: 0, rotation: () => gsap.utils.random(-80, 80) },
+          { y: 0, opacity: 1, rotation: 0, stagger: 0.1, duration: 1, ease: 'back' }
+        );
+      }
+    }
   });
 });
 
