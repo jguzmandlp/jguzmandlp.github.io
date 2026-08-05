@@ -3050,5 +3050,80 @@ document.querySelector('.scroll-hint')?.addEventListener('click', () => goTo(1))
 })();
 </script>
 
+<script>
+/* ── Cursor "mancha" (morphing blob) — afinado con cursor-blob-test.html ── */
+(function () {
+  const isTouch = window.matchMedia('(hover:none)').matches;
+  if (isTouch) return;
+
+  const CONFIG = {
+    color: '#c0201a',   // rojo de marca (mismo tono que .skill-tab.chosen)
+    size: 25,
+    trail: 50,
+    lerp: 0.38,
+    opacity: 0.85,
+    blur: 4,
+  };
+
+  document.body.insertAdjacentHTML('beforeend', `
+    <svg style="position:fixed;top:-999px;left:-999px;width:0;height:0">
+      <defs><filter id="blob-filter">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="${CONFIG.blur}" result="blur"/>
+        <feColorMatrix in="blur" mode="matrix"
+          values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"/>
+      </filter></defs>
+    </svg>`);
+
+  const container = document.createElement('div');
+  container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9998;filter:url(#blob-filter);';
+  document.body.appendChild(container);
+
+  let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  const mainSize = CONFIG.size * 1.5;
+  const trailSizes = Array(CONFIG.trail).fill(0).map((_, i) =>
+    Math.max(6, mainSize * 0.75 - i * (mainSize / (CONFIG.trail + 2)))
+  );
+  const blobs = [mainSize, ...trailSizes].map((size, i) => {
+    const el = document.createElement('div');
+    el.style.cssText = `position:absolute;width:${size}px;height:${size}px;border-radius:50%;
+      background:${CONFIG.color};transform:translate(-50%,-50%);opacity:${CONFIG.opacity * (1 - i * 0.06)};`;
+    container.appendChild(el);
+    return { el, x: mx, y: my, size };
+  });
+
+  function loop() {
+    blobs[0].x = mx; blobs[0].y = my;
+    blobs[0].el.style.left = mx + 'px';
+    blobs[0].el.style.top = my + 'px';
+
+    for (let i = 1; i < blobs.length; i++) {
+      const prev = blobs[i - 1];
+      const cur = blobs[i];
+      cur.x += (prev.x - cur.x) * CONFIG.lerp;
+      cur.y += (prev.y - cur.y) * CONFIG.lerp;
+
+      // Tope de distancia: evita que al moverse rápido los segmentos
+      // queden tan separados que el filtro gooey no llegue a fundirlos
+      // (se vería como bolitas sueltas en vez de una sola masa).
+      const maxGap = (prev.size + cur.size) * 0.35;
+      const dx = cur.x - prev.x, dy = cur.y - prev.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > maxGap) {
+        const ratio = maxGap / dist;
+        cur.x = prev.x + dx * ratio;
+        cur.y = prev.y + dy * ratio;
+      }
+
+      cur.el.style.left = cur.x + 'px';
+      cur.el.style.top = cur.y + 'px';
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+
 </body>
 </html>
