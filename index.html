@@ -1515,16 +1515,34 @@
       autoSplit: true,
       mask: 'lines',
       onSplit: function (self) {
+        // Slide de izquierda a derecha (en vez de subir), pedido explícitamente:
+        // cada línea entra deslizándose desde afuera del mask con fade.
         return gsap.from(self.lines, {
-          duration: 0.7,
-          yPercent: 100,
+          duration: 0.8,
+          xPercent: -100,
           opacity: 0,
           stagger: 0.09,
-          ease: 'expo.out',
+          ease: 'power3.out',
           delay: 1.35 // sincronizado con el fade del resto del hero (setTimeout de 1200ms)
         });
       }
     });
+  });
+})();
+</script>
+
+<!-- Reveal palabra por palabra de los párrafos de "Sobre mí" — se dispara
+     en goTo() cuando idx===2 (ver más abajo). Split creado una sola vez
+     acá para no reconstruir el DOM cada vez que se visita la sección. -->
+<script>
+(function () {
+  if (!window.gsap || !window.SplitText) return;
+  gsap.registerPlugin(SplitText);
+  const paras = document.querySelectorAll('#about-section .about-p');
+  if (!paras.length) return;
+  document.fonts.ready.then(function () {
+    window.aboutWordsSplit = SplitText.create(paras, { type: 'words', wordsClass: 'word' });
+    gsap.set(window.aboutWordsSplit.words, { opacity: 0 });
   });
 })();
 </script>
@@ -2866,6 +2884,16 @@ function goTo(idx) {
     gsap.set(contactPanelEls[0], { yPercent:0 });
     gsap.set(contactPanelEls[1], { yPercent:100 });
     animateContactPanel0();
+  }
+
+  /* Al entrar a "Sobre mí": reveal palabra por palabra de los párrafos
+     (Propuesta 4 probada en body-text-reveal-test.html). Se repite cada
+     vez que se visita la sección, igual que el reveal de "Intereses". */
+  if (idx === 2 && window.aboutWordsSplit) {
+    gsap.fromTo(window.aboutWordsSplit.words,
+      { y: 14, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.5, stagger: 0.012, ease: 'power2.out' }
+    );
   }
 }
 
