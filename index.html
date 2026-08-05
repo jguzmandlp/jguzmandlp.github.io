@@ -36,6 +36,17 @@
       position:absolute; inset:0; width:100%; height:100%;
       pointer-events:auto;
     }
+    /* Headings simples (Proyectos / Sobre mí / Trabajemos juntos / etc.):
+       el canvas se cuelga DENTRO del propio elemento en vez de envolverlo
+       en un div nuevo, para no alterar el cálculo de flex/layout del
+       padre (p. ej. .contact-panel usa display:flex y una wrapper extra
+       rompía el tamaño real del texto). */
+    .particle-src { visibility:hidden; }
+    .particle-src > .particle-canvas {
+      visibility:visible;
+      position:absolute; inset:0; width:100%; height:100%;
+      pointer-events:auto;
+    }
 
     /* ── Preloader ── */
     #preloader {
@@ -3266,6 +3277,21 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
     return { wrapper, canvas };
   }
 
+  // Para headings simples de texto: cuelga el canvas DENTRO del propio
+  // elemento (sin envolverlo en un div nuevo), así el tamaño real del
+  // texto no se ve afectado por el layout flex del padre (p. ej.
+  // .contact-panel, que rompía el tamaño al insertar un wrapper extra).
+  function attachCanvas(el) {
+    const cs = getComputedStyle(el);
+    if (cs.position === 'static') el.style.position = 'relative';
+    el.classList.add('particle-src');
+    const canvas = document.createElement('canvas');
+    canvas.className = 'particle-canvas';
+    canvas.setAttribute('aria-hidden', 'true');
+    el.appendChild(canvas);
+    return { wrapper: el, canvas };
+  }
+
   function gradientColor(t, colors) {
     const seg = Math.min(Math.floor(t * (colors.length - 1)), colors.length - 2);
     const s = t * (colors.length - 1) - seg;
@@ -3404,26 +3430,45 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
     if (!el) return;
     const cs = getComputedStyle(el);
     const font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-    const { wrapper, canvas } = wrapEl(el);
+    const { wrapper, canvas } = attachCanvas(el);
     initParticles(wrapper, canvas, textDrawer([text], font), [WHITE, BRAND]);
   }
 
-  // "Proyectos" / "Sobre mí" / "Escribime por acá"
-  particleHeading('.proj-top-head', 'Proyectos');
-  particleHeading('.about-title', 'Sobre mí');
-  particleHeading('.contact-icons-title', 'Escribime por acá');
-
-  // "Trabajemos / juntos." — dos líneas (la 2ª en rojo, como el <em> original)
-  const ctEl = document.querySelector('.contact-title');
-  if (ctEl) {
-    const cs = getComputedStyle(ctEl);
-    const font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-    const { wrapper, canvas } = wrapEl(ctEl);
-    initParticles(wrapper, canvas, textDrawer(['Trabajemos', 'juntos.'], font), [WHITE, BRAND]);
+  // Espera a que las fuentes (Pirata One, Space Mono, etc.) terminen de
+  // cargar antes de "fotografiar" el texto en el canvas — si se dibuja
+  // antes, el navegador usa una fuente de respaldo genérica y esa
+  // tipografía equivocada queda fija en las posiciones de las partículas.
+  function whenFontsReady(cb) {
+    if (document.fonts && document.fonts.ready) {
+      Promise.all([
+        document.fonts.ready,
+        document.fonts.load("400 60px 'Pirata One'").catch(() => {}),
+        document.fonts.load("400 60px 'Space Mono'").catch(() => {}),
+      ]).then(cb, cb);
+    } else {
+      cb();
+    }
   }
 
+  whenFontsReady(function () {
+    // "Proyectos" / "Sobre mí" / "Escribime por acá"
+    particleHeading('.proj-top-head', 'Proyectos');
+    particleHeading('.about-title', 'Sobre mí');
+    particleHeading('.contact-icons-title', 'Escribime por acá');
+
+    // "Trabajemos / juntos." — dos líneas (la 2ª en rojo, como el <em> original)
+    const ctEl = document.querySelector('.contact-title');
+    if (ctEl) {
+      const cs = getComputedStyle(ctEl);
+      const font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      const { wrapper, canvas } = attachCanvas(ctEl);
+      initParticles(wrapper, canvas, textDrawer(['Trabajemos', 'juntos.'], font), [WHITE, BRAND]);
+    }
+  });
+
   // Logo del hero (SVG "Javier Guzmán"): se rasteriza a canvas para poder
-  // samplearlo con la misma técnica (no es texto real, es vector art).
+  // samplearlo con la misma técnica (no es texto real, es vector art), así
+  // que no depende de la carga de fuentes.
   const heroSvg = document.querySelector('.hero-logo');
   if (heroSvg) {
     const { wrapper, canvas } = wrapEl(heroSvg);
