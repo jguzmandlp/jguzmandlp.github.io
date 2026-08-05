@@ -1517,14 +1517,20 @@
       onSplit: function (self) {
         // Slide de izquierda a derecha (en vez de subir), pedido explícitamente:
         // cada línea entra deslizándose desde afuera del mask con fade.
-        return gsap.from(self.lines, {
-          duration: 0.8,
-          xPercent: -100,
-          opacity: 0,
-          stagger: 0.09,
-          ease: 'power3.out',
-          delay: 1.35 // sincronizado con el fade del resto del hero (setTimeout de 1200ms)
-        });
+        // OJO: no usar un `delay` fijo — el preloader dura mínimo 3s (o más
+        // si la carga tarda), así que se espera el evento real
+        // 'preloaderDone' en vez de adivinar un tiempo (antes el delay de
+        // 1.35s hacía que la animación corriera mientras el loader todavía
+        // tapaba la pantalla, o mucho después de que ya se había ido).
+        gsap.set(self.lines, { xPercent: -100, opacity: 0 });
+        function play() {
+          gsap.to(self.lines, {
+            duration: 0.8, xPercent: 0, opacity: 1,
+            stagger: 0.09, ease: 'power3.out'
+          });
+        }
+        if (window.__preloaderDone) play();
+        else document.addEventListener('preloaderDone', play, { once: true });
       }
     });
   });
@@ -1585,11 +1591,23 @@
   var liquidDisplace = document.getElementById('liquidDisplace');
   var MAX_DISTORTION = 26; // qué tan "aguado" se ve el logo al arrancar
 
+  // Dispara un evento real de "loader terminado" — antes, el reveal del
+  // texto del hero usaba un delay fijo (1.35s) que asumía un preloader de
+  // ~1.2s, pero el preloader real dura mínimo 3s (o más si la carga tarda).
+  // Con esto, cualquier animación puede simplemente esperar este evento en
+  // vez de adivinar un tiempo.
+  window.__preloaderDone = false;
+  function notifyPreloaderDone() {
+    window.__preloaderDone = true;
+    document.dispatchEvent(new CustomEvent('preloaderDone'));
+  }
+
   if (!preloader || !barFill) {
     // Fallback por si el preloader no existe: comportamiento anterior.
     if (document.readyState === 'complete') safeReveal();
     else window.addEventListener('load', safeReveal);
     setTimeout(safeReveal, 4000);
+    notifyPreloaderDone();
   } else {
     var progress = 0;
     var startTime = Date.now();
@@ -1624,6 +1642,7 @@
           setTimeout(function () {
             preloader.style.display = 'none';
             safeReveal(); // arranca el efecto GSAP justo después del preloader
+            notifyPreloaderDone(); // avisa a otras animaciones (ej. tagline del hero)
           }, 500); // debe coincidir con la transición CSS de #preloader
         }, 250); // pequeña pausa mostrando el 100%
         return;
