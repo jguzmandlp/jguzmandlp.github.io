@@ -1523,7 +1523,7 @@
         gsap.to(self.lines, {
           duration: 0.8, xPercent: 0, opacity: 1,
           stagger: 0.09, ease: 'power3.out',
-          delay: 5.6
+          delay: 4.3
         });
       }
     });
@@ -1605,7 +1605,7 @@
   } else {
     var progress = 0;
     var startTime = Date.now();
-    var minDuration = 3000; // el preloader dura al menos ~3s, aunque cargue más rápido
+    var minDuration = 2000; // el preloader dura al menos ~2s, aunque cargue más rápido
     var pageLoaded = document.readyState === 'complete';
     if (!pageLoaded) window.addEventListener('load', function () { pageLoaded = true; });
     setTimeout(function () { pageLoaded = true; }, 6000); // red de seguridad
