@@ -2325,6 +2325,19 @@ document.getElementById('proj-prev').addEventListener('click', () => {
   scrub.invalidate().restart();
 });
 
+/* Flechas ← → del teclado para mover el carrusel de proyectos, igual que
+   los botones prev/next. Solo activo cuando la sección Proyectos está a
+   la vista y no hay una card abierta en detalle (para no pelear con el
+   scroll de otras secciones ni con el modal). */
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  if (currentSection !== SECTIONS.indexOf(projEl)) return;
+  if (typeof openIdx !== 'undefined' && openIdx !== null) return;
+  e.preventDefault();
+  scrub.vars.offset += (e.key === 'ArrowRight') ? spacing : -spacing;
+  scrub.invalidate().restart();
+});
+
 if (window.Draggable) {
   Draggable.create('.drag-proxy', {
     type:'x',
