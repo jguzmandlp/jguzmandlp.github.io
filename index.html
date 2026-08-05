@@ -1517,20 +1517,14 @@
       onSplit: function (self) {
         // Slide de izquierda a derecha (en vez de subir), pedido explícitamente:
         // cada línea entra deslizándose desde afuera del mask con fade.
-        // OJO: no usar un `delay` fijo — el preloader dura mínimo 3s (o más
-        // si la carga tarda), así que se espera el evento real
-        // 'preloaderDone' en vez de adivinar un tiempo (antes el delay de
-        // 1.35s hacía que la animación corriera mientras el loader todavía
-        // tapaba la pantalla, o mucho después de que ya se había ido).
+        // Delay fijo simple: dispara justo después del efecto derretido del
+        // loader (~seg 3-4). Ajustar este número si el loader cambia de duración.
         gsap.set(self.lines, { xPercent: -100, opacity: 0 });
-        function play() {
-          gsap.to(self.lines, {
-            duration: 0.8, xPercent: 0, opacity: 1,
-            stagger: 0.09, ease: 'power3.out'
-          });
-        }
-        if (window.__preloaderDone) play();
-        else document.addEventListener('preloaderDone', play, { once: true });
+        gsap.to(self.lines, {
+          duration: 0.8, xPercent: 0, opacity: 1,
+          stagger: 0.09, ease: 'power3.out',
+          delay: 4
+        });
       }
     });
   });
