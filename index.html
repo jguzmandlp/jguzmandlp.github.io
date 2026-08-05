@@ -419,6 +419,12 @@
     .proj-top {
       position:absolute; top:56px; left:52px; z-index:5; transition:opacity .5s;
     }
+    .grid-distortion-canvas {
+      position:absolute; left:0; right:0; bottom:0;
+      width:100%; height:34%;
+      z-index:1; /* detrás de las cards y de los controles */
+      pointer-events:auto;
+    }
     .proj-top-eye {
       font-size:9px; letter-spacing:.28em; text-transform:uppercase;
       color:#c0201a; display:block; margin-bottom:10px;
@@ -1272,6 +1278,13 @@
     </div>
   </div>
   <div class="drag-proxy"></div>
+
+  <!-- Grid distortion — franja decorativa bajo las cards, dentro de la
+       misma pantalla fija de Proyectos (adaptado de ui-fx-kit, MIT
+       license, a vanilla JS/Canvas; el sitio no tiene scroll normal,
+       usa 4 secciones fijas controladas por JS, así que esto no puede
+       ir en una sección aparte o nunca se vería). -->
+  <canvas id="grid-distortion-canvas" class="grid-distortion-canvas"></canvas>
 </section>
 
 <!-- ══════════════════════════════════════
@@ -3122,6 +3135,152 @@ document.querySelector('.scroll-hint')?.addEventListener('click', () => goTo(1))
     requestAnimationFrame(loop);
   }
   loop();
+})();
+</script>
+
+<script>
+/* ── Grid Distortion — franja bajo las cards de Proyectos ──
+   Adaptado a vanilla JS/Canvas del efecto "GridDistortion" de ui-fx-kit
+   (github.com/pptt3300/ui-fx-kit, MIT license): malla de puntos con
+   física de resorte (spring) que se distorsiona cerca del mouse. */
+(function () {
+  const section = document.getElementById('proj-section');
+  const canvas = document.getElementById('grid-distortion-canvas');
+  if (!section || !canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const CONFIG = {
+    gridSize: 20,
+    radius: 150,
+    strength: 30,
+    color: [192, 32, 26], // #c0201a, mismo rojo de marca del sitio
+  };
+
+  let grid = [];
+  let cols = 0, rows = 0;
+  let mouse = { x: -9999, y: -9999 };
+  let dpr = window.devicePixelRatio || 1;
+  let canvasW = 0, canvasH = 0;
+
+  function tickSpring(s, dt, stiffness, damping) {
+    const disp = s.value - s.target;
+    s.velocity += (-stiffness * disp - damping * s.velocity) * dt;
+    s.value += s.velocity * dt;
+  }
+
+  function buildGrid(width, height) {
+    cols = Math.ceil(width / CONFIG.gridSize);
+    rows = Math.ceil(height / CONFIG.gridSize);
+    const pts = [];
+    for (let row = 0; row <= rows; row++) {
+      for (let col = 0; col <= cols; col++) {
+        const bx = col * CONFIG.gridSize;
+        const by = row * CONFIG.gridSize;
+        pts.push({
+          baseX: bx, baseY: by,
+          sx: { value: bx, velocity: 0, target: bx },
+          sy: { value: by, velocity: 0, target: by },
+        });
+      }
+    }
+    grid = pts;
+  }
+
+  function resizeGridCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    dpr = window.devicePixelRatio || 1;
+    canvasW = rect.width;
+    canvasH = rect.height;
+    canvas.width = canvasW * dpr;
+    canvas.height = canvasH * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    buildGrid(canvasW, canvasH);
+  }
+
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+  canvas.addEventListener('mouseleave', () => {
+    mouse.x = -9999; mouse.y = -9999;
+  });
+
+  const stiffness = 200;
+  const damping = 20;
+  let lastTime = performance.now();
+
+  function gridLoop(now) {
+    const dt = Math.min((now - lastTime) / 1000, 0.05);
+    lastTime = now;
+
+    ctx.clearRect(0, 0, canvasW, canvasH);
+
+    const mouseActive = mouse.x !== -9999;
+    const [r, g, b] = CONFIG.color;
+
+    for (const pt of grid) {
+      if (mouseActive) {
+        const dx = pt.baseX - mouse.x;
+        const dy = pt.baseY - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < CONFIG.radius && dist > 0) {
+          const force = (1 - dist / CONFIG.radius) * CONFIG.strength;
+          const angle = Math.atan2(dy, dx);
+          pt.sx.target = pt.baseX + Math.cos(angle) * force;
+          pt.sy.target = pt.baseY + Math.sin(angle) * force;
+        } else {
+          pt.sx.target = pt.baseX;
+          pt.sy.target = pt.baseY;
+        }
+      } else {
+        pt.sx.target = pt.baseX;
+        pt.sy.target = pt.baseY;
+      }
+      tickSpring(pt.sx, dt, stiffness, damping);
+      tickSpring(pt.sy, dt, stiffness, damping);
+    }
+
+    const stride = cols + 1;
+    ctx.lineWidth = 0.5;
+
+    for (let row = 0; row <= rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const i = row * stride + col;
+        const j = i + 1;
+        const a = grid[i], bPt = grid[j];
+        if (!a || !bPt) continue;
+        const disp = Math.hypot(a.sx.value - a.baseX, a.sy.value - a.baseY);
+        const opacity = 0.15 + Math.min(disp / CONFIG.strength, 1) * 0.35;
+        ctx.beginPath();
+        ctx.moveTo(a.sx.value, a.sy.value);
+        ctx.lineTo(bPt.sx.value, bPt.sy.value);
+        ctx.strokeStyle = `rgba(${r},${g},${b},${opacity})`;
+        ctx.stroke();
+      }
+    }
+    for (let col = 0; col <= cols; col++) {
+      for (let row = 0; row < rows; row++) {
+        const i = row * stride + col;
+        const j = i + stride;
+        const a = grid[i], bPt = grid[j];
+        if (!a || !bPt) continue;
+        const disp = Math.hypot(a.sx.value - a.baseX, a.sy.value - a.baseY);
+        const opacity = 0.15 + Math.min(disp / CONFIG.strength, 1) * 0.35;
+        ctx.beginPath();
+        ctx.moveTo(a.sx.value, a.sy.value);
+        ctx.lineTo(bPt.sx.value, bPt.sy.value);
+        ctx.strokeStyle = `rgba(${r},${g},${b},${opacity})`;
+        ctx.stroke();
+      }
+    }
+
+    requestAnimationFrame(gridLoop);
+  }
+
+  window.addEventListener('resize', resizeGridCanvas);
+  resizeGridCanvas();
+  requestAnimationFrame(gridLoop);
 })();
 </script>
 
