@@ -1046,7 +1046,7 @@
 #contact-panel-1 .f-copy { color:rgba(0,0,0,.25); }
 
 .contact-logo { margin-bottom:28px; display:flex; justify-content:center; }
-.contact-logo img { height:48px; width:auto; display:block; }
+.contact-logo img { height:64px; width:auto; display:block; }
 .contact-eye {
   font-size:9px; letter-spacing:.28em; text-transform:uppercase;
   color:#c0201a; display:block; margin-bottom:14px;
@@ -1447,9 +1447,9 @@
     <!-- Panel 2: iconos de contacto -->
     <div class="contact-panel" id="contact-panel-1">
       <div class="contact-logo" id="contact-logo-mount">
-        <img src="img/favicon.svg" alt="Javier Guzmán" width="44" height="48">
+        <img src="img/favicon.svg" alt="Javier Guzmán" width="58" height="64">
       </div>
-      <span class="contact-eye">Mis datos</span>
+      <span class="contact-eye">Contacto</span>
       <h3 class="contact-icons-title">Escribime por acá</h3>
       <div class="contact-icons-row">
         <a href="mailto:javier.guzman.dlp@gmail.com" class="contact-icon-item">
@@ -3412,16 +3412,18 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
     requestAnimationFrame(animate);
   }
 
-  function textDrawer(lines, font) {
+  function textDrawer(lines, font, align) {
+    align = align || 'left';
     return function (ctx, w, h) {
       ctx.fillStyle = '#000';
       ctx.font = font;
-      ctx.textAlign = 'center';
+      ctx.textAlign = align;
       ctx.textBaseline = 'middle';
       const size = parseInt(font, 10) || 40;
       const lh = size * 1.05;
       const startY = h / 2 - (lh * (lines.length - 1)) / 2;
-      lines.forEach((line, i) => ctx.fillText(line, w / 2, startY + i * lh));
+      const x = align === 'center' ? w / 2 : (align === 'right' ? w : 0);
+      lines.forEach((line, i) => ctx.fillText(line, x, startY + i * lh));
     };
   }
 
@@ -3430,8 +3432,11 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
     if (!el) return;
     const cs = getComputedStyle(el);
     const font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const align = cs.textAlign === 'start' ? 'left' : cs.textAlign;
     const { wrapper, canvas } = attachCanvas(el);
-    initParticles(wrapper, canvas, textDrawer([text], font), [WHITE, BRAND]);
+    // Blanco sólido (sin degradado a rojo) — mismo tratamiento para
+    // "Proyectos" y "Sobre mí".
+    initParticles(wrapper, canvas, textDrawer([text], font, align), [WHITE, WHITE]);
   }
 
   // Espera a que las fuentes (Pirata One, Space Mono, etc.) terminen de
@@ -3451,19 +3456,11 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
   }
 
   whenFontsReady(function () {
-    // "Proyectos" / "Sobre mí" / "Escribime por acá"
+    // Solo "Proyectos" y "Sobre mí" llevan el efecto de partículas, en
+    // blanco sólido. "Trabajemos juntos." y "Escribime por acá" vuelven a
+    // ser texto plano normal (sin efecto), tal como estaban originalmente.
     particleHeading('.proj-top-head', 'Proyectos');
     particleHeading('.about-title', 'Sobre mí');
-    particleHeading('.contact-icons-title', 'Escribime por acá');
-
-    // "Trabajemos / juntos." — dos líneas (la 2ª en rojo, como el <em> original)
-    const ctEl = document.querySelector('.contact-title');
-    if (ctEl) {
-      const cs = getComputedStyle(ctEl);
-      const font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-      const { wrapper, canvas } = attachCanvas(ctEl);
-      initParticles(wrapper, canvas, textDrawer(['Trabajemos', 'juntos.'], font), [WHITE, BRAND]);
-    }
   });
 
   // Logo del hero (SVG "Javier Guzmán"): se rasteriza a canvas para poder
