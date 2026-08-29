@@ -2156,10 +2156,9 @@ let dragMoved = false;
    con el demo original de GSAP. */
 const XR = 185;         // xPercent: separación horizontal de cada card
 const SCALEMIN = 0.3;   // scale mínimo (profundidad de las cards laterales)
-const OPMIN = 0.85;     // opacidad mínima en los bordes — alta a propósito: así
-                        // las cards en tránsito (no perfectamente centradas)
-                        // se ven sólidas en vez de traslúcidas cuando se
-                        // solapan entre ellas mientras se deslizan.
+const OPMIN = 1;        // opacidad mínima en los bordes — 1 = siempre totalmente
+                        // opacas, así ninguna card deja ver la de atrás mientras
+                        // se solapan en tránsito.
 const PULSEDUR = 0.5;   // duración del pulso opacidad/escala
 const XDUR = 1;         // duración del recorrido xPercent
 const SPACINGMULT = 0.9;
