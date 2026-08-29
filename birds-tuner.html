@@ -147,7 +147,7 @@ const uZoneX=uniform(2000.),uZoneY=uniform(DEFAULTS.zoneY),uZoneZ=uniform(400.);
 const uFloorY=uniform(DEFAULTS.floorY); // NUEVO: antes era un float(8.) fijo dentro del shader
 
 const mat=new THREE.NodeMaterial();
-mat.colorNode=vec4(0.,0.,0.,1.);
+mat.colorNode=vec4(1.,1.,1.,1.); // blanco solo en esta herramienta, para verlos sobre el fondo negro
 mat.vertexNode=Fn(()=>{
   const pos=positionLocal.toVar();
   const ph=phS.element(instanceIndex);
