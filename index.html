@@ -2221,9 +2221,19 @@ PROJECTS.forEach((p, i) => {
   cardsUl.appendChild(el);
   cards.push(el);
 
+  el.setAttribute('tabindex', '0');
+  el.setAttribute('role', 'button');
+  el.setAttribute('aria-label', 'Ver proyecto: ' + p.name);
+
   el.addEventListener('click', e => {
     e.stopPropagation();
     if (!dragMoved) openProject(i);
+  });
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openProject(i);
+    }
   });
   el.addEventListener('mouseenter', () => {
     document.getElementById('cur').classList.add('hov');
@@ -3264,7 +3274,7 @@ function initGridMesh(sectionEl, canvasEl) {
     const dt = Math.min((now - lastTime) / 1000, 0.05);
     lastTime = now;
 
-    if (active) {
+    if (active && !window.__a11yReduceMotion) {
       ctx.clearRect(0, 0, canvasW, canvasH);
 
       const mouseActive = mouse.x !== -9999;
@@ -3451,7 +3461,7 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
     wrapperEl.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
 
     function animate() {
-      if (active) {
+      if (active && !window.__a11yReduceMotion) {
         const rect = wrapperEl.getBoundingClientRect();
         const w = rect.width, h = rect.height;
         ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -3628,5 +3638,76 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
   };
 </script>
 <script src="accessibility-widget.js"></script>
+<style>
+  /* El sitio usa cursor:none con un cursor custom por canvas; el widget
+     necesita un cursor real y visible dentro de su propio panel/botón. */
+  #a11y-toggle-btn, #a11y-panel, #a11y-panel * { cursor: auto !important; }
+  #a11y-panel input[type="range"] { cursor: pointer !important; }
+  #a11y-panel .a11y-switch, #a11y-panel .a11y-tab, #a11y-panel .a11y-btn,
+  #a11y-panel .a11y-close-btn { cursor: pointer !important; }
+
+  /* Texto: el sitio usa tamaños fijos en px/clamp(), no em/rem, así que el
+     font-size:% del widget en <html> no los mueve. Escalamos explícitamente
+     los selectores de texto reales del sitio con esta variable. */
+  html { --a11y-text-scale: 1; }
+  .hero-tagline        { font-size: calc(13px  * var(--a11y-text-scale)) !important; }
+  .nav-links a          { font-size: calc(10px  * var(--a11y-text-scale)) !important; }
+  .hero-socials a       { font-size: calc(9px   * var(--a11y-text-scale)) !important; }
+  .about-p              { font-size: calc(12px  * var(--a11y-text-scale)) !important; }
+  .contact-eye          { font-size: calc(9px   * var(--a11y-text-scale)) !important; }
+  #preloader-pct        { font-size: calc(10px  * var(--a11y-text-scale)) !important; }
+  .proj-top-head        { font-size: calc(50px  * var(--a11y-text-scale)) !important; }
+  .pd-title             { font-size: calc(50px  * var(--a11y-text-scale)) !important; }
+  .about-title          { font-size: calc(50px  * var(--a11y-text-scale)) !important; }
+  .contact-title        { font-size: calc(100px * var(--a11y-text-scale)) !important; }
+</style>
+<script>
+(function () {
+  // Puente entre este widget genérico y las particularidades de este sitio:
+  // 1) Text Size: el sitio usa px fijos, así que traducimos el slider del
+  //    widget a la variable CSS --a11y-text-scale que sí mueve el texto real.
+  // 2) Stop Animations / Seizure Safe: el sitio anima el océano/pájaros
+  //    (WebGPU) y el timeline de GSAP fuera del alcance de CSS puro
+  //    (animation/transition:none no los toca) — hay que pausarlos a mano.
+  function syncTextScale() {
+    var input = document.querySelector('[data-setting="textSize"]');
+    var scale = input ? Number(input.value) / 100 : 1;
+    document.documentElement.style.setProperty('--a11y-text-scale', scale);
+  }
+
+  var stopAnimBtn = null;
+  function syncStopAnimations() {
+    stopAnimBtn = stopAnimBtn || document.querySelector('[data-setting="stopAnimations"]');
+    if (!stopAnimBtn) return;
+    var on = !!stopAnimBtn.checked;
+    window.__a11yReduceMotion = on;
+    if (typeof updateBgRenderState === 'function') {
+      try { updateBgRenderState(); } catch (e) {}
+    }
+    if (window.gsap && window.gsap.globalTimeline) {
+      try { window.gsap.globalTimeline.paused(on); } catch (e) {}
+    }
+  }
+
+  document.addEventListener('input', function (e) {
+    if (!e.target || !e.target.getAttribute) return;
+    if (e.target.getAttribute('data-setting') === 'textSize') syncTextScale();
+  });
+  document.addEventListener('change', function (e) {
+    if (!e.target || !e.target.getAttribute) return;
+    var key = e.target.getAttribute('data-setting');
+    if (key === 'textSize') syncTextScale();
+    if (key === 'stopAnimations') syncStopAnimations();
+    // Los perfiles (p.ej. "Seizure Safe", "Cognitive", "ADHD") activan
+    // stopAnimations por debajo — re-sincronizamos también en ese caso.
+    if (e.target.hasAttribute('data-profile')) setTimeout(syncStopAnimations, 0);
+  });
+
+  window.addEventListener('load', function () {
+    syncTextScale();
+    syncStopAnimations();
+  });
+})();
+</script>
 </body>
 </html>
