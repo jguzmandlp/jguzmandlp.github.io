@@ -116,96 +116,6 @@
       transition-duration: 0.001ms !important;
     }
 
-    /* ── Accesibilidad: alto contraste ──
-       Sube la opacidad de los textos más débiles del sitio (algunos
-       están en rgba(255,255,255,.28-.5), por debajo del mínimo WCAG AA
-       de contraste 4.5:1 sobre el fondo casi negro #060606). */
-    html.a11y-high-contrast body { color: #fff; }
-    html.a11y-high-contrast .about-p,
-    html.a11y-high-contrast .hero-tagline,
-    html.a11y-high-contrast .nav-links a,
-    html.a11y-high-contrast .contact-eye,
-    html.a11y-high-contrast #preloader-pct {
-      color: rgba(255,255,255,.92) !important;
-    }
-    html.a11y-high-contrast a,
-    html.a11y-high-contrast button {
-      text-decoration-thickness: 2px;
-    }
-
-    /* ── Botón + panel de accesibilidad ── */
-    .a11y-fab-wrap {
-      position:fixed; bottom:28px; left:28px; z-index:9999;
-    }
-    .a11y-fab {
-      width:52px; height:52px; border-radius:50%;
-      border:1px solid rgba(255,255,255,.22);
-      background:rgba(6,6,6,.72); backdrop-filter:blur(6px);
-      -webkit-backdrop-filter:blur(6px);
-      cursor:pointer; padding:0; color:#fff;
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:0 4px 18px rgba(0,0,0,.35);
-    }
-    .a11y-fab svg { width:24px; height:24px; pointer-events:none; }
-    .a11y-panel {
-      position:absolute; bottom:64px; left:0;
-      width:240px; background:rgba(10,10,12,.96); backdrop-filter:blur(10px);
-      border:1px solid rgba(255,255,255,.15); border-radius:12px;
-      padding:16px; display:none; flex-direction:column; gap:12px;
-    }
-    .a11y-panel.open { display:flex; }
-    .a11y-panel h4 {
-      margin:0 0 4px; font-size:11px; letter-spacing:.12em; text-transform:uppercase;
-      color:rgba(255,255,255,.5); font-weight:400;
-    }
-    .a11y-toggle {
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px; font-size:13px; color:#fff; cursor:pointer;
-      background:none; border:none; padding:8px 0; width:100%; text-align:left;
-    }
-    .a11y-switch {
-      width:36px; height:20px; border-radius:20px; background:rgba(255,255,255,.2);
-      position:relative; flex-shrink:0; transition:background .2s;
-    }
-    .a11y-switch::after {
-      content:''; position:absolute; top:2px; left:2px; width:16px; height:16px;
-      border-radius:50%; background:#fff; transition:transform .2s;
-    }
-    .a11y-toggle[aria-pressed="true"] .a11y-switch { background:#e8823a; }
-    .a11y-toggle[aria-pressed="true"] .a11y-switch::after { transform:translateX(16px); }
-
-    .a11y-panel { max-height:70vh; overflow-y:auto; }
-    .a11y-divider { height:1px; background:rgba(255,255,255,.12); margin:6px 0; border:none; }
-
-    /* Ajustes adicionales del panel de accesibilidad */
-    html.a11y-large-text { font-size:112.5%; }
-    html.a11y-wide-spacing, html.a11y-wide-spacing * {
-      letter-spacing:.02em !important; line-height:1.8 !important; word-spacing:.05em !important;
-    }
-    html.a11y-underline-links a { text-decoration:underline !important; text-underline-offset:3px; }
-    html.a11y-readable-font, html.a11y-readable-font * {
-      font-family:Verdana,Tahoma,Arial,sans-serif !important;
-    }
-
-    #a11yReadingGuide {
-      position:fixed; left:0; width:100%; height:36px;
-      background:rgba(232,130,58,.14); border-top:1px solid rgba(232,130,58,.6);
-      border-bottom:1px solid rgba(232,130,58,.6);
-      pointer-events:none; z-index:9998; display:none; top:0;
-    }
-    html.a11y-reading-guide #a11yReadingGuide { display:block; }
-
-    html.a11y-keynav :focus-visible {
-      outline:3px solid #e8823a !important; outline-offset:3px !important;
-    }
-    #a11yKeynavBadge {
-      position:fixed; z-index:10000; pointer-events:none;
-      background:#e8823a; color:#060606; font-size:11px; font-weight:600;
-      padding:3px 8px; border-radius:6px; display:none;
-      transform:translateY(-130%); white-space:nowrap;
-    }
-    html.a11y-keynav #a11yKeynavBadge.show { display:block; }
-
     /* ── Menú radial (favicon) ── */
     .radial-fab-wrap {
       position:fixed; bottom:28px; right:28px; z-index:9999;
@@ -3206,57 +3116,6 @@ document.querySelector('.scroll-hint')?.addEventListener('click', () => goTo(1))
 </script>
 
 <!-- ══════════════════════════════════════
-     BOTÓN DE ACCESIBILIDAD
-══════════════════════════════════════ -->
-<div class="a11y-fab-wrap">
-  <button class="a11y-fab" id="a11yFabBtn" aria-haspopup="true" aria-expanded="false" aria-controls="a11yPanel" aria-label="Opciones de accesibilidad">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="4" r="1.6" fill="currentColor" stroke="none"/>
-      <path d="M4 8.5c3.2 1 12.8 1 16 0"/>
-      <path d="M12 8.5v4l3 7.5M12 12.5l-3 7.5M9 13.5l6-1"/>
-    </svg>
-  </button>
-  <div class="a11y-panel" id="a11yPanel" role="menu">
-    <h4>Accesibilidad</h4>
-    <button class="a11y-toggle" id="a11yToggleMotion" role="menuitemcheckbox" aria-pressed="false">
-      Reducir movimiento
-      <span class="a11y-switch" aria-hidden="true"></span>
-    </button>
-    <button class="a11y-toggle" id="a11yToggleContrast" role="menuitemcheckbox" aria-pressed="false">
-      Alto contraste
-      <span class="a11y-switch" aria-hidden="true"></span>
-    </button>
-    <hr class="a11y-divider">
-    <button class="a11y-toggle" id="a11yToggleLargeText" role="menuitemcheckbox" aria-pressed="false">
-      Texto grande
-      <span class="a11y-switch" aria-hidden="true"></span>
-    </button>
-    <button class="a11y-toggle" id="a11yToggleSpacing" role="menuitemcheckbox" aria-pressed="false">
-      Espaciado amplio
-      <span class="a11y-switch" aria-hidden="true"></span>
-    </button>
-    <button class="a11y-toggle" id="a11yToggleUnderline" role="menuitemcheckbox" aria-pressed="false">
-      Subrayar enlaces
-      <span class="a11y-switch" aria-hidden="true"></span>
-    </button>
-    <button class="a11y-toggle" id="a11yToggleFont" role="menuitemcheckbox" aria-pressed="false">
-      Fuente legible
-      <span class="a11y-switch" aria-hidden="true"></span>
-    </button>
-    <button class="a11y-toggle" id="a11yToggleGuide" role="menuitemcheckbox" aria-pressed="false">
-      Guía de lectura
-      <span class="a11y-switch" aria-hidden="true"></span>
-    </button>
-    <button class="a11y-toggle" id="a11yToggleKeynav" role="menuitemcheckbox" aria-pressed="false">
-      Navegación por teclado
-      <span class="a11y-switch" aria-hidden="true"></span>
-    </button>
-  </div>
-</div>
-<div id="a11yReadingGuide" aria-hidden="true"></div>
-<div id="a11yKeynavBadge" aria-hidden="true"></div>
-
-<!-- ══════════════════════════════════════
      MENÚ RADIAL — adaptado de https://demos.gsap.com/demo/radial-menu/
 ══════════════════════════════════════ -->
 <div class="radial-fab-wrap" id="radialFabWrap">
@@ -3756,157 +3615,18 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
 })();
 </script>
 
-<!-- ── Panel de accesibilidad: reducir movimiento + alto contraste ── -->
+
+
+
+<!-- ── Accessibility Widget (perfiles + ajustes granulares) ── -->
 <script>
-(function () {
-  const root = document.documentElement;
-  const fabBtn = document.getElementById('a11yFabBtn');
-  const panel = document.getElementById('a11yPanel');
-  const motionBtn = document.getElementById('a11yToggleMotion');
-  const contrastBtn = document.getElementById('a11yToggleContrast');
-  if (!fabBtn || !panel || !motionBtn || !contrastBtn) return;
-
-  const STORAGE_KEY = 'a11y-prefs';
-  let prefs = {};
-  try { prefs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (e) { prefs = {}; }
-
-  // Si no hay preferencia guardada, respeta la del sistema operativo como
-  // valor inicial de "reducir movimiento".
-  const systemPrefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const reduceMotion = prefs.reduceMotion !== undefined ? prefs.reduceMotion : systemPrefersReduced;
-  const highContrast = !!prefs.highContrast;
-
-  function applyMotion(on) {
-    window.__a11yReduceMotion = on;
-    root.classList.toggle('a11y-reduce-motion', on);
-    motionBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    // Pausa el océano/pájaros (WebGL/WebGPU) y la repulsión de partículas
-    // al cursor — ambos ya revisan window.__a11yReduceMotion.
-    if (typeof updateBgRenderState === 'function') updateBgRenderState();
-  }
-
-  function applyContrast(on) {
-    root.classList.toggle('a11y-high-contrast', on);
-    contrastBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-  }
-
-  function save() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs)); } catch (e) {}
-  }
-
-  // Blindaje: si otro script de la página (p.ej. el de scroll/GSAP) falla
-  // antes de este bloque, no debe tumbar el panel de accesibilidad — así
-  // que el fab/panel se registran primero, y los efectos que dependen de
-  // otras partes del sitio (updateBgRenderState) van protegidos aparte.
-  try { applyMotion(reduceMotion); } catch (e) { console.warn('a11y: applyMotion falló', e); }
-  try { applyContrast(highContrast); } catch (e) { console.warn('a11y: applyContrast falló', e); }
-
-  fabBtn.addEventListener('click', () => {
-    const isOpen = panel.classList.toggle('open');
-    fabBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!panel.classList.contains('open')) return;
-    if (e.target === fabBtn || fabBtn.contains(e.target) || panel.contains(e.target)) return;
-    panel.classList.remove('open');
-    fabBtn.setAttribute('aria-expanded', 'false');
-  });
-
-  motionBtn.addEventListener('click', () => {
-    prefs.reduceMotion = motionBtn.getAttribute('aria-pressed') !== 'true';
-    applyMotion(prefs.reduceMotion);
-    save();
-  });
-
-  contrastBtn.addEventListener('click', () => {
-    prefs.highContrast = contrastBtn.getAttribute('aria-pressed') !== 'true';
-    applyContrast(prefs.highContrast);
-    save();
-  });
-
-  // ── Ajustes adicionales: texto grande, espaciado, subrayado, fuente
-  //    legible, guía de lectura, navegación por teclado con badge ──
-  const simpleToggles = [
-    { id: 'a11yToggleLargeText', cls: 'a11y-large-text', key: 'largeText' },
-    { id: 'a11yToggleSpacing',   cls: 'a11y-wide-spacing', key: 'spacing' },
-    { id: 'a11yToggleUnderline', cls: 'a11y-underline-links', key: 'underline' },
-    { id: 'a11yToggleFont',      cls: 'a11y-readable-font', key: 'font' }
-  ];
-  simpleToggles.forEach(({ id, cls, key }) => {
-    const btn = document.getElementById(id);
-    if (!btn) return;
-    const on = !!prefs[key];
-    root.classList.toggle(cls, on);
-    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    btn.addEventListener('click', () => {
-      const next = btn.getAttribute('aria-pressed') !== 'true';
-      prefs[key] = next;
-      root.classList.toggle(cls, next);
-      btn.setAttribute('aria-pressed', next ? 'true' : 'false');
-      save();
-    });
-  });
-
-  // Guía de lectura: barra horizontal que sigue el cursor
-  const guideBtn = document.getElementById('a11yToggleGuide');
-  const guideEl = document.getElementById('a11yReadingGuide');
-  if (guideBtn && guideEl) {
-    const applyGuide = (on) => {
-      root.classList.toggle('a11y-reading-guide', on);
-      guideBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    };
-    applyGuide(!!prefs.readingGuide);
-    document.addEventListener('mousemove', (e) => {
-      if (!root.classList.contains('a11y-reading-guide')) return;
-      guideEl.style.top = (e.clientY - 18) + 'px';
-    });
-    guideBtn.addEventListener('click', () => {
-      prefs.readingGuide = guideBtn.getAttribute('aria-pressed') !== 'true';
-      applyGuide(prefs.readingGuide);
-      save();
-    });
-  }
-
-  // Navegación por teclado: al moverse con Tab, resalta el elemento
-  // enfocado y muestra una etiqueta flotante con su rol/nombre accesible.
-  const keynavBtn = document.getElementById('a11yToggleKeynav');
-  const keynavBadge = document.getElementById('a11yKeynavBadge');
-  if (keynavBtn && keynavBadge) {
-    function labelFor(el) {
-      const role = el.tagName.toLowerCase();
-      const name = el.getAttribute('aria-label') || el.textContent.trim().slice(0, 40) || el.getAttribute('title') || el.getAttribute('href') || '(sin nombre)';
-      return role + ': ' + name;
-    }
-    function showBadge(el) {
-      const r = el.getBoundingClientRect();
-      keynavBadge.textContent = labelFor(el);
-      keynavBadge.style.left = Math.max(4, r.left) + 'px';
-      keynavBadge.style.top = r.top + 'px';
-      keynavBadge.classList.add('show');
-    }
-    function hideBadge() { keynavBadge.classList.remove('show'); }
-    document.addEventListener('focusin', (e) => {
-      if (!root.classList.contains('a11y-keynav')) return;
-      const el = e.target;
-      if (el === document.body) return;
-      showBadge(el);
-    });
-    document.addEventListener('focusout', hideBadge);
-    const applyKeynav = (on) => {
-      root.classList.toggle('a11y-keynav', on);
-      keynavBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      if (!on) hideBadge();
-    };
-    applyKeynav(!!prefs.keynav);
-    keynavBtn.addEventListener('click', () => {
-      prefs.keynav = keynavBtn.getAttribute('aria-pressed') !== 'true';
-      applyKeynav(prefs.keynav);
-      save();
-    });
-  }
-})();
+  window.A11Y_WIDGET_CONFIG = {
+    position: 'bottom-left',
+    accentColor: '#e8823a',
+    brandName: 'Accesibilidad',
+    poweredByText: ''
+  };
 </script>
-
+<script src="accessibility-widget.js"></script>
 </body>
 </html>
