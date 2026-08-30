@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Ajuste de pájaros — real</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+  #canvas-ocean{position:fixed;inset:0;z-index:0;}
+  #canvas-birds{position:fixed;inset:0;z-index:1;pointer-events:none;}
+  #horizon-line{position:fixed;left:0;width:100%;height:0;border-top:1px dashed rgba(255,60,60,.85);z-index:5;pointer-events:none;}
+  #horizon-label{position:fixed;left:8px;color:#ff6b6b;font-size:11px;font-family:'Courier New',monospace;z-index:5;pointer-events:none;text-shadow:0 1px 3px #000;}
+  #panel{position:fixed;top:0;right:0;width:300px;max-height:100vh;overflow-y:auto;background:rgba(10,10,12,.94);
+    backdrop-filter:blur(8px);color:#fff;z-index:10;padding:16px;box-sizing:border-box;font-size:12px;}
+  #panel h1{font-size:14px;margin:0 0 4px;}
+  #panel p.hint{color:rgba(255,255,255,.5);margin:0 0 14px;line-height:1.5;}
+  .row{margin-bottom:12px;}
+  .row label{display:flex;justify-content:space-between;margin-bottom:4px;color:rgba(255,255,255,.85);}
+  .row label span.val{color:#e8823a;font-family:'Courier New',monospace;}
+  .row input[type=range]{width:100%;accent-color:#e8823a;}
+  .toggle-row{display:flex;align-items:center;gap:8px;margin:14px 0;}
+  .divider{height:1px;background:rgba(255,255,255,.15);margin:16px 0;}
+  #output{background:#000;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:10px;
+    font-family:'Courier New',monospace;font-size:10.5px;line-height:1.6;white-space:pre-wrap;color:#9fe89f;
+    max-height:220px;overflow-y:auto;}
+  #copyBtn{width:100%;margin-top:8px;padding:8px;background:#e8823a;color:#060606;border:none;border-radius:6px;
+    font-weight:700;cursor:pointer;font-size:12px;}
+  #copyBtn:hover{background:#f0964f;}
+  #resetBtn{width:100%;margin-top:6px;padding:8px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.25);
+    border-radius:6px;cursor:pointer;font-size:12px;}
+</style>
+</head>
+<body>
+
+<div id="canvas-ocean" aria-hidden="true"></div>
+<div id="canvas-birds" aria-hidden="true"></div>
+<div id="horizon-line"></div>
+<div id="horizon-label">horizonte real de la cámara</div>
+
+<div id="panel">
+  <h1>Ajuste de pájaros (real)</h1>
+  <p class="hint">Este usa el mismo océano y el mismo three.js real de tu sitio — nada simulado. Mueve los sliders hasta que la bandada se quede arriba de la línea roja casi siempre. Copia los valores cuando te guste.</p>
+
+  <div class="toggle-row">
+    <input type="checkbox" id="toggleGuide" checked>
+    <label for="toggleGuide" style="margin:0;">Mostrar línea de horizonte</label>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="row"><label>Altura ancla del enjambre (uAnchorY) <span class="val" id="v_anchorY"></span></label>
+    <input type="range" id="anchorY" min="100" max="600" step="1"></div>
+  <div class="row"><label>Grosor de la zona vertical (uZoneY) <span class="val" id="v_zoneY"></span></label>
+    <input type="range" id="zoneY" min="10" max="300" step="1"></div>
+  <div class="row"><label>Piso mínimo (uFloorY) <span class="val" id="v_floorY"></span></label>
+    <input type="range" id="floorY" min="0" max="200" step="1"></div>
+
+  <div class="divider"></div>
+
+  <div class="row"><label>Cámara — altura (Y) <span class="val" id="v_camY"></span></label>
+    <input type="range" id="camY" min="0" max="60" step="0.5"></div>
+  <div class="row"><label>Cámara — mira hacia (lookAt Y) <span class="val" id="v_lookY"></span></label>
+    <input type="range" id="lookY" min="0" max="60" step="0.5"></div>
+
+  <div class="divider"></div>
+
+  <div class="row"><label>Velocidad (uSpeed) <span class="val" id="v_speed"></span></label>
+    <input type="range" id="speed" min="3" max="40" step="0.5"></div>
+  <div class="row"><label>Separación (uSep) <span class="val" id="v_sep"></span></label>
+    <input type="range" id="sep" min="10" max="250" step="1"></div>
+  <div class="row"><label>Alineación (uAli) <span class="val" id="v_ali"></span></label>
+    <input type="range" id="ali" min="10" max="250" step="1"></div>
+  <div class="row"><label>Cohesión (uCoh) <span class="val" id="v_coh"></span></label>
+    <input type="range" id="coh" min="10" max="250" step="1"></div>
+
+  <div class="divider"></div>
+
+  <div id="output"></div>
+  <button id="copyBtn">Copiar valores</button>
+  <button id="resetBtn">Restaurar valores actuales del sitio</button>
+</div>
+
+<!-- ── OCEAN (idéntico a index.html) ── -->
+<script type="importmap">
+{
+  "imports": {
+    "three":        "./build/three.module.js",
+    "three/webgpu": "./build/three.webgpu.js",
+    "three/tsl":    "./build/three.tsl.js",
+    "three/addons/":"./jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { Water } from 'three/addons/objects/Water.js';
+import { Sky }   from 'three/addons/objects/Sky.js';
+
+const renderer=new THREE.WebGLRenderer({antialias:true,outputBufferType:THREE.HalfFloatType});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=0.14;
+document.getElementById('canvas-ocean').appendChild(renderer.domElement);
+
+const scene=new THREE.Scene(),timer=new THREE.Timer(),sun=new THREE.Vector3();
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,1,20000);
+camera.position.set(0,18,0); camera.lookAt(0,15,-1000);
+window.__tunerOceanCamera = camera;
+
+const water=new Water(new THREE.PlaneGeometry(10000,10000),{
+  textureWidth:512,textureHeight:512,
+  waterNormals:new THREE.TextureLoader().load('textures/waternormals.jpg',t=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;}),
+  sunDirection:new THREE.Vector3(),sunColor:0xffffff,waterColor:0x001e0f,distortionScale:0.5,fog:false
+});
+water.rotation.x=-Math.PI/2; scene.add(water);
+
+const sky=new Sky(); sky.scale.setScalar(10000); scene.add(sky);
+const su=sky.material.uniforms;
+su['turbidity'].value=10; su['rayleigh'].value=2;
+su['mieCoefficient'].value=0.005; su['mieDirectionalG'].value=0.8;
+
+const pmrem=new THREE.PMREMGenerator(renderer),sceneEnv=new THREE.Scene(); let envRT;
+function setSun(el,az){
+  sun.setFromSphericalCoords(1,THREE.MathUtils.degToRad(90-el),THREE.MathUtils.degToRad(az));
+  su['sunPosition'].value.copy(sun);
+  water.material.uniforms['sunDirection'].value.copy(sun).normalize();
+  if(envRT)envRT.dispose();
+  sceneEnv.add(sky); envRT=pmrem.fromScene(sceneEnv); scene.add(sky);
+  scene.environment=envRT.texture;
+}
+setSun(0,-180);
+
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+function __oceanTick(){
+  timer.update();
+  water.material.uniforms['time'].value+=timer.getDelta();
+  renderer.render(scene,camera);
+}
+renderer.setAnimationLoop(__oceanTick);
+</script>
+
+<!-- ── BIRDS (idéntico a index.html, con uniforms expuestos para los sliders) ── -->
+<script type="module">
+import * as THREE from 'three/webgpu';
+import {
+  uniform,vec3,vec4,sin,mat3,uint,negate,
+  instancedArray,cameraProjectionMatrix,cameraViewMatrix,
+  positionLocal,modelWorldMatrix,sqrt,float,Fn,If,cos,
+  Loop,Continue,normalize,instanceIndex,length,vertexIndex,dot,max,abs
+} from 'three/tsl';
+
+const DEFAULTS = {
+  anchorY: 319, zoneY: 100, floorY: 8,
+  camY: 18, lookY: 15,
+  speed: 13, sep: 99, ali: 100, coh: 83
+};
+
+const renderer=new THREE.WebGPURenderer({antialias:false,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.setClearAlpha(0);
+document.getElementById('canvas-birds').appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,1,20000);
+camera.position.set(0,DEFAULTS.camY,0); camera.lookAt(0,DEFAULTS.lookY,-1000);
+
+const BIRDS = (innerWidth < 768 || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4)) ? 2048 : 8192;
+
+const SVG_VERTS=[0,0,0,3.1,-3.6,0,0.4,-4.4,0,0,0,0,0.4,-4.4,0,-2.3,-5.1,0,0,0,0,-2.3,-5.1,0,-5.3,-5.3,0,0,0,0,-5.3,-5.3,0,-8.4,-5.1,0,0,0,0,-8.4,-5.1,0,-11.4,-4.8,0,0,0,0,-11.4,-4.8,0,-14.5,-4.7,0,0,0,0,-14.5,-4.7,0,-17.1,-4.4,0,0,0,0,-17.1,-4.4,0,-17.4,-3.0,0,0,0,0,-17.4,-3.0,0,-15.0,-3.1,0,0,0,0,-15.0,-3.1,0,-11.5,-3.0,0,0,0,0,-11.5,-3.0,0,-11.9,-2.3,0,0,0,0,-11.9,-2.3,0,-14.4,-1.5,0,0,0,0,-14.4,-1.5,0,-16.3,-0.4,0,0,0,0,-16.3,-0.4,0,-18.0,1.1,0,0,0,0,-18.0,1.1,0,-19.4,2.3,0,0,0,0,-19.4,2.3,0,-20.0,3.8,0,0,0,0,-20.0,3.8,0,-19.8,5.3,0,0,0,0,-19.8,5.3,0,-18.5,4.8,0,0,0,0,-18.5,4.8,0,-16.7,3.4,0,0,0,0,-16.7,3.4,0,-14.7,2.3,0,0,0,0,-14.7,2.3,0,-12.5,1.3,0,0,0,0,-12.5,1.3,0,-10.0,0.4,0,0,0,0,-10.0,0.4,0,-7.5,-0.5,0,0,0,0,-7.5,-0.5,0,-5.2,-1.5,0,0,0,0,-5.2,-1.5,0,-2.4,-2.2,0,0,0,0,-2.4,-2.2,0,0.7,-2.2,0,0,0,0,0.7,-2.2,0,3.7,-1.9,0,0,0,0,3.7,-1.9,0,6.7,-1.5,0,0,0,0,6.7,-1.5,0,9.4,-0.8,0,0,0,0,9.4,-0.8,0,12.0,0.0,0,0,0,0,12.0,0.0,0,14.5,0.9,0,0,0,0,14.5,0.9,0,17.3,1.5,0,0,0,0,17.3,1.5,0,20.0,1.0,0,0,0,0,20.0,1.0,0,17.7,-0.1,0,0,0,0,17.7,-0.1,0,15.3,-1.0,0,0,0,0,15.3,-1.0,0,12.6,-1.7,0,0,0,0,12.6,-1.7,0,9.7,-2.1,0,0,0,0,9.7,-2.1,0,6.7,-2.4,0,0,0,0,6.7,-2.4,0,4.0,-2.9,0,0,0,0,4.0,-2.9,0,3.1,-3.6,0];
+
+class BirdGeo extends THREE.BufferGeometry{
+  constructor(){super();this.setAttribute('position',new THREE.BufferAttribute(new Float32Array(SVG_VERTS),3));this.scale(.18,.18,.18);}
+}
+
+const pA=new Float32Array(BIRDS*3),vA=new Float32Array(BIRDS*3),phA=new Float32Array(BIRDS);
+for(let i=0;i<BIRDS;i++){
+  pA[i*3]=(Math.random()-.5)*4000;
+  pA[i*3+1]=12+Math.random()*160;
+  pA[i*3+2]=-2000+(Math.random()-.5)*800;
+  const a=Math.random()*Math.PI*2,s=5+Math.random()*5;
+  vA[i*3]=Math.cos(a)*s; vA[i*3+1]=(Math.random()-.5)*2; vA[i*3+2]=Math.sin(a)*s;
+  phA[i]=Math.random()*Math.PI*2;
+}
+
+const pS=instancedArray(pA,'vec3').setName('p');
+const vS=instancedArray(vA,'vec3').setName('v');
+const phS=instancedArray(phA,'float').setName('ph');
+pS.setPBO(true);vS.setPBO(true);phS.setPBO(true);
+
+const uSep=uniform(DEFAULTS.sep),uAli=uniform(DEFAULTS.ali),uCoh=uniform(DEFAULTS.coh);
+const uDt=uniform(0.),uSpeed=uniform(DEFAULTS.speed);
+const uRO=uniform(new THREE.Vector3(0,0,9999));
+const uRD=uniform(new THREE.Vector3(0,0,-1));
+const uAnchorY=uniform(DEFAULTS.anchorY),uAnchorZ=uniform(-2000.);
+const uZoneX=uniform(2000.),uZoneY=uniform(DEFAULTS.zoneY),uZoneZ=uniform(400.);
+const uFloorY=uniform(DEFAULTS.floorY); // NUEVO: antes era un float(8.) fijo dentro del shader
+
+const mat=new THREE.NodeMaterial();
+mat.colorNode=vec4(0.,0.,0.,1.); // igual que en el sitio real: siluetas negras contra el cielo claro
+mat.vertexNode=Fn(()=>{
+  const pos=positionLocal.toVar();
+  const ph=phS.element(instanceIndex);
+  const wd=pos.x.abs().mul(.45);
+  const flap=sin(ph).mul(.6).add(sin(ph.mul(2.)).mul(.4));
+  pos.y.addAssign(flap.mul(wd));
+  const wp=modelWorldMatrix.mul(pos);
+  const vel=normalize(vS.element(instanceIndex)).toVar();
+  vel.z.mulAssign(-1.);
+  const xz=length(vel.xz),x=sqrt(vel.y.mul(vel.y).oneMinus());
+  const cry=vel.x.div(xz).toVar(),sry=vel.z.div(xz).toVar();
+  const mY=mat3(cry,0,negate(sry),0,1,0,sry,0,cry);
+  const mZ=mat3(x,vel.y,0,negate(vel.y),x,0,0,0,1);
+  const fv=mY.mul(mZ).mul(wp);
+  fv.addAssign(pS.element(instanceIndex));
+  return cameraProjectionMatrix.mul(cameraViewMatrix).mul(fv);
+})();
+mat.side=THREE.DoubleSide;
+
+const mesh=new THREE.InstancedMesh(new BirdGeo(),mat,BIRDS);
+mesh.scale.setScalar(1.52);
+mesh.rotation.y=Math.PI/2;
+mesh.matrixAutoUpdate=false;mesh.frustumCulled=false;mesh.updateMatrix();
+scene.add(mesh);
+
+const compVel=Fn(()=>{
+  const PI=float(3.14159265),PI2=PI.mul(2.);
+  const bi=instanceIndex.toConst('bi');
+  const p=pS.element(bi).toVar();
+  const v=vS.element(bi).toVar();
+  const lim=uSpeed.toVar('lim');
+  const ph=phS.element(bi);
+  v.x.addAssign(sin(ph.mul(float(.047))).mul(cos(ph.mul(float(.031)))).mul(float(3.)).mul(uDt));
+  v.z.addAssign(cos(ph.mul(float(.039))).mul(sin(ph.mul(float(.017)))).mul(float(2.)).mul(uDt));
+  v.y.addAssign(sin(ph.mul(float(.033)).add(float(1.3))).mul(float(.9)).mul(uDt));
+  If(p.x.greaterThan(uZoneX),()=>{v.x.subAssign(p.x.sub(uZoneX).mul(float(.06)).mul(uDt));});
+  If(p.x.lessThan(uZoneX.negate()),()=>{v.x.addAssign(uZoneX.negate().sub(p.x).mul(float(.06)).mul(uDt));});
+  const yF=uFloorY,yC=uAnchorY.add(uZoneY);
+  If(p.y.lessThan(yF),()=>{v.y.addAssign(yF.sub(p.y).mul(float(.20)).mul(uDt));});
+  If(p.y.greaterThan(yC),()=>{v.y.subAssign(p.y.sub(yC).mul(float(.25)).mul(uDt));});
+  v.y.addAssign(uAnchorY.sub(p.y).mul(float(.008)).mul(uDt));
+  If(p.z.greaterThan(float(-285.)),()=>{v.z.subAssign(p.z.add(float(285.)).mul(float(.25)).mul(uDt));});
+  const zFW=uAnchorZ.sub(uZoneZ);
+  If(p.z.lessThan(zFW),()=>{v.z.addAssign(zFW.sub(p.z).mul(float(.05)).mul(uDt));});
+  If(length(v).lessThan(float(1.5)),()=>{v.assign(normalize(v.add(vec3(float(0.),float(0.),float(-1.)))).mul(float(3.)));});
+  const dtc=uRO.sub(uRD.mul(dot(uRO.sub(p),uRD))).sub(p).toConst();
+  const dSq=dot(dtc,dtc).toConst();
+  If(dSq.lessThan(float(40000.)),()=>{
+    const adj=dSq.div(40000.).sub(1.).mul(uDt).mul(120.);
+    v.addAssign(normalize(dtc).mul(adj));
+    lim.addAssign(5.);
+  });
+  const zr=uSep.add(uAli).add(uCoh).mul(float(.4)).toConst();
+  const st=uSep.div(uSep.add(uAli).add(uCoh)).toConst();
+  const at=uSep.add(uAli).div(uSep.add(uAli).add(uCoh)).toConst();
+  const zrSq=zr.mul(zr).toConst();
+  Loop({start:uint(0),end:uint(BIRDS),type:'uint',condition:'<'},({i})=>{
+    If(i.equal(bi),()=>{Continue();});
+    const bp=pS.element(i),db=bp.sub(p),dist=length(db);
+    If(dist.lessThan(float(.0001)),()=>{Continue();});
+    const dSq2=dist.mul(dist);
+    If(dSq2.greaterThan(zrSq),()=>{Continue();});
+    const pct=dSq2.div(zrSq);
+    If(pct.lessThan(st),()=>{
+      v.subAssign(normalize(db).mul(st.div(pct).sub(1.).mul(uDt)));
+    }).ElseIf(pct.lessThan(at),()=>{
+      const ap=pct.sub(st).div(at.sub(st));
+      v.addAssign(normalize(vS.element(i)).mul(float(.5).sub(cos(ap.mul(PI2)).mul(.5)).add(.5).mul(uDt)));
+    }).Else(()=>{
+      const ap=at.oneMinus().equal(0.).select(1.,pct.sub(at).div(at.oneMinus()));
+      v.addAssign(normalize(db).mul(float(.5).sub(cos(ap.mul(PI2)).mul(.5)).mul(uDt)));
+    });
+  });
+  If(length(v).greaterThan(lim),()=>{v.assign(normalize(v).mul(lim));});
+  vS.element(bi).assign(v);
+})().compute(BIRDS);
+
+const compPos=Fn(()=>{
+  pS.element(instanceIndex).addAssign(vS.element(instanceIndex).mul(uDt).mul(15.));
+  const v=vS.element(instanceIndex),ph=phS.element(instanceIndex);
+  phS.element(instanceIndex).assign(ph.add(uDt).add(length(v.xz).mul(uDt).mul(3.)).add(max(v.y,0.).mul(uDt).mul(6.)).mod(62.83));
+})().compute(BIRDS);
+
+const compWrap=Fn(()=>{
+  const i=instanceIndex,p=pS.element(i),v=vS.element(i),ph=phS.element(i);
+  const zFT=uAnchorZ.sub(uZoneZ).sub(float(50.));
+  If(p.z.lessThan(zFT),()=>{
+    const newX=sin(ph.mul(float(13.7))).mul(uZoneX.mul(float(.85)));
+    pS.element(i).assign(vec3(newX,p.y,float(-470.)));
+    If(v.z.greaterThan(float(-1.)),()=>{vS.element(i).assign(vec3(v.x,v.y,float(-5.)));});
+  });
+  If(p.z.greaterThan(float(-295.)),()=>{
+    pS.element(i).assign(vec3(p.x,p.y,float(-300.)));
+    If(v.z.greaterThan(float(0.)),()=>{vS.element(i).assign(vec3(v.x,v.y,float(0.).sub(abs(v.z)).sub(float(3.))));});
+  });
+})().compute(BIRDS);
+
+const pointer=new THREE.Vector2(0,10),ray=new THREE.Raycaster();
+let mx=.5,my=.5;
+window.addEventListener('mousemove',e=>{
+  mx=e.clientX/innerWidth; my=e.clientY/innerHeight;
+  pointer.x=mx*2-1; pointer.y=-(my*2-1);
+});
+window.addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+  updateHorizonLine();
+});
+
+let last=performance.now();
+async function tick(){
+  const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;
+  ray.setFromCamera(pointer,camera);
+  uDt.value=dt; uRO.value.copy(ray.ray.origin); uRD.value.copy(ray.ray.direction);
+  await renderer.computeAsync(compVel);
+  await renderer.computeAsync(compPos);
+  await renderer.computeAsync(compWrap);
+  renderer.render(scene,camera);
+  pointer.y=10;
+}
+renderer.setAnimationLoop(tick);
+
+// ── Línea de horizonte real ──
+const horizonLine = document.getElementById('horizon-line');
+const horizonLabel = document.getElementById('horizon-label');
+const _pt = new THREE.Vector3();
+function updateHorizonLine(){
+  _pt.set(0, camera.position.y, -1e6);
+  _pt.project(camera);
+  const y = (1 - (_pt.y * 0.5 + 0.5)) * innerHeight;
+  horizonLine.style.top = y + 'px';
+  horizonLabel.style.top = (y - 16) + 'px';
+}
+
+// ── Controles ──
+const els = {
+  anchorY: document.getElementById('anchorY'), zoneY: document.getElementById('zoneY'), floorY: document.getElementById('floorY'),
+  camY: document.getElementById('camY'), lookY: document.getElementById('lookY'),
+  speed: document.getElementById('speed'), sep: document.getElementById('sep'), ali: document.getElementById('ali'), coh: document.getElementById('coh')
+};
+function setAll(vals){
+  els.anchorY.value = vals.anchorY; els.zoneY.value = vals.zoneY; els.floorY.value = vals.floorY;
+  els.camY.value = vals.camY; els.lookY.value = vals.lookY;
+  els.speed.value = vals.speed; els.sep.value = vals.sep; els.ali.value = vals.ali; els.coh.value = vals.coh;
+  sync();
+}
+function sync(){
+  uAnchorY.value = Number(els.anchorY.value);
+  uZoneY.value = Number(els.zoneY.value);
+  uFloorY.value = Number(els.floorY.value);
+  uSpeed.value = Number(els.speed.value);
+  uSep.value = Number(els.sep.value);
+  uAli.value = Number(els.ali.value);
+  uCoh.value = Number(els.coh.value);
+  camera.position.y = Number(els.camY.value);
+  camera.lookAt(0, Number(els.lookY.value), -1000);
+  // La cámara del océano se mueve EN CONJUNTO para que el horizonte del agua
+  // y el de las aves coincidan siempre (igual que en el sitio real).
+  if (window.__tunerOceanCamera) {
+    window.__tunerOceanCamera.position.y = Number(els.camY.value);
+    window.__tunerOceanCamera.lookAt(0, Number(els.lookY.value), -1000);
+  }
+  updateHorizonLine();
+
+  document.getElementById('v_anchorY').textContent = els.anchorY.value;
+  document.getElementById('v_zoneY').textContent = els.zoneY.value;
+  document.getElementById('v_floorY').textContent = els.floorY.value;
+  document.getElementById('v_camY').textContent = els.camY.value;
+  document.getElementById('v_lookY').textContent = els.lookY.value;
+  document.getElementById('v_speed').textContent = els.speed.value;
+  document.getElementById('v_sep').textContent = els.sep.value;
+  document.getElementById('v_ali').textContent = els.ali.value;
+  document.getElementById('v_coh').textContent = els.coh.value;
+
+  document.getElementById('output').textContent =
+`camera.position.set(0, ${els.camY.value}, 0); camera.lookAt(0, ${els.lookY.value}, -1000);
+(pegar esta misma línea en las 3 apariciones: OCEAN x2 y BIRDS x1)
+
+const uSep=uniform(${els.sep.value}.), uAli=uniform(${els.ali.value}.), uCoh=uniform(${els.coh.value}.);
+const uSpeed=uniform(${els.speed.value});
+const uAnchorY=uniform(${els.anchorY.value}.);
+const uZoneY=uniform(${els.zoneY.value}.);
+
+// piso mínimo de vuelo (antes fijo en 8):
+const yF=float(${els.floorY.value}.);`;
+}
+Object.values(els).forEach(el => el.addEventListener('input', sync));
+document.getElementById('toggleGuide').addEventListener('change', e => {
+  horizonLine.style.display = e.target.checked ? 'block' : 'none';
+  horizonLabel.style.display = e.target.checked ? 'block' : 'none';
+});
+document.getElementById('copyBtn').addEventListener('click', () => {
+  navigator.clipboard.writeText(document.getElementById('output').textContent).then(()=>{
+    const b = document.getElementById('copyBtn');
+    const old = b.textContent; b.textContent = '¡Copiado!'; setTimeout(()=>b.textContent=old, 1200);
+  });
+});
+document.getElementById('resetBtn').addEventListener('click', () => setAll(DEFAULTS));
+
+setAll(DEFAULTS);
+</script>
+</body>
+</html>
