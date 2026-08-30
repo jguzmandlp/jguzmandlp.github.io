@@ -3654,16 +3654,28 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
      font-size:% del widget en <html> no los mueve. Escalamos explícitamente
      los selectores de texto reales del sitio con esta variable. */
   html { --a11y-text-scale: 1; }
-  .hero-tagline        { font-size: calc(13px  * var(--a11y-text-scale)) !important; }
+  /* OJO: .hero-tagline y .contact-title quedan afuera a propósito — GSAP
+     SplitText las corta en líneas/palabras con máscaras de tamaño fijo
+     apenas carga la página, y .contact-title además se redibuja como
+     partículas en un canvas; cambiarles el font-size después rompe esa
+     geometría y el texto queda montado/ilegible. .proj-top-head y
+     .about-title tampoco: son puro canvas de partículas, no hay texto
+     real que escalar ahí. Se escala solo texto plano de verdad. */
   .nav-links a          { font-size: calc(10px  * var(--a11y-text-scale)) !important; }
   .hero-socials a       { font-size: calc(9px   * var(--a11y-text-scale)) !important; }
   .about-p              { font-size: calc(12px  * var(--a11y-text-scale)) !important; }
   .contact-eye          { font-size: calc(9px   * var(--a11y-text-scale)) !important; }
+  .contact-desc         { font-size: calc(13px  * var(--a11y-text-scale)) !important; }
   #preloader-pct        { font-size: calc(10px  * var(--a11y-text-scale)) !important; }
-  .proj-top-head        { font-size: calc(50px  * var(--a11y-text-scale)) !important; }
   .pd-title             { font-size: calc(50px  * var(--a11y-text-scale)) !important; }
-  .about-title          { font-size: calc(50px  * var(--a11y-text-scale)) !important; }
-  .contact-title        { font-size: calc(100px * var(--a11y-text-scale)) !important; }
+  .pd-desc              { font-size: calc(13px  * var(--a11y-text-scale)) !important; }
+  .pd-extra-text        { font-size: calc(13px  * var(--a11y-text-scale)) !important; }
+  .skill-tab            { font-size: calc(9px   * var(--a11y-text-scale)) !important; }
+  .skill-row            { font-size: calc(12px  * var(--a11y-text-scale)) !important; }
+  .certs-col-label      { font-size: calc(9px   * var(--a11y-text-scale)) !important; }
+  .cert-name            { font-size: calc(12px  * var(--a11y-text-scale)) !important; }
+  .cert-meta            { font-size: calc(9px   * var(--a11y-text-scale)) !important; }
+  .f-copy               { font-size: calc(9px   * var(--a11y-text-scale)) !important; }
 </style>
 <script>
 (function () {

@@ -282,49 +282,17 @@
     keyboardNav: "a11y-fx-keyboard-nav"
   };
 
-  // Escala el tamaño real de cada texto de la página, en vez de depender
-  // de que todo el sitio use unidades rem/em. El sitio usa font-size en
-  // px en la mayoría de sus estilos, así que cambiar solo el font-size
-  // del <html> no llega a esos textos (por eso antes los títulos sí
-  // cambiaban pero el cuerpo, tarjetas de habilidades, etc. no). Aquí se
-  // guarda el tamaño original (computado) de cada elemento la primera
-  // vez y se reescala en base a ese original, sin ir acumulando.
-  var FONT_SCALE_BASE = typeof WeakMap !== "undefined" ? new WeakMap() : null;
-  var fontScaleRaf = null;
-  function scaleAllText(pct) {
-    if (!FONT_SCALE_BASE) return;
-    if (fontScaleRaf) cancelAnimationFrame(fontScaleRaf);
-    fontScaleRaf = requestAnimationFrame(function () {
-      var all = document.body.querySelectorAll("*");
-      for (var i = 0; i < all.length; i++) {
-        var el = all[i];
-        if (el.closest && el.closest("#a11y-panel, #a11y-toggle-btn, #a11y-kbnav-badge, #a11y-reading-guide")) continue;
-        var tag = el.tagName;
-        if (tag === "SCRIPT" || tag === "STYLE" || tag === "SVG" || tag === "PATH" || tag === "CANVAS" || tag === "BR") continue;
-        var hasOwnText = false;
-        var kids = el.childNodes;
-        for (var k = 0; k < kids.length; k++) {
-          if (kids[k].nodeType === 3 && kids[k].textContent.trim()) { hasOwnText = true; break; }
-        }
-        var isFormEl = tag === "INPUT" || tag === "TEXTAREA" || tag === "BUTTON" || tag === "SELECT";
-        if (!hasOwnText && !isFormEl) continue;
-
-        var base = FONT_SCALE_BASE.get(el);
-        if (base == null) {
-          base = parseFloat(getComputedStyle(el).fontSize) || 16;
-          FONT_SCALE_BASE.set(el, base);
-        }
-        el.style.fontSize = pct === 100 ? "" : (base * pct / 100).toFixed(2) + "px";
-      }
-    });
-  }
-
   function applyState() {
     Object.keys(FX_CLASS_MAP).forEach(function (key) {
       root.classList.toggle(FX_CLASS_MAP[key], !!state.settings[key]);
     });
 
-    scaleAllText(state.settings.textSize);
+    // El escalado real de texto lo maneja el sitio mismo, vía la variable
+    // CSS --a11y-text-scale (puente definido en index.html) que apunta a
+    // los selectores de texto reales del sitio y respeta los elementos
+    // manejados por GSAP SplitText / partículas en canvas, que se rompen
+    // si se les cambia el font-size después de inicializados.
+    root.style.fontSize = state.settings.textSize + "%";
     root.style.setProperty("--a11y-letter-spacing", (state.settings.spacing - 100) / 400 + "em");
     document.body.style.letterSpacing = state.settings.spacing !== 100 ? (state.settings.spacing - 100) / 400 + "em" : "";
     document.body.style.lineHeight = state.settings.spacing !== 100 ? (state.settings.spacing / 100) * 1.5 : "";
