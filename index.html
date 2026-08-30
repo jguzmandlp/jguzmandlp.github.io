@@ -1159,6 +1159,10 @@
   padding:24px 80px;
   border-top:1px solid rgba(255,255,255,.06);
   display:flex; justify-content:space-between; align-items:center;
+  /* Sin esto hereda el fondo negro de la regla global "footer{}" (para
+     el footer real del sitio) por ser también una etiqueta <footer> —
+     tapaba el panel-1 blanco de Contacto justo donde vive este texto. */
+  background:transparent;
 }
 .f-name {
   font-family:'UnifrakturMaguntia',cursive;
