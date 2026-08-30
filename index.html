@@ -1752,7 +1752,7 @@ document.getElementById('canvas-ocean').appendChild(renderer.domElement);
 
 const scene=new THREE.Scene(),timer=new THREE.Timer(),sun=new THREE.Vector3();
 const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,1,20000);
-camera.position.set(0,18,0); camera.lookAt(0,15,-1000);
+camera.position.set(0,26.5,0); camera.lookAt(0,15,-1000);
 
 const water=new Water(new THREE.PlaneGeometry(10000,10000),{
   textureWidth:512,textureHeight:512,
@@ -1780,7 +1780,7 @@ setSun(0,-180);
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 
 /* Cámara fija — sin reacción al mouse */
-camera.position.set(0,18,0);
+camera.position.set(0,26.5,0);
 camera.lookAt(0,15,-1000);
 
 function __oceanTick(){
@@ -1816,7 +1816,7 @@ document.getElementById('canvas-birds').appendChild(renderer.domElement);
 
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,1,20000);
-camera.position.set(0,18,0); camera.lookAt(0,15,-1000);
+camera.position.set(0,26.5,0); camera.lookAt(0,15,-1000);
 
 /* Menos pájaros en pantallas chicas / equipos con pocos núcleos — cada
    pájaro corre 3 compute shaders por frame, así que este número pesa
@@ -1848,8 +1848,8 @@ const uSep=uniform(99.),uAli=uniform(100.),uCoh=uniform(83.);
 const uDt=uniform(0.),uSpeed=uniform(13.);
 const uRO=uniform(new THREE.Vector3(0,0,9999));
 const uRD=uniform(new THREE.Vector3(0,0,-1));
-const uAnchorY=uniform(319.),uAnchorZ=uniform(-2000.);
-const uZoneX=uniform(2000.),uZoneY=uniform(100.),uZoneZ=uniform(400.);
+const uAnchorY=uniform(100.),uAnchorZ=uniform(-2000.);
+const uZoneX=uniform(2000.),uZoneY=uniform(300.),uZoneZ=uniform(400.);
 
 const mat=new THREE.NodeMaterial();
 mat.colorNode=vec4(0.,0.,0.,1.);
@@ -1893,7 +1893,7 @@ const compVel=Fn(()=>{
   If(p.x.greaterThan(uZoneX),()=>{v.x.subAssign(p.x.sub(uZoneX).mul(float(.06)).mul(uDt));});
   If(p.x.lessThan(uZoneX.negate()),()=>{v.x.addAssign(uZoneX.negate().sub(p.x).mul(float(.06)).mul(uDt));});
   // Muros Y
-  const yF=float(8.),yC=uAnchorY.add(uZoneY);
+  const yF=float(195.),yC=uAnchorY.add(uZoneY);
   If(p.y.lessThan(yF),()=>{v.y.addAssign(yF.sub(p.y).mul(float(.20)).mul(uDt));});
   If(p.y.greaterThan(yC),()=>{v.y.subAssign(p.y.sub(yC).mul(float(.25)).mul(uDt));});
   v.y.addAssign(uAnchorY.sub(p.y).mul(float(.008)).mul(uDt));
