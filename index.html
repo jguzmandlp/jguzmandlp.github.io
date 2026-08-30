@@ -3086,6 +3086,10 @@ window.addEventListener('wheel', e => {
   // sin ningún trabajo de más, mientras la galería está scrolleando.
   if (window.__modalScrollLock) return;
 
+  // Igual para el panel de accesibilidad: su scroll interno es propio,
+  // no debe disparar el salto de sección de la página de abajo.
+  if (e.target && e.target.closest && e.target.closest('#a11y-panel')) return;
+
   /* Dentro de Contacto: taparse/destaparse entre los 2 paneles en vez de
      intentar saltar a una sección que no existe. */
   if (currentSection === CONTACT_INDEX && !scrollBusy) {
@@ -3106,6 +3110,7 @@ let touchStartY = 0;
 window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
 window.addEventListener('touchend', e => {
   if (window.__modalScrollLock) return;
+  if (e.target && e.target.closest && e.target.closest('#a11y-panel')) return;
   const dy = touchStartY - e.changedTouches[0].clientY;
 
   if (currentSection === CONTACT_INDEX && !scrollBusy) {
