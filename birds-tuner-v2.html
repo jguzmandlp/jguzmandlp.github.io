@@ -66,6 +66,11 @@
     <input type="range" id="lookY" min="-40" max="80" step="0.5"></div>
 
   <div class="divider"></div>
+  <p class="hint"><strong style="color:#fff;">2b. Distancia mínima a la cámara</strong> — el "muro" invisible que impide que se acerquen demasiado. Súbelo (hazlo menos negativo... no, hazlo MÁS negativo, ej. -900) para que se mantengan siempre lejos, nunca cerca del frente.</p>
+  <div class="row"><label>Distancia mínima (uNearZ) <span class="val" id="v_nearZ"></span></label>
+    <input type="range" id="nearZ" min="-1400" max="-150" step="5"></div>
+
+  <div class="divider"></div>
   <p class="hint"><strong style="color:#fff;">3. Comportamiento de vuelo</strong> — separación/alineación/cohesión son las reglas clásicas de bandada (boids): qué tan lejos se evitan, qué tanto copian la dirección del vecino, qué tanto se agrupan hacia el centro.</p>
 
   <div class="row"><label>Velocidad (uSpeed) <span class="val" id="v_speed"></span></label>
@@ -159,7 +164,8 @@ import {
 const DEFAULTS = {
   anchorY: 319, zoneY: 100, floorY: 8,
   camY: 18, lookY: 15,
-  speed: 13, sep: 99, ali: 100, coh: 83
+  speed: 13, sep: 99, ali: 100, coh: 83,
+  nearZ: -285
 };
 
 const renderer=new THREE.WebGPURenderer({antialias:false,alpha:true});
@@ -202,6 +208,7 @@ const uRD=uniform(new THREE.Vector3(0,0,-1));
 const uAnchorY=uniform(DEFAULTS.anchorY),uAnchorZ=uniform(-2000.);
 const uZoneX=uniform(2000.),uZoneY=uniform(DEFAULTS.zoneY),uZoneZ=uniform(400.);
 const uFloorY=uniform(DEFAULTS.floorY); // NUEVO: antes era un float(8.) fijo dentro del shader
+const uNearZ=uniform(DEFAULTS.nearZ); // NUEVO: antes fijo en -285/-300 — "muro" que impide que se acerquen a la cámara
 
 const mat=new THREE.NodeMaterial();
 mat.colorNode=vec4(0.,0.,0.,1.); // igual que en el sitio real: siluetas negras contra el cielo claro
@@ -246,7 +253,7 @@ const compVel=Fn(()=>{
   If(p.y.lessThan(yF),()=>{v.y.addAssign(yF.sub(p.y).mul(float(.20)).mul(uDt));});
   If(p.y.greaterThan(yC),()=>{v.y.subAssign(p.y.sub(yC).mul(float(.25)).mul(uDt));});
   v.y.addAssign(uAnchorY.sub(p.y).mul(float(.008)).mul(uDt));
-  If(p.z.greaterThan(float(-285.)),()=>{v.z.subAssign(p.z.add(float(285.)).mul(float(.25)).mul(uDt));});
+  If(p.z.greaterThan(uNearZ),()=>{v.z.subAssign(p.z.sub(uNearZ).mul(float(.25)).mul(uDt));});
   const zFW=uAnchorZ.sub(uZoneZ);
   If(p.z.lessThan(zFW),()=>{v.z.addAssign(zFW.sub(p.z).mul(float(.05)).mul(uDt));});
   If(length(v).lessThan(float(1.5)),()=>{v.assign(normalize(v.add(vec3(float(0.),float(0.),float(-1.)))).mul(float(3.)));});
@@ -296,8 +303,8 @@ const compWrap=Fn(()=>{
     pS.element(i).assign(vec3(newX,p.y,float(-470.)));
     If(v.z.greaterThan(float(-1.)),()=>{vS.element(i).assign(vec3(v.x,v.y,float(-5.)));});
   });
-  If(p.z.greaterThan(float(-295.)),()=>{
-    pS.element(i).assign(vec3(p.x,p.y,float(-300.)));
+  If(p.z.greaterThan(uNearZ.sub(float(10.))),()=>{
+    pS.element(i).assign(vec3(p.x,p.y,uNearZ.sub(float(15.))));
     If(v.z.greaterThan(float(0.)),()=>{vS.element(i).assign(vec3(v.x,v.y,float(0.).sub(abs(v.z)).sub(float(3.))));});
   });
 })().compute(BIRDS);
@@ -346,12 +353,14 @@ function updateHorizonLine(){
 const els = {
   anchorY: document.getElementById('anchorY'), zoneY: document.getElementById('zoneY'), floorY: document.getElementById('floorY'),
   camY: document.getElementById('camY'), lookY: document.getElementById('lookY'),
-  speed: document.getElementById('speed'), sep: document.getElementById('sep'), ali: document.getElementById('ali'), coh: document.getElementById('coh')
+  speed: document.getElementById('speed'), sep: document.getElementById('sep'), ali: document.getElementById('ali'), coh: document.getElementById('coh'),
+  nearZ: document.getElementById('nearZ')
 };
 function setAll(vals){
   els.anchorY.value = vals.anchorY; els.zoneY.value = vals.zoneY; els.floorY.value = vals.floorY;
   els.camY.value = vals.camY; els.lookY.value = vals.lookY;
   els.speed.value = vals.speed; els.sep.value = vals.sep; els.ali.value = vals.ali; els.coh.value = vals.coh;
+  els.nearZ.value = vals.nearZ;
   sync();
 }
 function sync(){
@@ -362,6 +371,7 @@ function sync(){
   uSep.value = Number(els.sep.value);
   uAli.value = Number(els.ali.value);
   uCoh.value = Number(els.coh.value);
+  uNearZ.value = Number(els.nearZ.value);
   camera.position.y = Number(els.camY.value);
   camera.lookAt(0, Number(els.lookY.value), -1000);
   // La cámara del océano se mueve EN CONJUNTO para que el horizonte del agua
@@ -381,6 +391,7 @@ function sync(){
   document.getElementById('v_sep').textContent = els.sep.value;
   document.getElementById('v_ali').textContent = els.ali.value;
   document.getElementById('v_coh').textContent = els.coh.value;
+  document.getElementById('v_nearZ').textContent = els.nearZ.value;
 
   document.getElementById('output').textContent =
 `camera.position.set(0, ${els.camY.value}, 0); camera.lookAt(0, ${els.lookY.value}, -1000);
@@ -392,7 +403,11 @@ const uAnchorY=uniform(${els.anchorY.value}.);
 const uZoneY=uniform(${els.zoneY.value}.);
 
 // piso mínimo de vuelo (antes fijo en 8):
-const yF=float(${els.floorY.value}.);`;
+const yF=float(${els.floorY.value}.);
+
+// distancia mínima a la cámara (antes fijo en -285 / -300):
+// en compVel:  If(p.z.greaterThan(float(${els.nearZ.value}.)), ...)
+// en compWrap: If(p.z.greaterThan(float(${Number(els.nearZ.value)-10}.)), pS...assign(vec3(p.x,p.y,float(${Number(els.nearZ.value)-15}.))) ...)`;
 }
 Object.values(els).forEach(el => el.addEventListener('input', sync));
 document.getElementById('toggleGuide').addEventListener('change', e => {
