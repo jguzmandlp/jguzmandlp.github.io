@@ -154,7 +154,13 @@
   var posClass = "a11y-pos-" + CONFIG.position;
 
   var iconSvg =
-    '<svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm9 7h-6.17l-1.24-1.24A3 3 0 0 0 11.5 7H11a3 3 0 0 0-2.1.86L6.66 10.1A2 2 0 0 0 6 11.5V13a1 1 0 0 0 2 0v-1.3l1.5-1.4V13l-3.4 8.16a1 1 0 0 0 1.84.78L10 16h4l2.06 5.94a1 1 0 0 0 1.84-.78L14.5 12v-2.2l1.5 1.4V13a1 1 0 0 0 2 0v-1.5c0-.13-.02-.27-.06-.4H21a1 1 0 0 0 0-2z"/></svg>';
+    '<svg viewBox="0 0 100 100">' +
+    '<rect x="8" y="40" width="84" height="11" rx="5.5"/>' +
+    '<rect x="35" y="62" width="10" height="32" rx="5" transform="rotate(-18 40 62)"/>' +
+    '<rect x="55" y="62" width="10" height="32" rx="5" transform="rotate(18 60 62)"/>' +
+    '<rect x="41" y="36" width="18" height="27" rx="9"/>' +
+    '<circle cx="50" cy="20" r="13"/>' +
+    '</svg>';
 
   var toggleBtn = document.createElement("button");
   toggleBtn.id = "a11y-toggle-btn";
