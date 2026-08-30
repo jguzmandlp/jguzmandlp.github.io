@@ -97,7 +97,7 @@
   ".a11y-tab{flex:1;padding:12px 8px;text-align:center;background:none;border:none;cursor:pointer;" +
   "font-weight:600;color:#888;border-bottom:2px solid transparent;}" +
   ".a11y-tab.active{color:var(--a11y-accent);border-bottom-color:var(--a11y-accent);}" +
-  ".a11y-body{overflow-y:auto;padding:8px 0;flex:1;}" +
+  ".a11y-body{overflow-y:auto;padding:8px 0;flex:1;overscroll-behavior:contain;}" +
   ".a11y-row{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;gap:10px;}" +
   ".a11y-row + .a11y-row{border-top:1px solid #f5f5f5;}" +
   ".a11y-row-label{display:flex;align-items:center;gap:10px;font-weight:500;}" +
