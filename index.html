@@ -1086,6 +1086,11 @@
   font-family:'Pirata One',cursive; font-weight:400;
   font-size:clamp(72px,10vw,150px);
   color:#fff; line-height:.92; margin-bottom:24px;
+  /* Un poco de aire arriba: Pirata One tiene ascendentes/remates altos
+     (se nota en la "T" de "Trabajemos") y el canvas de partículas usa
+     exactamente el alto de esta caja — sin este margen se recortaba
+     la punta de esas letras. */
+  padding-top:0.12em;
 }
 .contact-title em {
   font-style:normal; color:#c0201a;
@@ -3685,17 +3690,13 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
   // 2) Stop Animations / Seizure Safe: el sitio anima el océano/pájaros
   //    (WebGPU) y el timeline de GSAP fuera del alcance de CSS puro
   //    (animation/transition:none no los toca) — hay que pausarlos a mano.
-  function syncTextScale() {
-    var input = document.querySelector('[data-setting="textSize"]');
-    var scale = input ? Number(input.value) / 100 : 1;
+  function syncTextScale(settings) {
+    var scale = settings && typeof settings.textSize === 'number' ? settings.textSize / 100 : 1;
     document.documentElement.style.setProperty('--a11y-text-scale', scale);
   }
 
-  var stopAnimBtn = null;
-  function syncStopAnimations() {
-    stopAnimBtn = stopAnimBtn || document.querySelector('[data-setting="stopAnimations"]');
-    if (!stopAnimBtn) return;
-    var on = !!stopAnimBtn.checked;
+  function syncStopAnimations(settings) {
+    var on = !!(settings && settings.stopAnimations);
     window.__a11yReduceMotion = on;
     if (typeof updateBgRenderState === 'function') {
       try { updateBgRenderState(); } catch (e) {}
@@ -3705,24 +3706,31 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
     }
   }
 
-  document.addEventListener('input', function (e) {
-    if (!e.target || !e.target.getAttribute) return;
-    if (e.target.getAttribute('data-setting') === 'textSize') syncTextScale();
-  });
-  document.addEventListener('change', function (e) {
-    if (!e.target || !e.target.getAttribute) return;
-    var key = e.target.getAttribute('data-setting');
-    if (key === 'textSize') syncTextScale();
-    if (key === 'stopAnimations') syncStopAnimations();
-    // Los perfiles (p.ej. "Seizure Safe", "Cognitive", "ADHD") activan
-    // stopAnimations por debajo — re-sincronizamos también en ese caso.
-    if (e.target.hasAttribute('data-profile')) setTimeout(syncStopAnimations, 0);
+  // El widget avisa con este evento cada vez que su estado cambia de
+  // verdad — arrastre del slider, un perfil, Reset o la carga inicial —
+  // así que basta escucharlo una sola vez para quedar siempre en sync
+  // (antes esto dependía de 'input'/'change' crudos y Reset/perfiles no
+  // los disparaban, dejando el tamaño de texto pegado en el valor viejo).
+  document.addEventListener('a11y-widget:apply', function (e) {
+    var settings = e.detail && e.detail.settings;
+    if (!settings) return;
+    syncTextScale(settings);
+    syncStopAnimations(settings);
   });
 
-  window.addEventListener('load', function () {
-    syncTextScale();
-    syncStopAnimations();
-  });
+  // Sync inicial leída directo de localStorage: accessibility-widget.js
+  // dispara su primer 'a11y-widget:apply' al cargar, pero ese script se
+  // ejecuta ANTES que este bloque (va primero en el HTML), así que ese
+  // primer evento nadie lo escucha todavía. Sin esto, el estado guardado
+  // (ej. textSize) no se reflejaba hasta la próxima interacción.
+  try {
+    var raw = localStorage.getItem('a11yWidgetState');
+    var saved = raw ? JSON.parse(raw) : null;
+    if (saved && saved.settings) {
+      syncTextScale(saved.settings);
+      syncStopAnimations(saved.settings);
+    }
+  } catch (e) {}
 })();
 </script>
 </body>

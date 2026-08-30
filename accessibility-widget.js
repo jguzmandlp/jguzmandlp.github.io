@@ -330,6 +330,15 @@
     });
 
     saveState();
+
+    // Avisa a cualquier puente específico del sitio (ej. el que traduce
+    // textSize a --a11y-text-scale en index.html) que el estado cambió,
+    // sin importar si fue por arrastrar el slider, un perfil, Reset o la
+    // carga inicial — antes solo se enteraba de arrastres reales del
+    // slider, así que Reset y los perfiles lo dejaban desincronizado.
+    try {
+      document.dispatchEvent(new CustomEvent("a11y-widget:apply", { detail: { settings: state.settings } }));
+    } catch (e) {}
   }
 
   function setProfile(key, enabled) {
