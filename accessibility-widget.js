@@ -75,10 +75,10 @@
   var css = "" +
   ":root{--a11y-accent:" + CONFIG.accentColor + ";}" +
   "#a11y-toggle-btn{position:fixed;z-index:2147483000;width:56px;height:56px;border-radius:50%;" +
-  "background:var(--a11y-accent);border:none;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);" +
+  "background:#0b0b0b;border:2px solid var(--a11y-accent);cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35);" +
   "display:flex;align-items:center;justify-content:center;transition:transform .15s ease;}" +
   "#a11y-toggle-btn:hover{transform:scale(1.06);}" +
-  "#a11y-toggle-btn svg{width:28px;height:28px;fill:#fff;}" +
+  "#a11y-toggle-btn svg{width:30px;height:30px;fill:#fff;}" +
   ".a11y-pos-bottom-right{bottom:20px;right:20px;}" +
   ".a11y-pos-bottom-left{bottom:20px;left:20px;}" +
   ".a11y-pos-top-right{top:20px;right:20px;}" +
