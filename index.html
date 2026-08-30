@@ -1897,7 +1897,7 @@ const compVel=Fn(()=>{
   If(p.y.greaterThan(yC),()=>{v.y.subAssign(p.y.sub(yC).mul(float(.25)).mul(uDt));});
   v.y.addAssign(uAnchorY.sub(p.y).mul(float(.008)).mul(uDt));
   // Muros Z
-  If(p.z.greaterThan(float(-460.)),()=>{v.z.subAssign(p.z.add(float(460.)).mul(float(.25)).mul(uDt));});
+  If(p.z.greaterThan(float(-680.)),()=>{v.z.subAssign(p.z.add(float(680.)).mul(float(.25)).mul(uDt));});
   const zFW=uAnchorZ.sub(uZoneZ);
   If(p.z.lessThan(zFW),()=>{v.z.addAssign(zFW.sub(p.z).mul(float(.05)).mul(uDt));});
   // Min speed
@@ -1950,8 +1950,8 @@ const compWrap=Fn(()=>{
     pS.element(i).assign(vec3(newX,p.y,float(-470.)));
     If(v.z.greaterThan(float(-1.)),()=>{vS.element(i).assign(vec3(v.x,v.y,float(-5.)));});
   });
-  If(p.z.greaterThan(float(-470.)),()=>{
-    pS.element(i).assign(vec3(p.x,p.y,float(-475.)));
+  If(p.z.greaterThan(float(-690.)),()=>{
+    pS.element(i).assign(vec3(p.x,p.y,float(-695.)));
     If(v.z.greaterThan(float(0.)),()=>{vS.element(i).assign(vec3(v.x,v.y,float(0.).sub(abs(v.z)).sub(float(3.))));});
   });
 })().compute(BIRDS);
