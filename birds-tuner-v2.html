@@ -39,30 +39,34 @@
 
 <div id="panel">
   <h1>Ajuste de pájaros (real)</h1>
-  <p class="hint">Este usa el mismo océano y el mismo three.js real de tu sitio — nada simulado. Mueve los sliders hasta que la bandada se quede arriba de la línea roja casi siempre. Copia los valores cuando te guste.</p>
+  <p class="hint">Océano y pájaros reales — nada simulado. Hay dos cosas distintas en juego: dónde vuelan los pájaros en el mundo 3D, y hacia dónde apunta la cámara. La línea roja depende SOLO de la cámara.</p>
 
   <div class="toggle-row">
     <input type="checkbox" id="toggleGuide" checked>
     <label for="toggleGuide" style="margin:0;">Mostrar línea de horizonte</label>
   </div>
+  <div class="hint" id="horizonReadout" style="margin:-8px 0 14px;font-family:'Courier New',monospace;color:#e8823a;"></div>
 
   <div class="divider"></div>
+  <p class="hint"><strong style="color:#fff;">1. Altura de vuelo</strong> — dónde viven los pájaros en el mundo (metros arriba del agua). Subir esto NO garantiza que se vean arriba de la línea si la cámara está muy inclinada hacia abajo (ver sección 2).</p>
 
   <div class="row"><label>Altura ancla del enjambre (uAnchorY) <span class="val" id="v_anchorY"></span></label>
-    <input type="range" id="anchorY" min="100" max="600" step="1"></div>
+    <input type="range" id="anchorY" min="100" max="900" step="1"></div>
   <div class="row"><label>Grosor de la zona vertical (uZoneY) <span class="val" id="v_zoneY"></span></label>
-    <input type="range" id="zoneY" min="10" max="300" step="1"></div>
+    <input type="range" id="zoneY" min="10" max="500" step="1"></div>
   <div class="row"><label>Piso mínimo (uFloorY) <span class="val" id="v_floorY"></span></label>
-    <input type="range" id="floorY" min="0" max="200" step="1"></div>
+    <input type="range" id="floorY" min="0" max="600" step="1"></div>
 
   <div class="divider"></div>
+  <p class="hint"><strong style="color:#fff;">2. Cámara — esto mueve la línea roja</strong> — "Altura" es dónde está parada la cámara. "Mira hacia" es a qué altura apunta, 1000m al frente. Si "mira hacia" es MENOR que "altura", la cámara mira hacia abajo y la línea roja SUBE en la pantalla (menos espacio para los pájaros). Si acercas "mira hacia" a "altura" (o lo subes más), la cámara mira más derecho/arriba y la línea BAJA — más espacio de cielo arriba para la bandada.</p>
 
   <div class="row"><label>Cámara — altura (Y) <span class="val" id="v_camY"></span></label>
-    <input type="range" id="camY" min="0" max="60" step="0.5"></div>
+    <input type="range" id="camY" min="0" max="80" step="0.5"></div>
   <div class="row"><label>Cámara — mira hacia (lookAt Y) <span class="val" id="v_lookY"></span></label>
-    <input type="range" id="lookY" min="0" max="60" step="0.5"></div>
+    <input type="range" id="lookY" min="-40" max="80" step="0.5"></div>
 
   <div class="divider"></div>
+  <p class="hint"><strong style="color:#fff;">3. Comportamiento de vuelo</strong> — separación/alineación/cohesión son las reglas clásicas de bandada (boids): qué tan lejos se evitan, qué tanto copian la dirección del vecino, qué tanto se agrupan hacia el centro.</p>
 
   <div class="row"><label>Velocidad (uSpeed) <span class="val" id="v_speed"></span></label>
     <input type="range" id="speed" min="3" max="40" step="0.5"></div>
@@ -333,6 +337,9 @@ function updateHorizonLine(){
   const y = (1 - (_pt.y * 0.5 + 0.5)) * innerHeight;
   horizonLine.style.top = y + 'px';
   horizonLabel.style.top = (y - 16) + 'px';
+  const pct = Math.round((y / innerHeight) * 100);
+  const ro = document.getElementById('horizonReadout');
+  if (ro) ro.textContent = `Línea del horizonte: ${pct}% desde arriba` + (pct < 0 ? ' (fuera de pantalla, arriba)' : pct > 100 ? ' (fuera de pantalla, abajo)' : '');
 }
 
 // ── Controles ──
