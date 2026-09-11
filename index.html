@@ -1877,14 +1877,14 @@
   });
 
   // ── Click sutil en links, botones y cosas clickeables — un solo Audio
-  // reutilizado: si hay otro click mientras suena, corta el anterior y
-  // arranca de nuevo desde 0. Se corta solo a los 2s (por si el archivo
-  // dura más), con un fundido cortito para no sonar cortado feo.
+  // reutilizado: si hay otro click (o "tick" de carrusel) mientras suena,
+  // corta el anterior y arranca de nuevo desde 0. Se corta solo a los 2s
+  // (por si el archivo dura más), con un fundido cortito para no sonar
+  // cortado feo. Reutilizable también desde el drag del carrusel de
+  // proyectos, para que sonando rápido al arrastrar suene "varias veces".
   var clickCutTimer = null;
-  document.addEventListener('click', function (e) {
+  window.__playClickSound = function () {
     if (!enabled) return;
-    var el = e.target.closest('a, button, .btn, .radial-fab, .radial-item, [role="button"], [onclick]');
-    if (!el) return;
     clearTimeout(clickCutTimer);
     clickAudio.pause();
     clickAudio.currentTime = 0;
@@ -1893,6 +1893,11 @@
     clickCutTimer = setTimeout(function () {
       fadeTo(clickAudio, 0, 80, function () { clickAudio.pause(); clickAudio.currentTime = 0; });
     }, CLICK_CUT_MS);
+  };
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('a, button, .btn, .radial-fab, .radial-item, [role="button"], [onclick]');
+    if (!el) return;
+    window.__playClickSound();
   }, true);
 
   // ── Acordeones que se despliegan (skills/certs/cursos/intereses y el
@@ -2598,16 +2603,29 @@ document.addEventListener('keydown', (e) => {
 });
 
 if (window.Draggable) {
+  let dragTickIndex = 0;
   Draggable.create('.drag-proxy', {
     type:'x',
     trigger:'#proj-cards',
     cursor:'grab',
     activeCursor:'grabbing',
-    onPress() { dragMoved = false; this.startOffset = scrub.vars.offset; },
+    onPress() {
+      dragMoved = false;
+      this.startOffset = scrub.vars.offset;
+      dragTickIndex = Math.round(scrub.vars.offset / spacing);
+    },
     onDrag() {
       dragMoved = true;
       scrub.vars.offset = this.startOffset + (this.startX - this.x) * 0.001;
       scrub.invalidate().restart();
+      // "Tick" de sonido cada vez que el arrastre cruza el punto de una
+      // card nueva — si se mueve rápido varias cards de un tirón, suena
+      // varias veces seguidas (el sonido se corta y reinicia solo).
+      const newIndex = Math.round(scrub.vars.offset / spacing);
+      if (newIndex !== dragTickIndex) {
+        dragTickIndex = newIndex;
+        if (window.__playClickSound) window.__playClickSound();
+      }
     },
     onDragEnd() {
       const snapped = gsap.utils.snap(spacing, scrub.vars.offset);
