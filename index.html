@@ -201,43 +201,88 @@
     }
 
     /* NAV */
-    /* Nav flotante con la forma vectorial exacta que diseñó Javier en
-       Illustrator (nav-jg.svg): pill blanco + cuña orgánica difuminada a
-       la izquierda para la lupa. Fuera de .hero asi nunca se mueve al
+    /* Nav flotante en capsula blanca (estilo mockup de Illustrator: pill
+       blanco, boton de busqueda oscuro a la izq., CTA negro con icono
+       circular a la derecha), fuera de .hero asi nunca se mueve al
        navegar entre secciones. */
     .nav {
-      position:fixed; top:24px; left:50%;
-      transform:translateX(-50%);
+      position:fixed; top:24px; left:50%; transform:translateX(-50%);
       z-index:9500;
-      width:440px; height:99px;
-      filter:drop-shadow(0 14px 30px rgba(0,0,0,.35));
+      display:flex; align-items:center; gap:22px;
+      background:rgba(255,255,255,.97);
+      border-radius:999px;
+      padding:6px 6px 6px 6px;
+      box-shadow:0 14px 36px rgba(0,0,0,.28);
     }
-    .nav-bg { position:absolute; inset:0; width:100%; height:100%; display:block; }
     .nav-search {
-      position:absolute; left:36px; top:58px; transform:translateY(-50%);
-      width:16px; height:16px; color:rgba(255,255,255,.85);
-      background:none; border:none; padding:0; cursor:pointer;
+      width:38px; height:38px; border-radius:50%; flex-shrink:0;
+      background:#161616; color:rgba(255,255,255,.85);
       display:flex; align-items:center; justify-content:center;
-    }
-    .nav-search svg { width:100%; height:100%; }
-    .nav-links {
-      position:absolute; left:150px; top:58px; transform:translateY(-50%);
-      display:flex; align-items:center; gap:18px;
-      font-size:9px; letter-spacing:.1em; text-transform:uppercase;
-      color:rgba(10,10,10,.6);
-      white-space:nowrap;
-    }
-    .nav-links a { transition:color .25s; }
-    .nav-links a:hover { color:#0a0a0a; }
-    .nav-cta {
-      position:absolute; right:16px; top:58px; transform:translateY(-50%);
-      width:34px; height:34px; border-radius:50%; flex-shrink:0;
-      background:#141414; color:#fff;
-      display:flex; align-items:center; justify-content:center;
+      border:none; cursor:pointer;
       transition:background .25s;
     }
+    .nav-search:hover { background:#000; }
+    .nav-search svg { width:15px; height:15px; }
+    .nav-links { display:flex; align-items:center; gap:28px; }
+    .nav-links a {
+      font-size:10px; letter-spacing:.2em; text-transform:uppercase;
+      color:rgba(10,10,10,.55);
+      transition:color .25s;
+    }
+    .nav-links a:hover { color:#0a0a0a; }
+    .nav-cta {
+      display:flex; align-items:center; gap:10px;
+      background:#141414;
+      border-radius:999px;
+      padding:6px 20px 6px 6px;
+      color:#fff !important;
+      font-size:10px; letter-spacing:.2em; text-transform:uppercase;
+      transition:background .25s;
+      margin-left:2px;
+    }
     .nav-cta:hover { background:#000; }
-    .nav-cta svg { width:13px; height:13px; }
+    .nav-cta-icon {
+      width:30px; height:30px; border-radius:50%; flex-shrink:0;
+      background:#fff; color:#141414;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .nav-cta-icon svg { width:14px; height:14px; }
+
+    /* TOP-RIGHT UTILS: idioma (ES/EN) + accesibilidad, arriba a la
+       derecha, mismo lenguaje visual que la capsula blanca del nav. */
+    .top-utils {
+      position:fixed; top:24px; right:52px; z-index:9500;
+      display:flex; align-items:center; gap:10px;
+    }
+    .lang-toggle {
+      font-family:inherit;
+      font-size:10px; font-weight:700; letter-spacing:.1em;
+      color:rgba(10,10,10,.6);
+      background:rgba(255,255,255,.97);
+      border:none; border-radius:999px;
+      padding:10px 14px;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(0,0,0,.22);
+      transition:color .25s;
+    }
+    .lang-toggle:hover { color:#0a0a0a; }
+    .a11y-nav-btn {
+      width:38px; height:38px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      color:rgba(10,10,10,.6);
+      background:rgba(255,255,255,.97);
+      border:none; cursor:pointer;
+      box-shadow:0 10px 24px rgba(0,0,0,.22);
+      transition:color .25s;
+    }
+    .a11y-nav-btn:hover { color:#0a0a0a; }
+    .a11y-nav-btn svg { width:18px; height:18px; }
+    @media (max-width: 768px) {
+      .top-utils { top:16px; right:20px; gap:8px; }
+      .lang-toggle { font-size:9px; padding:8px 12px; }
+      .a11y-nav-btn { width:32px; height:32px; }
+      .a11y-nav-btn svg { width:15px; height:15px; }
+    }
 
     /* HERO CONTENT — bottom left */
     .hero-content {
@@ -794,7 +839,9 @@
       #cur-label { display:none; }
 
       /* Nav */
-      .nav { transform:translateX(-50%) scale(.82); top:16px; }
+      .nav { padding:5px; gap:16px; }
+      .nav-links { gap:16px; }
+      .nav-links a { font-size:9px; }
 
       /* Hero content */
       .hero-content { left:28px; bottom:44px; max-width:calc(100vw - 56px); }
@@ -817,7 +864,12 @@
     /* ── Mobile (≤ 480px) ── */
     @media (max-width: 480px) {
       /* Nav */
-      .nav { transform:translateX(-50%) scale(.66); top:10px; }
+      .nav { padding:4px; gap:10px; }
+      .nav-search { width:32px; height:32px; }
+      .nav-links a { font-size:8px; letter-spacing:.12em; }
+      .nav-links { gap:10px; }
+      .nav-cta { padding:4px 14px 4px 4px; }
+      .nav-cta-icon { width:24px; height:24px; }
 
       /* Hero content */
       .hero-content { left:20px; right:20px; bottom:36px; max-width:100%; }
@@ -1283,11 +1335,17 @@
 <!-- ══════════════════════════════════════
      HERO
 ══════════════════════════════════════ -->
+<div class="top-utils">
+  <button type="button" class="lang-toggle" id="lang-toggle-btn" onclick="toggleSiteLang()" aria-label="Cambiar idioma">ES</button>
+  <button type="button" class="a11y-nav-btn" onclick="var b=document.getElementById('a11y-toggle-btn'); if(b) b.click();" aria-label="Opciones de accesibilidad" title="Opciones de accesibilidad">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="4.4" r="2.1" fill="currentColor" stroke="none"/>
+      <path d="M12 8.6v5.6M12 10.5l-5.6-2.3M12 10.5l5.6-2.3M12 14.2l-4.4 7.1M12 14.2l4.4 7.1"/>
+    </svg>
+  </button>
+</div>
+
 <nav class="nav">
-  <svg class="nav-bg" viewBox="0 0 860.97 207.52" preserveAspectRatio="none" aria-hidden="true">
-    <path fill="rgba(255,255,255,.14)" d="M313.72,150.1c0-9.37-4.13,2.25-10.67-3.47-5.48-4.79-12.66-7.7-20.52-7.7h-115.89c-20.91,0-39.78-12.57-47.83-31.87l-3.09-7.41c-6.22-14.89-20.8-24.56-36.94-24.49h234.94v74.94Z"/>
-    <path fill="#fdfdfd" d="M807.47,124.25c0,14.58-11.82,26.4-26.4,26.4h-499.48c-7.33-17.56-24.5-29-43.52-29l-7.31-17.5c-19.11.09-36.38-11.36-43.74-28.99h0s594.04,0,594.04,0c14.58,0,26.4,11.82,26.4,26.4v22.68Z"/>
-  </svg>
   <button type="button" class="nav-search" aria-label="Buscar">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="11" cy="11" r="7"/>
@@ -1298,11 +1356,14 @@
     <a href="#" onclick="event.preventDefault();goTo(1)">Work</a>
     <a href="#" onclick="event.preventDefault();goTo(2)">Sobre mí</a>
   </div>
-  <a href="#" class="nav-cta" onclick="event.preventDefault();goTo(3)" aria-label="Contacto">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="7" y1="17" x2="17" y2="7"/>
-      <polyline points="7 7 17 7 17 17"/>
-    </svg>
+  <a href="#" class="nav-cta" onclick="event.preventDefault();goTo(3)">
+    <span class="nav-cta-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="7" y1="17" x2="17" y2="7"/>
+        <polyline points="7 7 17 7 17 17"/>
+      </svg>
+    </span>
+    Contacto
   </a>
 </nav>
 
@@ -4024,6 +4085,27 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
 
 <!-- ── Accessibility Widget (perfiles + ajustes granulares) ── -->
 <script>
+  (function () {
+    var KEY = 'jg_site_lang';
+    function getLang() {
+      try { return localStorage.getItem(KEY) === 'en' ? 'en' : 'es'; }
+      catch (e) { return 'es'; }
+    }
+    function paintBtn() {
+      var btn = document.getElementById('lang-toggle-btn');
+      if (!btn) return;
+      var lang = getLang();
+      btn.textContent = lang === 'en' ? 'ES' : 'EN';
+      btn.setAttribute('aria-label', lang === 'en' ? 'Switch to Spanish' : 'Cambiar a inglés');
+    }
+    window.toggleSiteLang = function () {
+      try { localStorage.setItem(KEY, getLang() === 'en' ? 'es' : 'en'); } catch (e) {}
+      // TODO: aplicar traduccion real del contenido cuando este lista;
+      // por ahora solo persiste la preferencia y refleja el estado del boton.
+      paintBtn();
+    };
+    document.addEventListener('DOMContentLoaded', paintBtn);
+  })();
   window.A11Y_WIDGET_CONFIG = {
     position: 'top-left',
     accentColor: '#e8823a',
@@ -4037,11 +4119,11 @@ initGridMesh(document.getElementById('about-section'), document.getElementById('
   /* Alinear el boton con el padding real del nav (28px/52px) en vez del
      offset generico de 20px del widget, para que quede a la misma altura
      que WORK / SOBRE MI / CONTACTO -- donde antes estaba el logo. */
-  #a11y-toggle-btn.a11y-pos-top-left { top: 22px; left: 52px; width: 44px; height: 44px; }
-  #a11y-toggle-btn.a11y-pos-top-left svg { width: 20px; height: 20px; }
-  @media (max-width: 900px) {
-    #a11y-toggle-btn.a11y-pos-top-left { top: 16px; left: 20px; }
-  }
+  /* El widget dibuja su propio boton flotante; lo ocultamos del todo y el
+     acceso vive en el cluster de utilidades arriba a la derecha (ver
+     .top-utils), igual patron que Fragancia Urbana: el boton del cluster
+     solo hace click() sobre este boton oculto para abrir/cerrar el panel. */
+  #a11y-toggle-btn { display: none !important; }
 
   /* El sitio usa cursor:none con un cursor custom por canvas; el widget
      necesita un cursor real y visible dentro de su propio panel/botón. */
