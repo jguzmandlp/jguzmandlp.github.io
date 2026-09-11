@@ -3269,6 +3269,7 @@ function contactCover() {
   if (contactBusy || contactTop === 1) return;
   contactBusy = true;
   contactTop = 1;
+  if (window.__playSectionWhoosh) window.__playSectionWhoosh();
   gsap.to(contactPanelEls[1], {
     yPercent: 0, duration: 0.6, ease: 'expo.out',
     onComplete: () => { contactBusy = false; animateContactIcons(); }
@@ -3281,6 +3282,7 @@ function contactUncover() {
   if (contactBusy || contactTop === 0) return;
   contactBusy = true;
   contactTop = 0;
+  if (window.__playSectionWhoosh) window.__playSectionWhoosh();
   gsap.to(contactPanelEls[1], {
     yPercent: 100, duration: 0.5, ease: 'power3.in',
     onComplete: () => { contactBusy = false; }
