@@ -1758,46 +1758,70 @@
   var STORAGE_KEY = 'jg_sound_enabled';
   var enabled = localStorage.getItem(STORAGE_KEY) !== 'off';
 
+  // Duración real del timeline GSAP del intro morph (ver script de arriba):
+  // delayPointsMax(0.3) + delayPerPath*(numPaths-1)(0.25) + duration(1.1) ≈ 1.65s.
+  // La redondeamos un poco arriba para no cortar el audio antes de que
+  // termine de verse el "derretido".
+  var MELT_VISUAL_MS = 1700;
+
   var meltAudio  = new Audio('sounds/melt.mp3');
   meltAudio.volume = 0.55;
+  meltAudio.preload = 'auto';
   var oceanAudio = new Audio('sounds/hero-ocean-seagulls.mp3');
   oceanAudio.loop = true;
+  oceanAudio.preload = 'auto';
   oceanAudio.volume = 0;
   var clickSrc = 'sounds/click.mp3';
+  var OCEAN_VOL = 0.32;
 
-  function fadeTo(audio, target, duration) {
+  function fadeTo(audio, target, duration, onDone) {
     var start = audio.volume, startTime = performance.now();
     (function step(t) {
       var p = Math.min(1, (t - startTime) / duration);
       audio.volume = start + (target - start) * p;
       if (p < 1) requestAnimationFrame(step);
+      else if (onDone) onDone();
     })(startTime);
   }
 
-  // ── Sonido de "derretido" — justo cuando el overlay del intro empieza
-  // a retirarse (evento preloaderDone, disparado por el script de arriba).
-  function playMelt() {
-    if (!enabled) return;
-    try { meltAudio.currentTime = 0; meltAudio.play().catch(function () {}); } catch (e) {}
-  }
-
-  // ── Mar + gaviotas de fondo en el hero, en loop con fade-in suave.
-  // Los navegadores bloquean autoplay con sonido sin gesto del usuario,
-  // así que si falla el primer intento, esperamos el primer click/tecla.
-  function startOcean() {
-    if (!enabled) return;
-    oceanAudio.play().then(function () {
-      fadeTo(oceanAudio, 0.32, 2500);
-    }).catch(function () {
+  // Intenta reproducir con sonido; si el navegador lo bloquea por falta de
+  // gesto del usuario, reintenta apenas ocurra CUALQUIER primera interacción
+  // (click, tecla, scroll o touch) — así arranca solo, sin depender de que
+  // toquen el parlantito.
+  function attemptPlay(audio, onStarted) {
+    var p = audio.play();
+    if (!p || !p.then) { if (onStarted) onStarted(); return; }
+    p.then(function () { if (onStarted) onStarted(); }).catch(function () {
       function resume() {
         if (!enabled) return;
-        oceanAudio.play().then(function () { fadeTo(oceanAudio, 0.32, 2500); }).catch(function () {});
-        document.removeEventListener('pointerdown', resume);
-        document.removeEventListener('keydown', resume);
+        audio.play().then(function () { if (onStarted) onStarted(); }).catch(function () {});
       }
-      document.addEventListener('pointerdown', resume, { once: true });
-      document.addEventListener('keydown', resume, { once: true });
+      ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(function (ev) {
+        document.addEventListener(ev, resume, { once: true, passive: true });
+      });
     });
+  }
+
+  // ── Sonido de "derretido" — arranca junto con el overlay del intro
+  // (evento preloaderDone) y se corta con un fade cortito justo cuando
+  // termina la animación visual, para que no se quede sonando de más.
+  function playMelt() {
+    if (!enabled) return;
+    try {
+      meltAudio.currentTime = 0;
+      meltAudio.volume = 0.55;
+      attemptPlay(meltAudio, function () {
+        setTimeout(function () {
+          fadeTo(meltAudio, 0, 200, function () { meltAudio.pause(); });
+        }, MELT_VISUAL_MS);
+      });
+    } catch (e) {}
+  }
+
+  // ── Mar + gaviotas de fondo en el hero, en loop con fade-in suave ──
+  function startOcean() {
+    if (!enabled) return;
+    attemptPlay(oceanAudio, function () { fadeTo(oceanAudio, OCEAN_VOL, 2500); });
   }
 
   document.addEventListener('preloaderDone', function () {
@@ -1806,6 +1830,30 @@
   });
   // Red de seguridad si el evento ya pasó antes de que este script cargara.
   if (window.__preloaderDone) { playMelt(); startOcean(); }
+
+  // ── Al bajar del hero, el mar se apaga con un fade suave (no de golpe);
+  // al volver a subir, vuelve a subir el volumen igual de suave. Se basa
+  // en si el <section class="hero"> sigue visible en pantalla, así que
+  // funciona sin importar cómo se navegue (scroll, flechas, nav, touch).
+  document.addEventListener('DOMContentLoaded', function () {
+    var heroEl = document.querySelector('.hero');
+    if (!heroEl || !('IntersectionObserver' in window)) return;
+    var heroVisible = true;
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var visible = entry.isIntersecting && entry.intersectionRatio > 0.15;
+        if (visible === heroVisible) return;
+        heroVisible = visible;
+        if (!enabled) return;
+        if (visible) {
+          if (oceanAudio.paused) attemptPlay(oceanAudio, function () { fadeTo(oceanAudio, OCEAN_VOL, 900); });
+          else fadeTo(oceanAudio, OCEAN_VOL, 900);
+        } else {
+          fadeTo(oceanAudio, 0, 900);
+        }
+      });
+    }, { threshold: [0, 0.15, 0.3] }).observe(heroEl);
+  });
 
   // ── Click sutil en links, botones y cosas clickeables ──
   document.addEventListener('click', function (e) {
@@ -1817,7 +1865,8 @@
     c.play().catch(function () {});
   }, true);
 
-  // ── Toggle de sonido (recuerda la preferencia) ──
+  // ── Toggle de sonido (recuerda la preferencia; sonido viene activado
+  // por defecto salvo que ya lo hayan apagado antes) ──
   var toggle = document.createElement('button');
   toggle.id = 'sound-toggle';
   toggle.type = 'button';
