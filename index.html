@@ -201,20 +201,42 @@
     }
 
     /* NAV */
+    /* Nav flotante en capsula (glass oscuro), fuera de .hero asi nunca se
+       mueve al navegar entre secciones. */
     .nav {
-      position:absolute; top:0; left:0; right:0; z-index:10;
-      display:flex; justify-content:space-between; align-items:center;
-      padding:28px 52px;
+      position:fixed; top:24px; left:50%; transform:translateX(-50%);
+      z-index:9500;
+      display:flex; align-items:center;
+      background:rgba(10,10,10,.55);
+      backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
+      padding:6px 6px 6px 26px;
+      box-shadow:0 10px 32px rgba(0,0,0,.4);
     }
-    .nav-logo { display:block; }
-    .nav-logo svg { height:26px; width:auto; filter:invert(1); opacity:.85; }
-    .nav-links { display:flex; gap:36px; }
+    .nav-links { display:flex; align-items:center; gap:30px; }
     .nav-links a {
       font-size:10px; letter-spacing:.2em; text-transform:uppercase;
       color:rgba(255,255,255,.62);
       transition:color .25s;
     }
-    .nav-links a:hover { color:#fff; }
+    .nav-links a:not(.nav-cta):hover { color:#fff; }
+    .nav-cta {
+      display:flex; align-items:center; gap:10px;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:999px;
+      padding:6px 18px 6px 6px;
+      color:#fff !important;
+      transition:background .25s, border-color .25s;
+    }
+    .nav-cta:hover { background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.3); }
+    .nav-cta-icon {
+      width:28px; height:28px; border-radius:50%; flex-shrink:0;
+      background:#e8823a; color:#0b0b0b;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .nav-cta-icon svg { width:14px; height:14px; }
 
     /* HERO CONTENT — bottom left */
     .hero-content {
@@ -1266,19 +1288,26 @@
 <!-- ══════════════════════════════════════
      HERO
 ══════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-links">
+    <a href="#" onclick="event.preventDefault();goTo(1)">Work</a>
+    <a href="#" onclick="event.preventDefault();goTo(2)">Sobre mí</a>
+    <a href="#" class="nav-cta" onclick="event.preventDefault();goTo(3)">
+      <span class="nav-cta-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="7" y1="17" x2="17" y2="7"/>
+          <polyline points="7 7 17 7 17 17"/>
+        </svg>
+      </span>
+      Contacto
+    </a>
+  </div>
+</nav>
+
 <section class="hero">
   <div id="canvas-ocean" aria-hidden="true"></div>
   <div id="canvas-birds" aria-hidden="true"></div>
   <div class="hero-veil"></div>
-
-  <nav class="nav">
-    
-    <div class="nav-links">
-      <a href="#" onclick="event.preventDefault();goTo(1)">Work</a>
-      <a href="#" onclick="event.preventDefault();goTo(2)">Sobre mí</a>
-      <a href="#" onclick="event.preventDefault();goTo(3)">Contacto</a>
-    </div>
-  </nav>
 
   <div class="hero-content" id="hero-content">
     <!-- Logo JG horizontal reemplaza el h1 -->
