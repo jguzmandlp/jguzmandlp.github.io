@@ -201,15 +201,21 @@
     }
 
     /* NAV */
+    /* Grupo unico arriba a la derecha: nav (busqueda+links+cta) y el
+       cluster de utilidades (idioma + accesibilidad) viven juntos aca,
+       anclados en un solo lugar en vez de flotar por separado. */
+    .nav-row {
+      position:fixed; top:24px; right:52px; z-index:9500;
+      display:flex; align-items:center; gap:14px;
+    }
     /* Nav flotante en capsula blanca (estilo mockup de Illustrator: pill
        blanco, boton de busqueda oscuro a la izq., CTA negro con icono
        circular a la derecha), fuera de .hero asi nunca se mueve al
        navegar entre secciones. */
     .nav {
-      position:fixed; top:24px; left:50%; transform:translateX(-50%);
-      z-index:9500;
       display:flex; align-items:center; gap:22px;
-      background:rgba(255,255,255,.97);
+      background:rgba(255,255,255,.85);
+      backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
       border-radius:999px;
       padding:6px 6px 6px 6px;
       box-shadow:0 14px 36px rgba(0,0,0,.28);
@@ -251,14 +257,14 @@
     /* TOP-RIGHT UTILS: idioma (ES/EN) + accesibilidad, arriba a la
        derecha, mismo lenguaje visual que la capsula blanca del nav. */
     .top-utils {
-      position:fixed; top:24px; right:52px; z-index:9500;
       display:flex; align-items:center; gap:10px;
     }
     .lang-toggle {
       font-family:inherit;
       font-size:10px; font-weight:700; letter-spacing:.1em;
       color:rgba(10,10,10,.6);
-      background:rgba(255,255,255,.97);
+      background:rgba(255,255,255,.85);
+      backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
       border:none; border-radius:999px;
       padding:10px 14px;
       cursor:pointer;
@@ -270,7 +276,8 @@
       width:38px; height:38px; border-radius:50%; flex-shrink:0;
       display:flex; align-items:center; justify-content:center;
       color:rgba(10,10,10,.6);
-      background:rgba(255,255,255,.97);
+      background:rgba(255,255,255,.85);
+      backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
       border:none; cursor:pointer;
       box-shadow:0 10px 24px rgba(0,0,0,.22);
       transition:color .25s;
@@ -278,7 +285,8 @@
     .a11y-nav-btn:hover { color:#0a0a0a; }
     .a11y-nav-btn svg { width:18px; height:18px; }
     @media (max-width: 768px) {
-      .top-utils { top:16px; right:20px; gap:8px; }
+      .nav-row { top:16px; right:20px; gap:8px; }
+      .top-utils { gap:8px; }
       .lang-toggle { font-size:9px; padding:8px 12px; }
       .a11y-nav-btn { width:32px; height:32px; }
       .a11y-nav-btn svg { width:15px; height:15px; }
@@ -1335,15 +1343,7 @@
 <!-- ══════════════════════════════════════
      HERO
 ══════════════════════════════════════ -->
-<div class="top-utils">
-  <button type="button" class="lang-toggle" id="lang-toggle-btn" onclick="toggleSiteLang()" aria-label="Cambiar idioma">ES</button>
-  <button type="button" class="a11y-nav-btn" onclick="var b=document.getElementById('a11y-toggle-btn'); if(b) b.click();" aria-label="Opciones de accesibilidad" title="Opciones de accesibilidad">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="4.4" r="2.1" fill="currentColor" stroke="none"/>
-      <path d="M12 8.6v5.6M12 10.5l-5.6-2.3M12 10.5l5.6-2.3M12 14.2l-4.4 7.1M12 14.2l4.4 7.1"/>
-    </svg>
-  </button>
-</div>
+<div class="nav-row">
 
 <nav class="nav">
   <button type="button" class="nav-search" aria-label="Buscar">
@@ -1366,6 +1366,18 @@
     Contacto
   </a>
 </nav>
+
+<div class="top-utils">
+  <button type="button" class="lang-toggle" id="lang-toggle-btn" onclick="toggleSiteLang()" aria-label="Cambiar idioma">ES</button>
+  <button type="button" class="a11y-nav-btn" onclick="var b=document.getElementById('a11y-toggle-btn'); if(b) b.click();" aria-label="Opciones de accesibilidad" title="Opciones de accesibilidad">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="4.4" r="2.1" fill="currentColor" stroke="none"/>
+      <path d="M12 8.6v5.6M12 10.5l-5.6-2.3M12 10.5l5.6-2.3M12 14.2l-4.4 7.1M12 14.2l4.4 7.1"/>
+    </svg>
+  </button>
+</div>
+
+</div>
 
 <section class="hero">
   <div id="canvas-ocean" aria-hidden="true"></div>
