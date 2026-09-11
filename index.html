@@ -1883,6 +1883,23 @@
   // cortado feo. Reutilizable también desde el drag del carrusel de
   // proyectos, para que sonando rápido al arrastrar suene "varias veces".
   var clickCutTimer = null;
+  // ── Whoosh al cambiar de sección (scroll, flechas o nav) — cortado a 1s
+  // ya que el archivo original dura más.
+  var sectionWhooshAudio = new Audio('sounds/bamboo-whoosh.mp3');
+  sectionWhooshAudio.preload = 'auto';
+  var sectionWhooshCutTimer = null;
+  window.__playSectionWhoosh = function () {
+    if (!enabled) return;
+    clearTimeout(sectionWhooshCutTimer);
+    sectionWhooshAudio.pause();
+    sectionWhooshAudio.currentTime = 0;
+    sectionWhooshAudio.volume = 0.45;
+    sectionWhooshAudio.play().catch(function () {});
+    sectionWhooshCutTimer = setTimeout(function () {
+      fadeTo(sectionWhooshAudio, 0, 120, function () { sectionWhooshAudio.pause(); sectionWhooshAudio.currentTime = 0; });
+    }, 1000);
+  };
+
   window.__playClickSound = function () {
     if (!enabled) return;
     clearTimeout(clickCutTimer);
@@ -1894,8 +1911,19 @@
       fadeTo(clickAudio, 0, 80, function () { clickAudio.pause(); clickAudio.currentTime = 0; });
     }, CLICK_CUT_MS);
   };
+  // El botón del logo (menú radial, abajo a la derecha) usa el mismo
+  // sonido "futurista" que los desplegables, no el click normal.
   document.addEventListener('click', function (e) {
-    var el = e.target.closest('a, button, .btn, .radial-fab, .radial-item, [role="button"], [onclick]');
+    if (!enabled) return;
+    var menuEl = e.target.closest('.radial-fab');
+    if (!menuEl) return;
+    var m = new Audio('sounds/accordion-click.mp3');
+    m.volume = 0.35;
+    m.play().catch(function () {});
+  }, true);
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('a, button, .btn, .radial-item, [role="button"], [onclick]');
     if (!el) return;
     window.__playClickSound();
   }, true);
@@ -3144,6 +3172,9 @@ function goTo(idx) {
   const prev = currentSection;
   currentSection = idx;
   updateBgRenderState();
+
+  // Sonido de transición al cambiar de sección (scroll, flechas o nav).
+  if (window.__playSectionWhoosh) window.__playSectionWhoosh();
 
   gsap.killTweensOf(SECTIONS);
   /* OJO: nunca gsap.killTweensOf(cards) acá — mataría los tweens internos
