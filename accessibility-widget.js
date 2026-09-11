@@ -16,11 +16,69 @@
       position: "bottom-right", // bottom-right | bottom-left | top-right | top-left
       accentColor: "#6c5ce7",
       storageKey: "a11yWidgetState",
-      brandName: "Accessibility Assistant",
-      poweredByText: "" // e.g. "Powered by YourCompany" — leave empty to hide
+      brandName: "Accesibilidad",
+      poweredByText: "", // e.g. "Powered by YourCompany" — leave empty to hide
+      language: "es" // 'es' | 'en' — sitios con toggle de idioma pueden pasar esto dinámicamente
     },
     window.A11Y_WIDGET_CONFIG || {}
   );
+
+  var I18N = {
+    es: {
+      brandName: CONFIG.brandName || "Accesibilidad",
+      close: "Cerrar",
+      tabProfiles: "Perfiles",
+      tabSettings: "Ajustes",
+      reset: "Restablecer",
+      cert: "Certificación",
+      profiles: { vision: "Visión", cognitive: "Cognitivo", seizure: "Foto-sensibilidad", adhd: "TDAH", dyslexia: "Dislexia" },
+      settings: {
+        keyboardNav: "Navegación por teclado",
+        underlineLinks: "Subrayar enlaces",
+        underlineHeaders: "Subrayar títulos",
+        textSize: "Tamaño de texto",
+        spacing: "Espaciado",
+        readableFonts: "Fuentes legibles",
+        readingGuide: "Guía de lectura",
+        readMode: "Modo lectura",
+        highContrast: "Alto contraste",
+        darkContrast: "Contraste oscuro",
+        stopAnimations: "Detener animaciones",
+        bigCursor: "Cursor grande",
+        hideImages: "Ocultar imágenes"
+      }
+    },
+    en: {
+      brandName: "Accessibility",
+      close: "Close",
+      tabProfiles: "Profiles",
+      tabSettings: "Settings",
+      reset: "Reset",
+      cert: "Certification",
+      profiles: { vision: "Vision", cognitive: "Cognitive", seizure: "Seizure Safe", adhd: "ADHD", dyslexia: "Dyslexia" },
+      settings: {
+        keyboardNav: "Keyboard Navigation",
+        underlineLinks: "Underline Links",
+        underlineHeaders: "Underline Headers",
+        textSize: "Text Size",
+        spacing: "Spacing",
+        readableFonts: "Readable Fonts",
+        readingGuide: "Reading Guide",
+        readMode: "Read Mode",
+        highContrast: "High Contrast",
+        darkContrast: "Dark Contrast",
+        stopAnimations: "Stop Animations",
+        bigCursor: "Big Cursor",
+        hideImages: "Hide Images"
+      }
+    }
+  };
+  var T = I18N[CONFIG.language] || I18N.es;
+  // Si no pasaron brandName explícito en la config, usamos el traducido;
+  // si sí lo pasaron (personalización del sitio), lo respetamos tal cual.
+  if (!window.A11Y_WIDGET_CONFIG || !window.A11Y_WIDGET_CONFIG.brandName) {
+    CONFIG.brandName = T.brandName;
+  }
 
   /* ---------------------------------------------------------------------
    * State
@@ -74,11 +132,11 @@
    * ------------------------------------------------------------------- */
   var css = "" +
   ":root{--a11y-accent:" + CONFIG.accentColor + ";}" +
-  "#a11y-toggle-btn{position:fixed;z-index:2147483000;width:52px;height:52px;border-radius:50%;box-sizing:border-box;" +
-  "background:#0b0b0b;border:1px solid var(--a11y-accent);cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35);" +
+  "#a11y-toggle-btn{position:fixed;z-index:2147483000;width:56px;height:56px;border-radius:50%;" +
+  "background:#0D0B09;border:3px solid var(--a11y-accent);cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35);" +
   "display:flex;align-items:center;justify-content:center;transition:transform .15s ease;}" +
   "#a11y-toggle-btn:hover{transform:scale(1.06);}" +
-  "#a11y-toggle-btn svg{width:26px;height:26px;fill:#fff;}" +
+  "#a11y-toggle-btn svg{width:26px;height:26px;}" +
   ".a11y-pos-bottom-right{bottom:20px;right:20px;}" +
   ".a11y-pos-bottom-left{bottom:20px;left:20px;}" +
   ".a11y-pos-top-right{top:20px;right:20px;}" +
@@ -97,7 +155,7 @@
   ".a11y-tab{flex:1;padding:12px 8px;text-align:center;background:none;border:none;cursor:pointer;" +
   "font-weight:600;color:#888;border-bottom:2px solid transparent;}" +
   ".a11y-tab.active{color:var(--a11y-accent);border-bottom-color:var(--a11y-accent);}" +
-  ".a11y-body{overflow-y:auto;padding:8px 0;flex:1;overscroll-behavior:contain;}" +
+  ".a11y-body{overflow-y:auto;padding:8px 0;flex:1;}" +
   ".a11y-row{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;gap:10px;}" +
   ".a11y-row + .a11y-row{border-top:1px solid #f5f5f5;}" +
   ".a11y-row-label{display:flex;align-items:center;gap:10px;font-weight:500;}" +
@@ -128,7 +186,8 @@
   ".a11y-fx-dark-contrast img,.a11y-fx-dark-contrast video{filter:invert(1) hue-rotate(180deg);}" +
   ".a11y-fx-stop-animations *{animation:none !important;transition:none !important;}" +
   ".a11y-fx-big-cursor, .a11y-fx-big-cursor *{cursor:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 24 24%22><path fill=%22black%22 stroke=%22white%22 stroke-width=%221%22 d=%22M4 2l14 8-6 2 4 7-3 2-4-7-5 5V2z%22/></svg>') 4 4, auto !important;}" +
-  ".a11y-fx-hide-images img{visibility:hidden !important;}" +
+  ".a11y-fx-hide-images img,.a11y-fx-hide-images picture,.a11y-fx-hide-images video{visibility:hidden !important;}" +
+  ".a11y-bg-img-hidden{background-image:none !important;}" +
   ".a11y-fx-keyboard-nav :focus{outline:3px solid var(--a11y-accent) !important;outline-offset:3px !important;" +
   "box-shadow:0 0 0 6px rgba(108,92,231,.25) !important;border-radius:2px;}" +
   ".a11y-fx-keyboard-nav a:focus, .a11y-fx-keyboard-nav button:focus, .a11y-fx-keyboard-nav input:focus," +
@@ -154,9 +213,9 @@
   var posClass = "a11y-pos-" + CONFIG.position;
 
   var iconSvg =
-    '<svg viewBox="0 0 1171.45 1171.45">' +
-    '<circle cx="595.64" cy="296.99" r="84.47"/>' +
-    '<path d="M854.96,382.41c-95.71,25.89-207.9,54.94-306.02,44.43-72.49-7.76-141.79-23.88-211.08-44.2-19.81-5.81-36.29,4.67-44.52,22.33-10.33,22.17-3.57,47.46,18.67,59.79,14.93,8.27,31.03,14.12,47.83,19.35l117.98,36.68c14.69,4.57,22.63,18.49,21,33.26l-4.47,40.51c-2.61,23.66-4.95,45.88-9.26,69.77l-45.19,250.73c-2.72,15.09-2.42,27.65,7.5,39.78,7.02,8.59,20.18,14.44,33.31,15.35,19.79,1.38,36.27-7.24,44.81-25.9,5.87-12.84,7.59-27.79,10.94-42.59l39.36-173.6c2.92-12.89,5.94-24,12.54-35.7,2.19-3.89,13.17.22,14.75,4.93,11.11,33.06,21.09,64.87,28.49,99.2l29.44,136.6c3.33,15.48,12.19,30.87,28.54,35.19,16.78,4.44,34.72-.36,47.66-9.4,13.72-9.58,16.77-25.51,13.81-41.3l-46.08-246.16-5.19-35.6-4.02-29.95c-2.79-20.78-5.82-41.34-2.4-62.59,1.51-9.39,14.57-15.93,23.04-18.88l106.71-37.2c35.91-12.52,83.88-25.96,79.23-62.44-3.37-26.41-22.04-49.29-47.4-42.43Z"/>' +
+    '<svg viewBox="0 0 24 24" fill="none">' +
+    '<circle cx="12" cy="4.4" r="2.1" fill="#fff"/>' +
+    '<path d="M12 8.6v5.6M12 10.5l-5.6-2.3M12 10.5l5.6-2.3M12 14.2l-4.4 7.1M12 14.2l4.4 7.1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
 
   var toggleBtn = document.createElement("button");
@@ -173,11 +232,11 @@
   panel.setAttribute("aria-label", CONFIG.brandName);
 
   var PROFILE_DEFS = [
-    { key: "vision", label: "Vision", icon: "M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" },
-    { key: "cognitive", label: "Cognitive", icon: "M12 2a7 7 0 0 0-4 12.74V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26A7 7 0 0 0 12 2zm-1 19h2v1h-2z" },
-    { key: "seizure", label: "Seizure Safe", icon: "M11 2 2 13h7l-1 9 10-13h-7l1-7z" },
-    { key: "adhd", label: "ADHD", icon: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2zm0-4h-2V7h2z" },
-    { key: "dyslexia", label: "Dyslexia", icon: "M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 3h6v3h-6z" }
+    { key: "vision", label: T.profiles.vision, icon: "M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" },
+    { key: "cognitive", label: T.profiles.cognitive, icon: "M12 2a7 7 0 0 0-4 12.74V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26A7 7 0 0 0 12 2zm-1 19h2v1h-2z" },
+    { key: "seizure", label: T.profiles.seizure, icon: "M11 2 2 13h7l-1 9 10-13h-7l1-7z" },
+    { key: "adhd", label: T.profiles.adhd, icon: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2zm0-4h-2V7h2z" },
+    { key: "dyslexia", label: T.profiles.dyslexia, icon: "M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 3h6v3h-6z" }
   ];
 
   function iconSpan(path) {
@@ -214,34 +273,34 @@
   }
 
   var settingsHtml =
-    switchRow("Keyboard Navigation", "keyboardNav") +
-    switchRow("Underline Links", "underlineLinks") +
-    switchRow("Underline Headers", "underlineHeaders") +
-    rangeRow("Text Size", "textSize", 80, 200, "%") +
-    rangeRow("Spacing", "spacing", 80, 200, "%") +
-    switchRow("Readable Fonts", "readableFonts") +
-    switchRow("Reading Guide", "readingGuide") +
-    switchRow("Read Mode", "readMode") +
-    switchRow("High Contrast", "highContrast") +
-    switchRow("Dark Contrast", "darkContrast") +
-    switchRow("Stop Animations", "stopAnimations") +
-    switchRow("Big Cursor", "bigCursor") +
-    switchRow("Hide Images", "hideImages");
+    switchRow(T.settings.keyboardNav, "keyboardNav") +
+    switchRow(T.settings.underlineLinks, "underlineLinks") +
+    switchRow(T.settings.underlineHeaders, "underlineHeaders") +
+    rangeRow(T.settings.textSize, "textSize", 80, 200, "%") +
+    rangeRow(T.settings.spacing, "spacing", 80, 200, "%") +
+    switchRow(T.settings.readableFonts, "readableFonts") +
+    switchRow(T.settings.readingGuide, "readingGuide") +
+    switchRow(T.settings.readMode, "readMode") +
+    switchRow(T.settings.highContrast, "highContrast") +
+    switchRow(T.settings.darkContrast, "darkContrast") +
+    switchRow(T.settings.stopAnimations, "stopAnimations") +
+    switchRow(T.settings.bigCursor, "bigCursor") +
+    switchRow(T.settings.hideImages, "hideImages");
 
   panel.innerHTML =
     '<div class="a11y-header"><h2>' + CONFIG.brandName + '</h2>' +
-    '<button class="a11y-close-btn" id="a11y-close-btn" aria-label="Close">✕</button></div>' +
+    '<button class="a11y-close-btn" id="a11y-close-btn" aria-label="' + T.close + '">✕</button></div>' +
     '<div class="a11y-tabs">' +
-      '<button class="a11y-tab" data-tab="profiles">Profiles</button>' +
-      '<button class="a11y-tab" data-tab="settings">Settings</button>' +
+      '<button class="a11y-tab" data-tab="profiles">' + T.tabProfiles + '</button>' +
+      '<button class="a11y-tab" data-tab="settings">' + T.tabSettings + '</button>' +
     '</div>' +
     '<div class="a11y-body">' +
       '<div class="a11y-tab-panel" data-panel="profiles">' + profilesHtml + '</div>' +
       '<div class="a11y-tab-panel" data-panel="settings" style="display:none;">' + settingsHtml + '</div>' +
     '</div>' +
     '<div class="a11y-footer">' +
-      '<button class="a11y-btn" id="a11y-reset-btn">Reset</button>' +
-      '<button class="a11y-btn a11y-btn-primary" id="a11y-cert-btn">Certification</button>' +
+      '<button class="a11y-btn" id="a11y-reset-btn">' + T.reset + '</button>' +
+      '<button class="a11y-btn a11y-btn-primary" id="a11y-cert-btn">' + T.cert + '</button>' +
     '</div>' +
     (CONFIG.poweredByText ? '<div class="a11y-powered">' + CONFIG.poweredByText + '</div>' : "");
 
@@ -282,16 +341,32 @@
     keyboardNav: "a11y-fx-keyboard-nav"
   };
 
+  var bgImageEls = [];
+  function toggleBackgroundImages(hide) {
+    if (hide) {
+      if (bgImageEls.length) return; // already applied
+      var all = document.querySelectorAll('body *');
+      for (var i = 0; i < all.length; i++) {
+        var el = all[i];
+        if (panel.contains(el) || el === toggleBtn || el === guide) continue;
+        var bg = getComputedStyle(el).backgroundImage;
+        if (bg && bg !== 'none') {
+          el.classList.add('a11y-bg-img-hidden');
+          bgImageEls.push(el);
+        }
+      }
+    } else {
+      bgImageEls.forEach(function (el) { el.classList.remove('a11y-bg-img-hidden'); });
+      bgImageEls = [];
+    }
+  }
+
   function applyState() {
+    toggleBackgroundImages(!!state.settings.hideImages);
     Object.keys(FX_CLASS_MAP).forEach(function (key) {
       root.classList.toggle(FX_CLASS_MAP[key], !!state.settings[key]);
     });
 
-    // El escalado real de texto lo maneja el sitio mismo, vía la variable
-    // CSS --a11y-text-scale (puente definido en index.html) que apunta a
-    // los selectores de texto reales del sitio y respeta los elementos
-    // manejados por GSAP SplitText / partículas en canvas, que se rompen
-    // si se les cambia el font-size después de inicializados.
     root.style.fontSize = state.settings.textSize + "%";
     root.style.setProperty("--a11y-letter-spacing", (state.settings.spacing - 100) / 400 + "em");
     document.body.style.letterSpacing = state.settings.spacing !== 100 ? (state.settings.spacing - 100) / 400 + "em" : "";
@@ -330,15 +405,7 @@
     });
 
     saveState();
-
-    // Avisa a cualquier puente específico del sitio (ej. el que traduce
-    // textSize a --a11y-text-scale en index.html) que el estado cambió,
-    // sin importar si fue por arrastrar el slider, un perfil, Reset o la
-    // carga inicial — antes solo se enteraba de arrastres reales del
-    // slider, así que Reset y los perfiles lo dejaban desincronizado.
-    try {
-      document.dispatchEvent(new CustomEvent("a11y-widget:apply", { detail: { settings: state.settings } }));
-    } catch (e) {}
+    document.dispatchEvent(new CustomEvent('a11y:settingschange', { detail: JSON.parse(JSON.stringify(state.settings)) }));
   }
 
   function setProfile(key, enabled) {
