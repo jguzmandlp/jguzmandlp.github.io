@@ -1762,7 +1762,9 @@
   // delayPointsMax(0.3) + delayPerPath*(numPaths-1)(0.25) + duration(1.1) ≈ 1.65s.
   // La redondeamos un poco arriba para no cortar el audio antes de que
   // termine de verse el "derretido".
-  var MELT_VISUAL_MS = 1700;
+  // El archivo del sonido de derretido dura ~5s pero solo queremos el
+  // golpe inicial (whoosh), cortado justo antes del segundo.
+  var MELT_VISUAL_MS = 900;
 
   var meltAudio  = new Audio('sounds/melt.mp3');
   meltAudio.volume = 0.55;
@@ -1772,6 +1774,7 @@
   oceanAudio.preload = 'auto';
   oceanAudio.volume = 0;
   var clickSrc = 'sounds/click.mp3';
+  var menuClickSrc = 'sounds/menu-click.mp3';
   var OCEAN_VOL = 0.32;
 
   function fadeTo(audio, target, duration, onDone) {
@@ -1827,7 +1830,7 @@
       meltAudio.volume = 0.55;
       attemptPlay(meltAudio, function () {
         setTimeout(function () {
-          fadeTo(meltAudio, 0, 200, function () { meltAudio.pause(); });
+          fadeTo(meltAudio, 0, 100, function () { meltAudio.pause(); });
         }, MELT_VISUAL_MS);
       }, { expiresAt: Date.now() + 4000 });
     } catch (e) {}
@@ -1873,9 +1876,13 @@
   // ── Click sutil en links, botones y cosas clickeables ──
   document.addEventListener('click', function (e) {
     if (!enabled) return;
-    var el = e.target.closest('a, button, .btn, .radial-fab, .radial-item, [role="button"], [onclick]');
+    // El botón que abre/cierra el menú radial (los links flotantes de
+    // Email/GitHub/Arc.dev) suena distinto — más "de menú" — que un click
+    // normal de link o botón.
+    var menuEl = e.target.closest('.radial-fab');
+    var el = menuEl || e.target.closest('a, button, .btn, .radial-item, [role="button"], [onclick]');
     if (!el) return;
-    var c = new Audio(clickSrc);
+    var c = new Audio(menuEl ? menuClickSrc : clickSrc);
     c.volume = 0.35;
     c.play().catch(function () {});
   }, true);
