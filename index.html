@@ -1732,6 +1732,119 @@
 </script>
 
 <!-- ══════════════════════════════════════
+     SONIDOS: derretido del intro, mar+gaviotas
+     de fondo en el hero, y click en elementos
+     interactivos. Todo con <audio> normales, sin
+     libs — con toggle para mutear/activar que
+     recuerda la preferencia en localStorage.
+══════════════════════════════════════ -->
+<style>
+  #sound-toggle {
+    position: fixed; bottom: 96px; right: 28px; z-index: 9999;
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.22);
+    background: rgba(6,6,6,.72); backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    cursor: pointer; padding: 0; font-size: 17px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 18px rgba(0,0,0,.35);
+    color: #fff; transition: transform .2s ease, opacity .2s ease;
+  }
+  #sound-toggle:hover { transform: scale(1.08); }
+  #sound-toggle[data-muted="true"] { opacity: .55; }
+</style>
+<script>
+(function () {
+  var STORAGE_KEY = 'jg_sound_enabled';
+  var enabled = localStorage.getItem(STORAGE_KEY) !== 'off';
+
+  var meltAudio  = new Audio('sounds/melt.mp3');
+  meltAudio.volume = 0.55;
+  var oceanAudio = new Audio('sounds/hero-ocean-seagulls.mp3');
+  oceanAudio.loop = true;
+  oceanAudio.volume = 0;
+  var clickSrc = 'sounds/click.mp3';
+
+  function fadeTo(audio, target, duration) {
+    var start = audio.volume, startTime = performance.now();
+    (function step(t) {
+      var p = Math.min(1, (t - startTime) / duration);
+      audio.volume = start + (target - start) * p;
+      if (p < 1) requestAnimationFrame(step);
+    })(startTime);
+  }
+
+  // ── Sonido de "derretido" — justo cuando el overlay del intro empieza
+  // a retirarse (evento preloaderDone, disparado por el script de arriba).
+  function playMelt() {
+    if (!enabled) return;
+    try { meltAudio.currentTime = 0; meltAudio.play().catch(function () {}); } catch (e) {}
+  }
+
+  // ── Mar + gaviotas de fondo en el hero, en loop con fade-in suave.
+  // Los navegadores bloquean autoplay con sonido sin gesto del usuario,
+  // así que si falla el primer intento, esperamos el primer click/tecla.
+  function startOcean() {
+    if (!enabled) return;
+    oceanAudio.play().then(function () {
+      fadeTo(oceanAudio, 0.32, 2500);
+    }).catch(function () {
+      function resume() {
+        if (!enabled) return;
+        oceanAudio.play().then(function () { fadeTo(oceanAudio, 0.32, 2500); }).catch(function () {});
+        document.removeEventListener('pointerdown', resume);
+        document.removeEventListener('keydown', resume);
+      }
+      document.addEventListener('pointerdown', resume, { once: true });
+      document.addEventListener('keydown', resume, { once: true });
+    });
+  }
+
+  document.addEventListener('preloaderDone', function () {
+    playMelt();
+    startOcean();
+  });
+  // Red de seguridad si el evento ya pasó antes de que este script cargara.
+  if (window.__preloaderDone) { playMelt(); startOcean(); }
+
+  // ── Click sutil en links, botones y cosas clickeables ──
+  document.addEventListener('click', function (e) {
+    if (!enabled) return;
+    var el = e.target.closest('a, button, .btn, .radial-fab, .radial-item, [role="button"], [onclick]');
+    if (!el) return;
+    var c = new Audio(clickSrc);
+    c.volume = 0.35;
+    c.play().catch(function () {});
+  }, true);
+
+  // ── Toggle de sonido (recuerda la preferencia) ──
+  var toggle = document.createElement('button');
+  toggle.id = 'sound-toggle';
+  toggle.type = 'button';
+  toggle.setAttribute('aria-label', 'Activar o desactivar el sonido');
+  toggle.dataset.muted = (!enabled).toString();
+  toggle.textContent = enabled ? '🔊' : '🔇';
+  toggle.addEventListener('click', function (ev) {
+    ev.stopPropagation();
+    enabled = !enabled;
+    localStorage.setItem(STORAGE_KEY, enabled ? 'on' : 'off');
+    toggle.dataset.muted = (!enabled).toString();
+    toggle.textContent = enabled ? '🔊' : '🔇';
+    if (enabled) {
+      startOcean();
+    } else {
+      fadeTo(oceanAudio, 0, 400);
+      setTimeout(function () { oceanAudio.pause(); }, 450);
+    }
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+    document.body.appendChild(toggle);
+  });
+  if (document.readyState !== 'loading') document.body.appendChild(toggle);
+})();
+</script>
+
+<!-- ══════════════════════════════════════
      THREE.JS IMPORTMAP
 ══════════════════════════════════════ -->
 <script type="importmap">
