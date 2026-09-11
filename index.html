@@ -1767,7 +1767,7 @@
   // MELT_START_SEC / OCEAN_START_SEC: desde qué segundo del archivo arranca
   // cada uno (por si el propio archivo tiene un silencio o un golpe raro al
   // principio). Ajustables en vivo con el panel de debug (?soundlab=1).
-  var MELT_VISUAL_MS = Number(localStorage.getItem('jg_melt_visual_ms')) || 900;
+  var MELT_VISUAL_MS = Number(localStorage.getItem('jg_melt_visual_ms')) || 800;
   var MELT_START_SEC = Number(localStorage.getItem('jg_melt_start_sec')) || 0;
   var OCEAN_START_SEC = Number(localStorage.getItem('jg_ocean_start_sec')) || 0;
 
@@ -1899,7 +1899,7 @@
     clearTimeout(sectionWhooshCutTimer);
     sectionWhooshAudio.pause();
     sectionWhooshAudio.currentTime = 0;
-    sectionWhooshAudio.volume = 0.45;
+    sectionWhooshAudio.volume = 0.28;
     sectionWhooshAudio.play().catch(function () {});
     sectionWhooshCutTimer = setTimeout(function () {
       fadeTo(sectionWhooshAudio, 0, 120, function () { sectionWhooshAudio.pause(); sectionWhooshAudio.currentTime = 0; });
@@ -1929,7 +1929,7 @@
   }, true);
 
   document.addEventListener('click', function (e) {
-    var el = e.target.closest('a, button, .btn, .radial-item, [role="button"], [onclick]');
+    var el = e.target.closest('a, button, .btn, .radial-item, .skill-tab, [role="button"], [onclick]');
     if (!el) return;
     window.__playClickSound();
   }, true);
