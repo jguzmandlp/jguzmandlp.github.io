@@ -1785,20 +1785,27 @@
   }
 
   // Intenta reproducir con sonido; si el navegador lo bloquea por falta de
-  // gesto del usuario, reintenta apenas ocurra CUALQUIER primera interacción
-  // (click, tecla, scroll o touch) — así arranca solo, sin depender de que
-  // toquen el parlantito.
-  function attemptPlay(audio, onStarted) {
+  // gesto del usuario, reintenta apenas ocurra la PRIMERA interacción que
+  // realmente cuenta como gesto para la política de autoplay de Chrome
+  // (click/tap o tecla — "wheel"/"touchstart"/"scroll" NO cuentan como
+  // gesto, y antes se gastaban solos sin desbloquear nada: ese era el bug
+  // por el que solo sonaba apagando y prendiendo el parlantito a mano).
+  // opts.expiresAt: pasado ese instante ya no tiene sentido reproducirlo
+  // tarde (ej. el derretido, que solo calza si suena casi enseguida) y se
+  // deja pasar en silencio en vez de sonar descalzado del video.
+  function attemptPlay(audio, onStarted, opts) {
+    opts = opts || {};
     var p = audio.play();
     if (!p || !p.then) { if (onStarted) onStarted(); return; }
     p.then(function () { if (onStarted) onStarted(); }).catch(function () {
+      var events = ['pointerup', 'keydown', 'touchend'];
       function resume() {
+        events.forEach(function (ev) { document.removeEventListener(ev, resume, true); });
         if (!enabled) return;
+        if (opts.expiresAt && Date.now() > opts.expiresAt) return;
         audio.play().then(function () { if (onStarted) onStarted(); }).catch(function () {});
       }
-      ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(function (ev) {
-        document.addEventListener(ev, resume, { once: true, passive: true });
-      });
+      events.forEach(function (ev) { document.addEventListener(ev, resume, true); });
     });
   }
 
@@ -1814,7 +1821,7 @@
         setTimeout(function () {
           fadeTo(meltAudio, 0, 200, function () { meltAudio.pause(); });
         }, MELT_VISUAL_MS);
-      });
+      }, { expiresAt: Date.now() + 4000 });
     } catch (e) {}
   }
 
