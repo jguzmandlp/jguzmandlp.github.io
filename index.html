@@ -1799,7 +1799,15 @@
     if (!p || !p.then) { if (onStarted) onStarted(); return; }
     p.then(function () { if (onStarted) onStarted(); }).catch(function () {
       var events = ['pointerup', 'keydown', 'touchend'];
-      function resume() {
+      function resume(e) {
+        // El primer click en el propio botón de sonido NO cuenta como
+        // "desbloqueo ambiental": ese click ya lo maneja el toggle con su
+        // propia lógica de encendido/apagado. Si lo dejamos pasar aquí,
+        // se pisan: este listener reproduce el audio y, en el mismo click,
+        // el handler del botón (que corre después, en fase de burbuja) lo
+        // interpreta como "apagar" y lo corta al toque — dando la falsa
+        // sensación de que "solo suena apagando y prendiendo el parlante".
+        if (e && e.target && e.target.closest && e.target.closest('#sound-toggle')) return;
         events.forEach(function (ev) { document.removeEventListener(ev, resume, true); });
         if (!enabled) return;
         if (opts.expiresAt && Date.now() > opts.expiresAt) return;
