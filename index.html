@@ -1764,7 +1764,12 @@
   // termine de verse el "derretido".
   // El archivo del sonido de derretido dura ~5s pero solo queremos el
   // golpe inicial (whoosh), cortado justo antes del segundo.
-  var MELT_VISUAL_MS = 900;
+  // MELT_START_SEC / OCEAN_START_SEC: desde qué segundo del archivo arranca
+  // cada uno (por si el propio archivo tiene un silencio o un golpe raro al
+  // principio). Ajustables en vivo con el panel de debug (?soundlab=1).
+  var MELT_VISUAL_MS = Number(localStorage.getItem('jg_melt_visual_ms')) || 900;
+  var MELT_START_SEC = Number(localStorage.getItem('jg_melt_start_sec')) || 0;
+  var OCEAN_START_SEC = Number(localStorage.getItem('jg_ocean_start_sec')) || 0;
 
   var meltAudio  = new Audio('sounds/melt.mp3');
   meltAudio.volume = 0.55;
@@ -1829,7 +1834,7 @@
   function playMelt() {
     if (!enabled) return;
     try {
-      meltAudio.currentTime = 0;
+      meltAudio.currentTime = MELT_START_SEC;
       meltAudio.volume = 0.55;
       attemptPlay(meltAudio, function () {
         setTimeout(function () {
@@ -1842,6 +1847,7 @@
   // ── Mar + gaviotas de fondo en el hero, en loop con fade-in suave ──
   function startOcean() {
     if (!enabled) return;
+    if (oceanAudio.paused) oceanAudio.currentTime = OCEAN_START_SEC;
     attemptPlay(oceanAudio, function () { fadeTo(oceanAudio, OCEAN_VOL, 2500); });
   }
 
@@ -1970,6 +1976,95 @@
     document.body.appendChild(toggle);
   });
   if (document.readyState !== 'loading') document.body.appendChild(toggle);
+
+  // ── Panel de debug para ajustar el punto de inicio/corte del derretido
+  // y el mar, escuchando en vivo — solo visible con ?soundlab=1 en la URL.
+  // No es parte del sitio normal: los valores que ajustes acá se guardan
+  // en localStorage y quedan aplicados en el navegador que los ajustó;
+  // el botón "copiar valores" te da los números para pasármelos y dejarlos
+  // fijos en el código de una vez.
+  if (location.search.indexOf('soundlab=1') !== -1) {
+    document.addEventListener('DOMContentLoaded', function () {
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'position:fixed;top:16px;left:16px;z-index:99999;' +
+        'background:rgba(10,10,10,.92);border:1px solid rgba(255,255,255,.2);' +
+        'border-radius:10px;padding:14px 16px;color:#fff;font:12px/1.5 monospace;' +
+        'width:280px;box-shadow:0 8px 24px rgba(0,0,0,.5);';
+      wrap.innerHTML =
+        '<div style="font-weight:bold;margin-bottom:8px;">🎛️ Sound Lab</div>' +
+        '<div style="margin-bottom:10px;">' +
+          '<div>Derretido — inicio (s)</div>' +
+          '<input id="sl-melt-start" type="range" min="0" max="4" step="0.05" style="width:100%;">' +
+          '<div><span id="sl-melt-start-val"></span>s</div>' +
+          '<div>Derretido — duración (ms)</div>' +
+          '<input id="sl-melt-dur" type="range" min="200" max="2500" step="50" style="width:100%;">' +
+          '<div><span id="sl-melt-dur-val"></span>ms</div>' +
+          '<button id="sl-melt-play" style="width:100%;margin-top:4px;">▶ Probar derretido</button>' +
+        '</div>' +
+        '<div style="margin-bottom:10px;">' +
+          '<div>Mar — inicio (s)</div>' +
+          '<input id="sl-ocean-start" type="range" min="0" max="30" step="0.1" style="width:100%;">' +
+          '<div><span id="sl-ocean-start-val"></span>s</div>' +
+          '<button id="sl-ocean-play" style="width:100%;margin-top:4px;">▶ Probar mar (8s)</button>' +
+        '</div>' +
+        '<button id="sl-copy" style="width:100%;">📋 Copiar valores</button>' +
+        '<div id="sl-copied" style="margin-top:6px;opacity:.7;"></div>';
+      document.body.appendChild(wrap);
+
+      var meltStartEl = wrap.querySelector('#sl-melt-start');
+      var meltStartVal = wrap.querySelector('#sl-melt-start-val');
+      var meltDurEl = wrap.querySelector('#sl-melt-dur');
+      var meltDurVal = wrap.querySelector('#sl-melt-dur-val');
+      var oceanStartEl = wrap.querySelector('#sl-ocean-start');
+      var oceanStartVal = wrap.querySelector('#sl-ocean-start-val');
+
+      meltStartEl.value = MELT_START_SEC;
+      meltStartVal.textContent = MELT_START_SEC.toFixed(2);
+      meltDurEl.value = MELT_VISUAL_MS;
+      meltDurVal.textContent = MELT_VISUAL_MS;
+      oceanStartEl.value = OCEAN_START_SEC;
+      oceanStartVal.textContent = OCEAN_START_SEC.toFixed(1);
+
+      meltStartEl.addEventListener('input', function () {
+        MELT_START_SEC = Number(meltStartEl.value);
+        meltStartVal.textContent = MELT_START_SEC.toFixed(2);
+        localStorage.setItem('jg_melt_start_sec', MELT_START_SEC);
+      });
+      meltDurEl.addEventListener('input', function () {
+        MELT_VISUAL_MS = Number(meltDurEl.value);
+        meltDurVal.textContent = MELT_VISUAL_MS;
+        localStorage.setItem('jg_melt_visual_ms', MELT_VISUAL_MS);
+      });
+      oceanStartEl.addEventListener('input', function () {
+        OCEAN_START_SEC = Number(oceanStartEl.value);
+        oceanStartVal.textContent = OCEAN_START_SEC.toFixed(1);
+        localStorage.setItem('jg_ocean_start_sec', OCEAN_START_SEC);
+      });
+
+      wrap.querySelector('#sl-melt-play').addEventListener('click', function () {
+        var wasEnabled = enabled;
+        enabled = true;
+        meltAudio.pause();
+        playMelt();
+        enabled = wasEnabled;
+      });
+      wrap.querySelector('#sl-ocean-play').addEventListener('click', function () {
+        oceanAudio.pause();
+        oceanAudio.currentTime = OCEAN_START_SEC;
+        oceanAudio.volume = OCEAN_VOL;
+        oceanAudio.play().catch(function () {});
+        setTimeout(function () { oceanAudio.pause(); }, 8000);
+      });
+      wrap.querySelector('#sl-copy').addEventListener('click', function () {
+        var txt = 'MELT_START_SEC = ' + MELT_START_SEC.toFixed(2) +
+          '\nMELT_VISUAL_MS = ' + MELT_VISUAL_MS +
+          '\nOCEAN_START_SEC = ' + OCEAN_START_SEC.toFixed(1);
+        (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+          .then(function () { wrap.querySelector('#sl-copied').textContent = '✅ Copiado — pégamelo en el chat'; })
+          .catch(function () { wrap.querySelector('#sl-copied').textContent = txt.replace(/\n/g, ' · '); });
+      });
+    });
+  }
 })();
 </script>
 
