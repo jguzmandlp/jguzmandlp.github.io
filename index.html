@@ -1773,7 +1773,11 @@
   oceanAudio.loop = true;
   oceanAudio.preload = 'auto';
   oceanAudio.volume = 0;
-  var clickSrc = 'sounds/menu-click.mp3'; // universfield-menu-click, para clicks normales
+  var clickSrc = 'sounds/click.mp3'; // humordome-magic-button-click, para clicks normales
+  var CLICK_CUT_MS = 2000;
+  var clickAudio = new Audio(clickSrc);
+  clickAudio.volume = 0.35;
+  clickAudio.preload = 'auto';
   var OCEAN_VOL = 0.32;
 
   function fadeTo(audio, target, duration, onDone) {
@@ -1872,14 +1876,23 @@
     }, { threshold: [0, 0.15, 0.3] }).observe(heroEl);
   });
 
-  // ── Click sutil en links, botones y cosas clickeables ──
+  // ── Click sutil en links, botones y cosas clickeables — un solo Audio
+  // reutilizado: si hay otro click mientras suena, corta el anterior y
+  // arranca de nuevo desde 0. Se corta solo a los 2s (por si el archivo
+  // dura más), con un fundido cortito para no sonar cortado feo.
+  var clickCutTimer = null;
   document.addEventListener('click', function (e) {
     if (!enabled) return;
     var el = e.target.closest('a, button, .btn, .radial-fab, .radial-item, [role="button"], [onclick]');
     if (!el) return;
-    var c = new Audio(clickSrc);
-    c.volume = 0.35;
-    c.play().catch(function () {});
+    clearTimeout(clickCutTimer);
+    clickAudio.pause();
+    clickAudio.currentTime = 0;
+    clickAudio.volume = 0.35;
+    clickAudio.play().catch(function () {});
+    clickCutTimer = setTimeout(function () {
+      fadeTo(clickAudio, 0, 80, function () { clickAudio.pause(); clickAudio.currentTime = 0; });
+    }, CLICK_CUT_MS);
   }, true);
 
   // ── Acordeones que se despliegan (skills/certs/cursos/intereses y el
