@@ -1,0 +1,6 @@
+.DS_Store
+*.bak
+*.bak[0-9]*
+Claude outputs/
+sdcr-detalle-demo.html
+img/gallery/sdcr-real/
