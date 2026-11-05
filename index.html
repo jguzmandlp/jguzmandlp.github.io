@@ -1576,11 +1576,12 @@
 
         <div class="reveal-block" id="certs-block">
           <div class="reveal-trigger">
-            <span class="reveal-label">Certificados</span>
+            <span class="reveal-label">Formación</span>
             <span class="reveal-plus">＋</span>
           </div>
           <div class="reveal-panel">
             <div class="certs-glass">
+              <div class="cert-row"><span class="cert-name">Diseñador Gráfico (titulado)</span><span class="cert-meta">Universidad Diego Portales — Chile</span></div>
               <div class="cert-row"><span class="cert-name">Google UX Design Professional Certificate</span><span class="cert-meta">Google — 2026</span></div>
               <div class="cert-row"><span class="cert-name">Full Stack Development Certification</span><span class="cert-meta">Mimo.org — 2026</span></div>
               <div class="cert-row"><span class="cert-name">Inglés — Intermedio alto (B2, CEFR)</span><span class="cert-meta">EFSET</span></div>
@@ -1651,25 +1652,25 @@
       </div>
       <span class="contact-eye">Contacto</span>
       <div class="contact-icons-row">
-        <a href="mailto:javier.guzman.dlp@gmail.com" class="contact-icon-item">
+        <a href="mailto:javier.guzman.dlp@gmail.com" class="contact-icon-item" aria-label="Email">
           <span class="contact-icon-circle">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7L22 6"/></svg>
           </span>
           <span class="contact-icon-label">javier.guzman.dlp@gmail.com</span>
         </a>
-        <a href="https://wa.me/50688741052" target="_blank" class="contact-icon-item" rel="noopener noreferrer">
+        <a href="https://wa.me/50688741052" target="_blank" class="contact-icon-item" rel="noopener noreferrer" aria-label="WhatsApp">
           <span class="contact-icon-circle">
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.07L2 22l5.09-1.34A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Zm5.2 14.3c-.22.62-1.09 1.15-1.79 1.3-.48.1-1.11.18-3.22-.69-2.71-1.12-4.46-3.86-4.6-4.04-.13-.18-1.1-1.46-1.1-2.78 0-1.32.69-1.97.94-2.24.22-.24.48-.3.64-.3.16 0 .32 0 .46.01.15.01.35-.06.55.42.22.53.73 1.83.8 1.96.06.13.1.29.02.46-.08.18-.12.29-.24.44-.12.15-.26.34-.37.46-.12.13-.25.27-.11.53.14.26.62 1.02 1.33 1.65.91.82 1.68 1.07 1.94 1.19.26.13.41.11.56-.06.16-.18.65-.75.82-1.01.17-.26.34-.21.57-.13.23.08 1.47.7 1.72.82.25.13.42.19.48.3.06.11.06.62-.16 1.24Z"/></svg>
           </span>
           <span class="contact-icon-label">+506 8874 1052</span>
         </a>
-        <a href="https://linkedin.com/in/jguzmandlp" target="_blank" class="contact-icon-item" rel="noopener noreferrer">
+        <a href="https://linkedin.com/in/jguzmandlp" target="_blank" class="contact-icon-item" rel="noopener noreferrer" aria-label="LinkedIn">
           <span class="contact-icon-circle">
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47v6.27ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45Z"/></svg>
           </span>
           <span class="contact-icon-label">linkedin.com/in/jguzmandlp</span>
         </a>
-        <a href="https://torre.ai/javier-guzman" target="_blank" class="contact-icon-item" rel="noopener noreferrer">
+        <a href="https://torre.ai/javier-guzman" target="_blank" class="contact-icon-item" rel="noopener noreferrer" aria-label="Torre.ai">
           <span class="contact-icon-circle">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
           </span>
@@ -1693,6 +1694,171 @@
   <div class="pd-inner" id="pd-inner"></div>
 </div>
 
+<!-- ══ i18n: inglés por defecto, botón ES/EN. El HTML conserva el texto original; este diccionario lo cambia en vivo. ══ -->
+<script>
+(function () {
+  var KEY = 'jg_site_lang_v2';
+  var PAIRS = [
+    /* nav / hero */
+    ['Trabajo', 'Work'], ['Sobre mí', 'About me'], ['Contacto', 'Contact'],
+    ['Desarrollador Frontend y Diseñador UX/UI desde Costa Rica — disponible para trabajar en remoto en todo el mundo. Construyo interfaces que no solo se ven bien: se sienten vivas.',
+     'Frontend Developer & UX/UI Designer, based in Costa Rica — open to remote work worldwide. I build interfaces that not only look great — they feel alive.'],
+    /* proyectos */
+    ['Trabajo seleccionado', 'Selected Work'], ['Proyectos', 'Projects'],
+    ['arrastra o usa las flechas', 'drag or use the arrows'],
+    ['Ver proyecto →', 'View project →'], ['Ver proyecto', 'View project'],
+    ['Brand · Web · Turismo', 'Brand · Web · Tourism'],
+    ['Marketplace de servicios locales en Costa Rica con paneles de proveedor, cliente y administrador.', 'Local services marketplace in Costa Rica with provider, client and admin panels.'],
+    ['Turismo cultural Bribri en Talamanca, con secuencia cinemática de scroll.', 'Bribri cultural tourism in Talamanca, with a cinematic scroll sequence.'],
+    ['Perfumería de lujo dark gold con isotipo 3D animado y pagos con SINPE Móvil.', 'Dark gold luxury perfumery with an animated 3D logomark and SINPE Móvil payments.'],
+    ['Identidad y sitio para salón en Moravia, con mariposa 3D desde Blender.', 'Identity and site for a salon in Moravia, with a 3D butterfly from Blender.'],
+    ['Sitio para nutricionista con reservas, dashboard de cliente y panel admin.', 'Nutritionist site with bookings, a client dashboard and an admin panel.'],
+    ['App de escritorio para aprender inglés con IA: Whisper, Llama y text-to-speech.', 'Desktop app for learning English with AI: Whisper, Llama and text-to-speech.'],
+    ['El problema', 'The problem'], ['La solución', 'The solution'], ['Mi rol', 'My role'],
+    ['Stack y decisiones técnicas', 'Stack and technical decisions'], ['Diagrama del sitio', 'Site diagram'],
+    ['Ver diagrama de arquitectura', 'View architecture diagram'], ['Se abre en una pestaña nueva ↗', 'Opens in a new tab ↗'],
+    ['Proyecto pre-lanzamiento', 'Pre-launch project'], ['no disponible públicamente', 'not publicly available'],
+    ['Solicitar acceso ↗', 'Request access ↗'], ['Demo próximamente', 'Demo coming soon'],
+    /* sobre mí */
+    ['Quién soy', 'Who I am'],
+    ['Diseñador gráfico titulado de la Universidad Diego Portales (Chile), hoy diseñador UX/UI y desarrollador web en Costa Rica. Abierto a trabajo remoto.',
+     'Graphic designer, graduated from Universidad Diego Portales (Chile), now a UX/UI designer and web developer in Costa Rica. Open to remote work.'],
+    ['Trayectoria', 'Background'],
+    ['Empecé mi carrera en el diseño gráfico y la gestión cultural, liderando proyectos y circuitos de arte público galardonados a nivel nacional. Trabajar a gran escala me enseñó a coordinar procesos complejos, cuidar cada detalle visual y, sobre todo, diseñar pensando siempre en la experiencia de las personas.',
+     'I started my career in graphic design and cultural management, leading award-winning public art projects and circuits nationwide. Working at that scale taught me to coordinate complex processes, care for every visual detail and, above all, always design around people’s experience.'],
+    ['Hoy aplico esa misma visión estratégica al entorno digital como Diseñador UX/UI y Desarrollador Web. Integro el pensamiento visual, herramientas de prototipado y desarrollo frontend para construir sitios web e interfaces intuitivas, escalables y orientadas a resultados.',
+     'Today I bring that same strategic vision to the digital world as a UX/UI Designer and Web Developer. I combine visual thinking, prototyping tools and frontend development to build intuitive, scalable, results-driven websites and interfaces.'],
+    ['Creo en el diseño con propósito y en las soluciones digitales que transmiten historias auténticas.', 'I believe in purposeful design and in digital solutions that tell authentic stories.'],
+    ['📍 Ubicado en Costa Rica y abierto a colaboraciones remotas.', '📍 Based in Costa Rica and open to remote collaboration.'],
+    ['Formación', 'Education'], ['Diseñador Gráfico (titulado)', 'Graphic Designer (degree)'],
+    ['Inglés — Intermedio alto (B2, CEFR)', 'English — Upper-intermediate (B2, CEFR)'],
+    ['Habilidades', 'Skills'], ['Diseño', 'Design'], ['Código', 'Code'], ['Gestión', 'Management'], ['Producción', 'Production'],
+    ['Impresión 3D', '3D printing'], ['Gestión de proyectos', 'Project management'], ['Producción de eventos', 'Event production'],
+    ['Montaje en altura', 'Rigging at height'], ['Drones (foto/video)', 'Drones (photo/video)'],
+    ['Impresión 3D / prototipado', '3D printing / prototyping'], ['Claude Code / IA aplicada', 'Claude Code / applied AI'],
+    ['Blender — modelado 3D', 'Blender — 3D modeling'], ['Instalación y montaje en altura', 'Installation and rigging at height'],
+    ['Pilotaje de drones (foto/video aéreo)', 'Drone piloting (aerial photo/video)'],
+    ['Cursos', 'Courses'], ['Diseño Web UI/UX en Figma — IA y Grandes Proyectos', 'Web UI/UX Design in Figma — AI and Large-Scale Projects'],
+    ['Intereses', 'Interests'], ['Turismo cultural', 'Cultural tourism'], ['Arte urbano', 'Street art'], ['Fotografía', 'Photography'],
+    ['Deportes', 'Sports'], ['Educación', 'Education'], ['Acción social y comunitaria', 'Social and community action'],
+    ['Programación', 'Programming'], ['Proyectos impulsados por IA', 'AI-driven projects'],
+    /* contacto */
+    ['Hablemos', 'Let’s talk'], ['Trabajemos', 'Let’s work'], ['juntos.', 'together.'],
+    ['¿Tienes un proyecto en mente? Estoy disponible para trabajo remoto (freelance o full-time) en diseño gráfico, UX/UI y desarrollo web, en horario de Costa Rica (GMT-6).',
+     'Have a project in mind? I’m available for remote work (freelance or full-time) in graphic design, UX/UI and web development, on Costa Rica time (GMT-6).'],
+    ['Enviar mensaje ↗', 'Send a message ↗'], ['seguí bajando', 'keep scrolling'],
+    ['📍 San José, Costa Rica — trabajo remoto, horario GMT-6', '📍 San José, Costa Rica — remote work, GMT-6 time zone'],
+    ['© 2026 — Desarrollador Frontend y Diseñador UX/UI', '© 2026 — Frontend Developer & UX/UI Designer'],
+    /* atributos */
+    ['Buscar', 'Search'], ['Abrir menú', 'Open menu'], ['Opciones de accesibilidad', 'Accessibility options'],
+    ['Proyecto anterior', 'Previous project'], ['Proyecto siguiente', 'Next project']
+  ];
+  /* Textos largos de los proyectos (el original sigue en español dentro de PROJECTS). */
+  var PROJ_EN = {
+    sdcr: {
+      desc: 'Local services marketplace in Costa Rica with three independent panels — provider, client and admin. Geolocated search with distance filter and province coverage, verified profiles with a review system, real-time chat, PDF quote generator, availability calendar and integrated Tilopay payments. Currently being migrated live from vanilla JS to React + TypeScript on the same production base, without interrupting the service. Animated 3D Three.js logo that reacts to scroll.',
+      problem: 'Local trades and services in Costa Rica are almost always hired through word of mouth or Facebook groups: there is no way to compare nearby providers, check whether they are trustworthy, get a quote before committing or pay securely. Providers, for their part, have no storefront of their own — they depend on referrals and waste time quoting over WhatsApp with no filtering at all.',
+      solution: 'A marketplace with three independent panels that solves each side of the problem: clients search by real proximity (geolocation + province coverage) and see verified profiles with reviews before getting in touch; providers receive qualified requests, chat, quote with a built-in PDF generator, manage their availability in a calendar and get paid through Tilopay or SINPE without leaving the platform; the admin approves credentials (ICT, CFIA, CCSS, CPA), reviews documents, moderates reviews and handles reports. Real-time messaging connects all three roles with no friction.',
+      myRole: 'I designed and built the whole platform end to end: the architecture of the three independent panels (client, provider, admin), the provider verification flow (ICT, CFIA, CCSS, CPA credentials), geolocated search, real-time messaging and payments integration. I also designed and animated the 3D logo in Three.js. I am currently leading the full frontend migration to React + TypeScript on a parallel branch, rebuilding each panel (real authentication with Supabase Auth, chat, quote generator, availability calendar, verification and moderation in the admin panel) without touching live production. Along the way I audited Supabase’s RLS policies and fixed several real data-exposure vulnerabilities that predated the rewrite.',
+      stackNotes: 'Supabase (Postgres + Auth + Realtime) so authentication and messaging did not have to be rebuilt from scratch; Cloudflare Workers for low latency and almost no cost in serverless logic; Tilopay because it supports SINPE, key for the Costa Rican market; Three.js reserved only for the animated logo, avoiding a heavy 3D library on the rest of the site; React + TypeScript + Vite for the frontend rewrite, migrating panel by panel on the same production Supabase base, with type checking as a safety net at every step.'
+    },
+    sikua: {
+      desc: 'Cultural tourism platform for the Bribri people in Talamanca, Costa Rica. Cinematic scroll sequence with 180+ hand-drawn AVIF frames painted on canvas (no animation libraries), three tour types, custom-built itineraries per client, a Bribri handicrafts shop with WhatsApp checkout and a travel-planning admin panel.',
+      problem: 'Bribri cultural tourism in Talamanca depended almost entirely on intermediary operators: the community had no digital storefront of its own to show its tours, itineraries and crafts, and anyone searching for the experience online only found generic packages from outside agencies, with no way to build a custom route or buy directly from the community.',
+      solution: 'An experience-site that opens with a cinematic scroll sequence (180+ hand-drawn frames) to convey the territory before any text, and handles the whole journey without leaving the page: three tour types, an itinerary the client builds to their own measure, direct confirmation via WhatsApp with the guide, and a Bribri handicrafts shop with WhatsApp checkout too — all coordinated from a travel-planning admin panel for the community.',
+      myRole: 'I designed and built the whole experience: I directed the visual script of the cinematic sequence (what to show at each stretch of the scroll), organized the 180+ hand-drawn AVIF frames and developed the canvas scroll-scrubbing logic without animation libraries. I also designed the custom itinerary flow and the handicrafts shop.',
+      stackNotes: 'Canvas API + vanilla JS instead of an animation library, for full control of the scroll-scrubbing and to keep page weight low despite 180+ frames; AVIF for its far better compression than JPEG/WebP on image sequences; Cloudflare Pages because the site needs no backend of its own — bookings and purchases are resolved directly through WhatsApp.'
+    },
+    fragancia: {
+      desc: 'Luxury perfume store with a dark gold aesthetic. Animated 3D logomark from Blender/GLB, GSAP page transitions and payments via SINPE Móvil.',
+      problem: 'Buying a niche perfume blind is expensive and risky: a full bottle costs a lot just to “try out” whether a fragrance suits someone, and in Costa Rica there was no store solving that with a simple, direct payment method — no complicated gateways or international cards.',
+      solution: 'A store that splits each perfume into two formats — full bottle or decant (a sample in milliliters at an affordable price) — organized into men’s and women’s catalogs, with an educational section (“What is a decant?”) that clears up the doubt before buying. Checkout is deliberately manual: a single payment via SINPE Móvil and confirmation over WhatsApp, reinforced on every page by a golden 3D logomark (Blender → GLB, Three.js) that spins with the scroll and GSAP transitions that sustain the luxury “dark gold” aesthetic.',
+      myRole: 'I designed the brand’s “dark gold” identity, modeled the 3D logomark in Blender and integrated it with Three.js, and built the whole store: the catalog segmented by gender, the decants vs. full bottle system, and the manual checkout via SINPE Móvil.',
+      stackNotes: 'Three.js only for the animated logomark, the same lightweight approach as in Servicio Directo CR; GSAP for page transitions, sustaining the premium aesthetic without abrupt jumps; no automated payment gateway — a deliberate decision to use SINPE Móvil + manual confirmation over WhatsApp, avoiding fees and simplifying payment for the Costa Rican market.'
+    },
+    pame: { desc: 'Identity and website for a salon in Moravia. 3D butterfly from a Blender GLB, hot pink palette, Great Vibes / Poppins typography.' },
+    orozco: {
+      desc: 'Website for a nutritionist with a booking system, client dashboard, admin panel and GSAP animations. Integrated WhatsApp CTA for inquiries.',
+      problem: 'People looking for nutritional help arrived with very different stories — losing fat without losing muscle, managing diabetes or insulin resistance, or simply not knowing how to eat in a balanced way — but ran into generic paper plans, with no real follow-up and no clear path between “I just want a plan” and “I want faster results with supervised training”.',
+      solution: 'A landing page that starts by validating those situations (“do you identify with any of these?”) before selling anything, presents two clear paths — nutrition alone or nutrition + exclusive gym — and leads them into a real booking system: login/sign-up, scheduling with date and time selection, and a client dashboard with next appointment, history and membership. On the other side, the doctor has her own private panel to manage schedules, block days and keep each patient’s file (weight, follow-up notes). Benefits, testimonials and an FAQ address objections without the user having to look for them.',
+      myRole: 'I designed the entire site — landing page, visual identity and the booking system (login, calendar scheduling, client dashboard) — and also the doctor’s private admin panel, with schedule management, blocked days and patient file.',
+      stackNotes: 'Vanilla JS + GSAP for the animations, without a framework’s overhead: it is one professional’s site, not the complexity of a multi-user platform; localStorage to persist the session and booking-system data without needing a database backend, keeping hosting free.'
+    },
+    english: { desc: 'Desktop app for learning English with AI. Speech recognition with Whisper, responses with Llama 3.3-70b, Neural2-J text-to-speech.' }
+  };
+
+  var norm = function (s) { return String(s).replace(/\s+/g, ' ').trim(); };
+  var idx = new Map();
+  PAIRS.forEach(function (p) { if (p[0] !== p[1]) { idx.set(norm(p[0]), p); idx.set(norm(p[1]), p); } });
+  var lang = 'en';
+  try { var v = localStorage.getItem(KEY); if (v === 'es' || v === 'en') lang = v; } catch (e) {}
+  var nodes = new WeakMap(), attrs = new WeakMap(), hooks = [];
+  var pick = function (p) { return lang === 'en' ? p[1] : p[0]; };
+  function t(s) { if (s == null) return s; var p = idx.get(norm(s)); return p ? pick(p) : s; }
+  function tp(p, f) { return (lang === 'en' && PROJ_EN[p.id] && PROJ_EN[p.id][f]) || p[f]; }
+
+  function walk() {
+    var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        var pe = n.parentNode;
+        return (!pe || /^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA)$/.test(pe.nodeName)) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var n;
+    while ((n = w.nextNode())) {
+      var rec = nodes.get(n);
+      if (!rec) {
+        var raw = n.nodeValue, k = norm(raw);
+        if (!k) continue;
+        var p = idx.get(k);
+        if (!p) continue;
+        rec = { p: p, lead: raw.match(/^\s*/)[0], trail: raw.match(/\s*$/)[0] };
+        nodes.set(n, rec);
+      }
+      var nv = rec.lead + pick(rec.p) + rec.trail;
+      if (n.nodeValue !== nv) n.nodeValue = nv;
+    }
+    document.querySelectorAll('[aria-label],[title]').forEach(function (el) {
+      var rec = attrs.get(el) || {};
+      ['aria-label', 'title'].forEach(function (a) {
+        var val = el.getAttribute(a);
+        if (val == null) return;
+        if (!(a in rec)) rec[a] = idx.get(norm(val)) || null;
+        if (rec[a]) el.setAttribute(a, pick(rec[a]));
+      });
+      attrs.set(el, rec);
+    });
+  }
+  function paintBtn() {
+    var b = document.getElementById('lang-toggle-btn');
+    if (!b) return;
+    b.textContent = lang === 'en' ? 'ES' : 'EN';
+    b.setAttribute('aria-label', lang === 'en' ? 'Cambiar a español' : 'Switch to English');
+  }
+  function apply(resplit) {
+    document.documentElement.lang = lang;
+    var about = window.aboutWordsSplit, tag = window.__taglineSplit;
+    if (resplit) { try { if (about) about.revert(); if (tag) tag.revert(); } catch (e) {} }
+    walk(); paintBtn();
+    if (resplit && window.gsap && window.SplitText) {
+      var paras = document.querySelectorAll('#about-section .about-p');
+      if (about && paras.length) { window.aboutWordsSplit = SplitText.create(paras, { type: 'words', wordsClass: 'word' }); gsap.set(window.aboutWordsSplit.words, { opacity: 1 }); }
+      var tl = document.querySelector('.hero-tagline');
+      if (tag && tl) window.__taglineSplit = SplitText.create(tl, { type: 'words,lines', linesClass: 'line', autoSplit: true, mask: 'lines' });
+      hooks.forEach(function (f) { try { f(); } catch (e) {} });
+      window.dispatchEvent(new Event('resize'));
+    }
+  }
+  window.I18N = {
+    t: t, tp: tp, lang: function () { return lang; }, onChange: function (f) { hooks.push(f); },
+    set: function (l) { lang = l; try { localStorage.setItem(KEY, l); } catch (e) {} apply(true); },
+    toggle: function () { this.set(lang === 'en' ? 'es' : 'en'); }
+  };
+  window.toggleSiteLang = function () { window.I18N.toggle(); };
+  apply(false);
+})();
+</script>
+
 <!-- GSAP -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
@@ -1709,7 +1875,7 @@
   if (!tagline) return;
   document.fonts.ready.then(function(){
     gsap.set(tagline, { opacity: 1 });
-    SplitText.create(tagline, {
+    window.__taglineSplit = SplitText.create(tagline, {
       type: 'words,lines',
       linesClass: 'line',
       autoSplit: true,
@@ -1963,14 +2129,18 @@
       background:#0d0d0d; color:#fff; text-decoration:none; -webkit-tap-highlight-color:transparent;
     }
     .pgm-card:active { opacity:.85; }
-    .pgm-top { flex:1 1 auto; min-height:90px; display:flex; align-items:center; justify-content:center; padding:14px; }
+    .pgm-top { flex:none; height:clamp(150px, 27svh, 230px); display:flex; align-items:center; justify-content:center; padding:14px; }
     .pgm-top img { max-width:70%; max-height:70%; object-fit:contain; }
     .pgm-top b { font-family:'Pirata One',cursive; font-weight:400; font-size:56px; color:rgba(255,255,255,.88); }
-    .pgm-meta { flex:none; padding:14px 16px 16px; display:flex; flex-direction:column; }
+    .pgm-meta { flex:1 1 auto; padding:14px 16px 16px; display:flex; flex-direction:column; }
     .pgm-meta strong { font:700 17px/1.25 'Space Mono','Courier New',monospace; }
     .pgm-meta em { font-style:normal; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.6); margin-top:5px; line-height:1.4; }
     .pgm-meta p { font-size:13px; line-height:1.5; color:rgba(255,255,255,.85); margin-top:10px; }
     .pgm-meta b { align-self:flex-start; margin-top:12px; font-size:12px; letter-spacing:.14em; text-transform:uppercase; border-bottom:1px solid #fff; padding-bottom:2px; }
+    .contact-icon-label { display:none; }
+    .contact-icons-row { gap:26px; margin-bottom:34px; }
+    .contact-icon-item { gap:0; }
+    .contact-icon-circle { width:68px; height:68px; }
     .pgm-dots { display:flex; gap:6px; justify-content:center; padding:2px 0 0; }
     .pgm-dots i { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.3); transition:width .2s, background .2s; }
     .pgm-dots i.on { width:18px; border-radius:4px; background:#fff; }
@@ -2855,7 +3025,7 @@ PROJECTS.forEach((p, i) => {
 
   el.setAttribute('tabindex', '0');
   el.setAttribute('role', 'button');
-  el.setAttribute('aria-label', 'Ver proyecto: ' + p.name);
+  el.setAttribute('aria-label', I18N.t('Ver proyecto') + ': ' + p.name);
 
   el.addEventListener('click', e => {
     e.stopPropagation();
@@ -3103,7 +3273,7 @@ function videoFallback(el) {
   wrap.innerHTML = `
     <div class="pd-video-placeholder">
       <div class="pd-video-placeholder-icon">▶</div>
-      <p>Demo próximamente</p>
+      <p>${I18N.t('Demo próximamente')}</p>
     </div>`;
 }
 
@@ -3153,8 +3323,8 @@ function showDetail(idx) {
     ? `<div class="pd-video-wrap">
         <div class="pd-private">
           <div class="pd-private-icon">${p.id === 'sdcr' ? sdIconSVG() : '🔒'}</div>
-          <p>Proyecto pre-lanzamiento<br>no disponible públicamente</p>
-          <a href="mailto:javier.guzman.dlp@gmail.com">Solicitar acceso ↗</a>
+          <p>${I18N.t('Proyecto pre-lanzamiento')}<br>${I18N.t('no disponible públicamente')}</p>
+          <a href="mailto:javier.guzman.dlp@gmail.com">${I18N.t('Solicitar acceso ↗')}</a>
         </div>
       </div>`
     : p.video
@@ -3165,7 +3335,7 @@ function showDetail(idx) {
       : `<div class="pd-video-wrap">
           <div class="pd-video-placeholder">
             <div class="pd-video-placeholder-icon">▶</div>
-            <p>Demo próximamente</p>
+            <p>${I18N.t('Demo próximamente')}</p>
           </div>
         </div>`;
 
@@ -3194,16 +3364,16 @@ function showDetail(idx) {
      mismo patrón de acordeón exclusivo que "Sobre mí" (ver bindPdReveal
      más abajo). Solo se renderizan si el proyecto trae esos datos. ── */
   const extraBlocks = [
-    p.problem  ? { label:'El problema', html:`<p class="pd-extra-text">${p.problem}</p>` } : null,
-    p.solution ? { label:'La solución', html:`<p class="pd-extra-text">${p.solution}</p>` } : null,
-    p.myRole   ? { label:'Mi rol', html:`<p class="pd-extra-text">${p.myRole}</p>` } : null,
-    p.stackNotes ? { label:'Stack y decisiones técnicas', html:`<p class="pd-extra-text">${p.stackNotes}</p>` } : null,
-    p.diagram ? { label:'Diagrama del sitio', html:`
+    p.problem  ? { label:I18N.t('El problema'), html:`<p class="pd-extra-text">${I18N.tp(p,'problem')}</p>` } : null,
+    p.solution ? { label:I18N.t('La solución'), html:`<p class="pd-extra-text">${I18N.tp(p,'solution')}</p>` } : null,
+    p.myRole   ? { label:I18N.t('Mi rol'), html:`<p class="pd-extra-text">${I18N.tp(p,'myRole')}</p>` } : null,
+    p.stackNotes ? { label:I18N.t('Stack y decisiones técnicas'), html:`<p class="pd-extra-text">${I18N.tp(p,'stackNotes')}</p>` } : null,
+    p.diagram ? { label:I18N.t('Diagrama del sitio'), html:`
       <a class="pd-diagram-card" href="${p.diagram}" target="_blank" rel="noopener">
         <span class="pd-diagram-card-icon">🗺️</span>
         <span class="pd-diagram-card-text">
-          <span class="pd-diagram-card-title">Ver diagrama de arquitectura</span>
-          <span class="pd-diagram-card-sub">Se abre en una pestaña nueva ↗</span>
+          <span class="pd-diagram-card-title">${I18N.t('Ver diagrama de arquitectura')}</span>
+          <span class="pd-diagram-card-sub">${I18N.t('Se abre en una pestaña nueva ↗')}</span>
         </span>
       </a>` } : null
   ].filter(Boolean);
@@ -3223,9 +3393,9 @@ function showDetail(idx) {
   inner.innerHTML = `
     <div class="pd-top-grid">
       <div>
-        <span class="pd-eye">${p.role}</span>
+        <span class="pd-eye">${I18N.t(p.role)}</span>
         <h2 class="pd-title">${p.name}</h2>
-        <p class="pd-desc">${p.desc}</p>
+        <p class="pd-desc">${I18N.tp(p,'desc')}</p>
         <div class="pd-tags">${p.tags.map(t=>`<span class="pd-tag">${t}</span>`).join('')}</div>
         <p class="pd-tech">${p.tech}</p>
         ${p.url?`<a class="pd-url" href="https://${p.url}" target="_blank" rel="noopener noreferrer">${p.url} ↗</a>`:''}
@@ -4077,7 +4247,7 @@ const PROJECT_PAGES = {
       const top = p.logo
         ? `<span class="pgm-top" style="background:${p.cardBg || p.color}"><img src="${p.logo}" alt="" loading="lazy" decoding="async"></span>`
         : `<span class="pgm-top" style="background:${p.grad || p.color}"><b>${p.name.split(' ').map(w => w[0]).join('').slice(0, 2)}</b></span>`;
-      return `<a class="pgm-card" href="${PROJECT_PAGES[p.id] || '#'}" aria-label="${p.name}">${top}<span class="pgm-meta"><strong>${p.name}</strong><em>${p.role}</em><p>${SHORT[p.id] || ''}</p><b>Ver proyecto →</b></span></a>`;
+      return `<a class="pgm-card" href="${PROJECT_PAGES[p.id] || '#'}" aria-label="${p.name}">${top}<span class="pgm-meta"><strong>${p.name}</strong><em>${I18N.t(p.role)}</em><p>${I18N.t(SHORT[p.id] || '')}</p><b>${I18N.t('Ver proyecto →')}</b></span></a>`;
     }).join('');
     grid.innerHTML = `<div class="pgm-track">${cards}</div><div class="pgm-dots">${PROJECTS.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>`;
     const track = grid.querySelector('.pgm-track'), dots = [...grid.querySelectorAll('.pgm-dots i')];
@@ -4088,6 +4258,7 @@ const PROJECT_PAGES = {
   }
   build();
   if (mq.addEventListener) mq.addEventListener('change', build);
+  I18N.onChange(function () { built = false; build(); });
 
   /* Volviendo desde una página de proyecto: caer directo en la sección Proyectos. */
   if (window.__skipIntro && typeof goTo === 'function') goTo(1);
@@ -4266,9 +4437,10 @@ const PROJECT_PAGES = {
     requestAnimationFrame(animate);
   }
 
-  function textDrawer(lines, font, align, sizePx) {
+  function textDrawer(linesArg, font, align, sizePx) {
     align = align || 'left';
     return function (ctx, w, h) {
+      const lines = typeof linesArg === 'function' ? linesArg() : linesArg;
       ctx.fillStyle = '#000';
       ctx.font = font;
       ctx.textAlign = align;
@@ -4294,7 +4466,7 @@ const PROJECT_PAGES = {
     const { wrapper, canvas } = attachCanvas(el);
     // Blanco sólido (sin degradado a rojo) — mismo tratamiento para
     // "Proyectos" y "Sobre mí".
-    initParticles(wrapper, canvas, textDrawer([text], font, align, sizePx), [WHITE, WHITE]);
+    initParticles(wrapper, canvas, textDrawer(function () { return [I18N.t(text)]; }, font, align, sizePx), [WHITE, WHITE]);
   }
 
   // Espera a que las fuentes (Pirata One, Space Mono, etc.) terminen de
@@ -4335,8 +4507,8 @@ const PROJECT_PAGES = {
         ctx.textBaseline = 'middle';
         const lh = sizePx * 1.05;
         const x = align === 'center' ? w / 2 : (align === 'right' ? w : 0);
-        ctx.fillText('Trabajemos', x, h / 2 - lh / 2);
-        ctx.fillText('juntos.', x, h / 2 + lh / 2);
+        ctx.fillText(I18N.t('Trabajemos'), x, h / 2 - lh / 2);
+        ctx.fillText(I18N.t('juntos.'), x, h / 2 + lh / 2);
       }, null, function (p, w, h) {
         // Partículas que se originan en la mitad inferior del bloque
         // (la línea "juntos.") van en rojo de marca; el resto en blanco.
@@ -4369,27 +4541,6 @@ const PROJECT_PAGES = {
 
 <!-- ── Accessibility Widget (perfiles + ajustes granulares) ── -->
 <script>
-  (function () {
-    var KEY = 'jg_site_lang';
-    function getLang() {
-      try { return localStorage.getItem(KEY) === 'en' ? 'en' : 'es'; }
-      catch (e) { return 'es'; }
-    }
-    function paintBtn() {
-      var btn = document.getElementById('lang-toggle-btn');
-      if (!btn) return;
-      var lang = getLang();
-      btn.textContent = lang === 'en' ? 'ES' : 'EN';
-      btn.setAttribute('aria-label', lang === 'en' ? 'Switch to Spanish' : 'Cambiar a inglés');
-    }
-    window.toggleSiteLang = function () {
-      try { localStorage.setItem(KEY, getLang() === 'en' ? 'es' : 'en'); } catch (e) {}
-      // TODO: aplicar traduccion real del contenido cuando este lista;
-      // por ahora solo persiste la preferencia y refleja el estado del boton.
-      paintBtn();
-    };
-    document.addEventListener('DOMContentLoaded', paintBtn);
-  })();
   window.A11Y_WIDGET_CONFIG = {
     position: 'top-left',
     accentColor: '#e8823a',
