@@ -623,34 +623,12 @@
     @keyframes tapPulse { 0%,100%{opacity:.3} 50%{opacity:.7} }
     .drag-proxy { visibility:hidden; position:absolute; top:0; left:0; }
 
-    /* ── Proyectos en móvil/táctil: grilla simple de links (sin carrusel 3D, GSAP ni sombras).
-       Cada card abre su propia página (proyecto-<id>.html). ── */
+    /* ── Proyectos en móvil/táctil: carrusel con snap (ver bloque "móvil" más abajo). Cada card abre proyecto-<id>.html ── */
     .proj-grid-m { display:none; }
     @media (max-width:768px), (hover:none) and (pointer:coarse) {
       .proj-section { perspective:none; }
       .proj-section .gallery, .proj-section .drag-proxy { display:none; }
-      .proj-top { top:48px; left:20px; }
-      .proj-grid-m {
-        display:grid; position:absolute; z-index:3;
-        left:16px; right:16px; top:128px; bottom:96px;
-        grid-template-columns:1fr 1fr; grid-auto-rows:minmax(0,1fr); gap:12px;
-      }
-      .pgm-card {
-        display:flex; flex-direction:column; min-height:0; overflow:hidden;
-        border-radius:10px; border:1px solid rgba(255,255,255,.12);
-        background:#0c0c0c; color:#fff; text-decoration:none;
-        -webkit-tap-highlight-color:transparent;
-      }
-      .pgm-card:active { opacity:.8; }
-      .pgm-top { flex:1 1 auto; min-height:0; display:flex; align-items:center; justify-content:center; padding:14px; }
-      .pgm-top img { max-width:72%; max-height:72%; object-fit:contain; }
-      .pgm-top b { font-family:'Pirata One',cursive; font-weight:400; font-size:44px; color:rgba(255,255,255,.85); letter-spacing:.02em; }
-      .pgm-meta { flex:none; padding:10px 12px 11px; background:#080808; display:flex; flex-direction:column; gap:2px; }
-      .pgm-meta strong { font:700 11px/1.3 'Space Mono','Courier New',monospace; }
-      .pgm-meta em { font-style:normal; font-size:8.5px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.5); }
-    }
-    @media (min-width:600px) and (max-width:1400px) and (hover:none) and (pointer:coarse) {
-      .proj-grid-m { grid-template-columns:repeat(3,1fr); }
+      .proj-top { top:68px; left:20px; }
     }
 
     /* Card = foto full + overlay con nombre */
@@ -1503,6 +1481,40 @@
   <canvas id="grid-mesh-about" class="grid-mesh-canvas" style="z-index:0;"></canvas>
   <div class="about-fade"></div>
 
+  <!-- Sobre mí — versión móvil (acordeón). En escritorio no se muestra. -->
+  <div class="about-m" id="about-m">
+    <div class="am-top">
+      <div class="am-av"><img src="img/about/javier-about.avif" alt="Javier Guzmán" width="84" height="84" loading="lazy" decoding="async"></div>
+      <div><div class="am-eye">Quién soy</div><h2 class="am-title">Sobre mí</h2></div>
+    </div>
+    <p class="am-lead">Diseñador gráfico titulado de la Universidad Diego Portales (Chile), hoy diseñador UX/UI y desarrollador web en Costa Rica. Abierto a trabajo remoto.</p>
+    <details open><summary>Trayectoria</summary><div class="am-in">
+      <p>Empecé mi carrera en el diseño gráfico y la gestión cultural, liderando proyectos y circuitos de arte público galardonados a nivel nacional. Trabajar a gran escala me enseñó a coordinar procesos complejos, cuidar cada detalle visual y, sobre todo, diseñar pensando siempre en la experiencia de las personas.</p>
+      <p>Hoy aplico esa misma visión estratégica al entorno digital como Diseñador UX/UI y Desarrollador Web. Integro el pensamiento visual, herramientas de prototipado y desarrollo frontend para construir sitios web e interfaces intuitivas, escalables y orientadas a resultados.</p>
+      <p>Creo en el diseño con propósito y en las soluciones digitales que transmiten historias auténticas.</p>
+      <p>📍 Ubicado en Costa Rica y abierto a colaboraciones remotas.</p>
+    </div></details>
+    <details><summary>Formación</summary><div class="am-in am-rows">
+      <div><span>Diseñador Gráfico (titulado)</span><small>Universidad Diego Portales · Chile</small></div>
+      <div><span>Google UX Design Professional Certificate</span><small>Google · 2026</small></div>
+      <div><span>Full Stack Development Certification</span><small>Mimo.org · 2026</small></div>
+      <div><span>Inglés — Intermedio alto (B2, CEFR)</span><small>EFSET</small></div>
+    </div></details>
+    <details><summary>Habilidades</summary><div class="am-in">
+      <h3>Diseño</h3><div class="am-tags"><span>Figma · UX/UI</span><span>Photoshop</span><span>Illustrator</span><span>InDesign</span><span>Express</span><span>Premiere</span><span>Impresión 3D</span></div>
+      <h3>Código</h3><div class="am-tags"><span>HTML / CSS / JS</span><span>Three.js · WebGPU</span><span>GSAP</span><span>Supabase</span><span>Cloudflare</span><span>Blender</span><span>Claude Code</span></div>
+      <h3>Gestión</h3><div class="am-tags"><span>Google Ads · Analytics</span><span>Meta Business · Pixel</span><span>Gestión de proyectos</span></div>
+      <h3>Producción</h3><div class="am-tags"><span>Producción de eventos</span><span>Montaje en altura</span><span>Drones (foto/video)</span></div>
+    </div></details>
+    <details><summary>Cursos</summary><div class="am-in am-rows">
+      <div><span>Claude 101</span><small>Anthropic · 2026</small></div>
+      <div><span>Claude Code 101</span><small>Anthropic · 2026</small></div>
+      <div><span>Introduction to Claude Cowork</span><small>Anthropic · 2026</small></div>
+      <div><span>Diseño Web UI/UX en Figma — IA y Grandes Proyectos</span><small>Udemy · 2026</small></div>
+    </div></details>
+    <details><summary>Intereses</summary><div class="am-in"><div class="am-tags"><span>Turismo cultural</span><span>Arte urbano</span><span>Fotografía</span><span>Deportes</span><span>Educación</span><span>Acción social y comunitaria</span><span>Programación</span><span>Proyectos impulsados por IA</span></div></div></details>
+  </div>
+
   <div class="about-inner">
     <div class="about-top">
       <!-- Columna izquierda: texto, saltos forzados a 7 palabras por línea -->
@@ -1926,6 +1938,82 @@
     /* Botones flotantes: una sola fila abajo a la derecha, sin tapar el texto */
     .radial-fab-wrap { bottom:calc(env(safe-area-inset-bottom, 0px) + 20px); right:20px; }
     #sound-toggle { bottom:calc(env(safe-area-inset-bottom, 0px) + 24px); right:82px; }
+  }
+</style>
+<style>
+  /* ── Proyectos (carrusel con snap) y Sobre mí (acordeón) en móvil ── */
+  .about-m { display:none; }
+  @media (max-width:768px), (hover:none) and (pointer:coarse) {
+    .proj-section, .about-section { height:100vh; height:100svh; }
+
+    /* Proyectos: carrusel */
+    .proj-grid-m {
+      display:flex; flex-direction:column; position:absolute; z-index:3; left:0; right:0;
+      top:140px; bottom:calc(env(safe-area-inset-bottom, 0px) + 84px);
+    }
+    .pgm-track {
+      flex:1; min-height:0; display:flex; gap:12px; overflow-x:auto; overflow-y:hidden;
+      scroll-snap-type:x mandatory; padding:4px 20px 10px; scrollbar-width:none;
+      -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain;
+    }
+    .pgm-track::-webkit-scrollbar { display:none; }
+    .pgm-card {
+      flex:none; width:min(78%, 340px); scroll-snap-align:center; display:flex; flex-direction:column;
+      border-radius:18px; overflow:hidden; border:1px solid rgba(255,255,255,.14);
+      background:#0d0d0d; color:#fff; text-decoration:none; -webkit-tap-highlight-color:transparent;
+    }
+    .pgm-card:active { opacity:.85; }
+    .pgm-top { flex:1 1 auto; min-height:90px; display:flex; align-items:center; justify-content:center; padding:14px; }
+    .pgm-top img { max-width:70%; max-height:70%; object-fit:contain; }
+    .pgm-top b { font-family:'Pirata One',cursive; font-weight:400; font-size:56px; color:rgba(255,255,255,.88); }
+    .pgm-meta { flex:none; padding:14px 16px 16px; display:flex; flex-direction:column; }
+    .pgm-meta strong { font:700 17px/1.25 'Space Mono','Courier New',monospace; }
+    .pgm-meta em { font-style:normal; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.6); margin-top:5px; line-height:1.4; }
+    .pgm-meta p { font-size:13px; line-height:1.5; color:rgba(255,255,255,.85); margin-top:10px; }
+    .pgm-meta b { align-self:flex-start; margin-top:12px; font-size:12px; letter-spacing:.14em; text-transform:uppercase; border-bottom:1px solid #fff; padding-bottom:2px; }
+    .pgm-dots { display:flex; gap:6px; justify-content:center; padding:2px 0 0; }
+    .pgm-dots i { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.3); transition:width .2s, background .2s; }
+    .pgm-dots i.on { width:18px; border-radius:4px; background:#fff; }
+
+    /* Sobre mí: acordeón (sin foto de fondo detrás del texto) */
+    .about-bg, .about-fade, .about-inner, #grid-mesh-about { display:none !important; }
+    .about-section::after {
+      content:''; position:absolute; top:0; left:0; right:0; height:76px; z-index:3; pointer-events:none;
+      background:linear-gradient(#060606 62%, rgba(6,6,6,0));
+    }
+    .about-section::before {
+      content:''; position:absolute; bottom:0; left:0; right:0; height:96px; z-index:3; pointer-events:none;
+      background:linear-gradient(rgba(6,6,6,0), #060606 70%);
+    }
+    .about-m {
+      display:block; position:absolute; inset:0; z-index:2; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+      padding:calc(env(safe-area-inset-top, 0px) + 92px) 20px calc(env(safe-area-inset-bottom, 0px) + 100px);
+    }
+    .am-top { display:flex; gap:14px; align-items:center; margin-bottom:14px; }
+    .am-av { width:84px; height:84px; border-radius:50%; overflow:hidden; flex:none; border:1px solid rgba(255,255,255,.3); }
+    .am-av img { width:100%; height:100%; object-fit:cover; object-position:62% 20%; display:block; }
+    .am-eye { font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:rgba(255,255,255,.55); }
+    .am-title { font-family:'Pirata One',cursive; font-weight:400; font-size:44px; line-height:1; color:#fff; }
+    .am-lead { font-size:15px; line-height:1.65; color:rgba(255,255,255,.92); margin-bottom:14px; }
+    .about-m details { border-top:1px solid rgba(255,255,255,.16); }
+    .about-m details:last-of-type { border-bottom:1px solid rgba(255,255,255,.16); }
+    .about-m summary {
+      list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:16px 0;
+      font:700 14px 'Space Mono','Courier New',monospace; letter-spacing:.08em; text-transform:uppercase; color:#fff;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .about-m summary::-webkit-details-marker { display:none; }
+    .about-m summary::after { content:'+'; font-size:20px; font-weight:400; }
+    .about-m details[open] summary::after { content:'–'; }
+    .am-in { padding:0 0 18px; font-size:14px; line-height:1.7; color:rgba(255,255,255,.9); }
+    .am-in p { margin-bottom:12px; }
+    .am-in h3 { font:700 11px 'Space Mono','Courier New',monospace; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.55); margin:16px 0 8px; }
+    .am-in h3:first-child { margin-top:2px; }
+    .am-tags { display:flex; flex-wrap:wrap; gap:8px; }
+    .am-tags span { font-size:12px; padding:8px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.3); color:rgba(255,255,255,.92); }
+    .am-rows div { display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid rgba(255,255,255,.12); font-size:13px; line-height:1.45; }
+    .am-rows div:first-child { border-top:0; padding-top:2px; }
+    .am-rows small { color:rgba(255,255,255,.55); font-size:11px; text-align:right; }
   }
 </style>
 <script>
@@ -3670,12 +3758,23 @@ window.addEventListener('wheel', e => {
 }, { passive: true });
 
 /* Touch */
-let touchStartY = 0;
-window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+let touchStartY = 0, touchStartX = 0, touchInnerScroll = null;
+window.addEventListener('touchstart', e => {
+  touchStartY = e.touches[0].clientY; touchStartX = e.touches[0].clientX;
+  /* Si el toque empieza dentro de una zona con scroll propio (Sobre mí en móvil), se guarda si ya estaba arriba/abajo del todo. */
+  const sc = e.target && e.target.closest ? e.target.closest('.about-m') : null;
+  touchInnerScroll = sc ? { atTop: sc.scrollTop <= 4, atBottom: sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 4 } : null;
+}, { passive: true });
 window.addEventListener('touchend', e => {
   if (window.__modalScrollLock) return;
   if (e.target && e.target.closest && e.target.closest('#a11y-panel')) return;
   const dy = touchStartY - e.changedTouches[0].clientY;
+  const dx = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(dx) > Math.abs(dy)) return; /* swipe horizontal (carrusel de proyectos): no cambia de sección */
+  if (touchInnerScroll) {
+    if (dy > 0 && !touchInnerScroll.atBottom) return; /* todavía hay contenido abajo: era scroll interno */
+    if (dy < 0 && !touchInnerScroll.atTop) return;
+  }
 
   if (currentSection === CONTACT_INDEX && !scrollBusy) {
     if (dy > 40)  { contactCover(); return; }
@@ -3966,12 +4065,26 @@ const PROJECT_PAGES = {
   function build() {
     if (built || !mq.matches || !grid) return;
     built = true;
-    grid.innerHTML = PROJECTS.map(p => {
+    const SHORT = {
+      sdcr: 'Marketplace de servicios locales en Costa Rica con paneles de proveedor, cliente y administrador.',
+      sikua: 'Turismo cultural Bribri en Talamanca, con secuencia cinemática de scroll.',
+      fragancia: 'Perfumería de lujo dark gold con isotipo 3D animado y pagos con SINPE Móvil.',
+      pame: 'Identidad y sitio para salón en Moravia, con mariposa 3D desde Blender.',
+      orozco: 'Sitio para nutricionista con reservas, dashboard de cliente y panel admin.',
+      english: 'App de escritorio para aprender inglés con IA: Whisper, Llama y text-to-speech.'
+    };
+    const cards = PROJECTS.map(p => {
       const top = p.logo
         ? `<span class="pgm-top" style="background:${p.cardBg || p.color}"><img src="${p.logo}" alt="" loading="lazy" decoding="async"></span>`
         : `<span class="pgm-top" style="background:${p.grad || p.color}"><b>${p.name.split(' ').map(w => w[0]).join('').slice(0, 2)}</b></span>`;
-      return `<a class="pgm-card" href="${PROJECT_PAGES[p.id] || '#'}" aria-label="${p.name}">${top}<span class="pgm-meta"><strong>${p.name}</strong><em>${p.role}</em></span></a>`;
+      return `<a class="pgm-card" href="${PROJECT_PAGES[p.id] || '#'}" aria-label="${p.name}">${top}<span class="pgm-meta"><strong>${p.name}</strong><em>${p.role}</em><p>${SHORT[p.id] || ''}</p><b>Ver proyecto →</b></span></a>`;
     }).join('');
+    grid.innerHTML = `<div class="pgm-track">${cards}</div><div class="pgm-dots">${PROJECTS.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>`;
+    const track = grid.querySelector('.pgm-track'), dots = [...grid.querySelectorAll('.pgm-dots i')];
+    track.addEventListener('scroll', () => {
+      const i = Math.round(track.scrollLeft / (track.scrollWidth / PROJECTS.length));
+      dots.forEach((d, k) => d.classList.toggle('on', k === i));
+    }, { passive: true });
   }
   build();
   if (mq.addEventListener) mq.addEventListener('change', build);
