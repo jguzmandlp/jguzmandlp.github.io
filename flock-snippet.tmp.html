@@ -1,0 +1,183 @@
+<script>
+/* ══════════ Bandada (murmuración) en 2D — parámetros en vivo ══════════
+   Todos los pájaros siguen una misma cinta 3D que serpentea y se retuerce (no hay pájaros sueltos).
+   Se dibuja sobre el mar en el mismo lienzo que se graba (el cursor nunca sale en el video). */
+(function () {
+  const SCHEMA = [
+    ['n',      'Cantidad de pájaros',            2000, 18000, 500,  11000, 'Más pájaros = masa más densa y con más textura.'],
+    ['speed',  'Velocidad',                       0,    3,     0.05, 1,     '0 = congelada. Sube para que la masa fluya más rápido.'],
+    ['spread', 'Separar ← → Pegar',               0.3,  2.5,   0.05, 1,     'Izquierda = compacta y apretada. Derecha = ancha, aire entre pájaros.'],
+    ['jitter', 'Dispersión individual',           0,    0.6,   0.01, 0.06,  'Cuánto se mueve cada pájaro por su cuenta (temblor). Muy alto = parecen moscas.'],
+    ['len',    'Largo de la bandada',             0.5,  5,     0.1,  3.0,   'Qué tan estirada va de lado a lado.'],
+    ['wave',   'Ondulación (serpentea)',          0,    2.5,   0.05, 1,     'Amplitud de las ondas que recorren la bandada.'],
+    ['twist',  'Retorcimiento',                   0,    3,     0.05, 1,     'Cuánto se tuerce la cinta sobre sí misma (formas raras, huecos).'],
+    ['pinch',  'Pellizcos (grosor variable)',     0,    1.5,   0.05, 1,     'Qué tanto se afina y se hincha la masa.'],
+    ['size',   'Tamaño del pájaro',               0.4,  3,     0.05, 1,     ''],
+    ['flap',   'Aleteo',                          0,    1,     0.05, 0.5,   '0 = sin aleteo (puntitos fijos). 1 = parpadeo fuerte.'],
+    ['alpha',  'Opacidad',                        0.2,  1,     0.02, 0.8,   ''],
+    ['x',      'Posición horizontal',            -3,    3,     0.1,  0,     ''],
+    ['y',      'Altura en el cielo',              2.5,  8,     0.1,  5.0,   'Sube/baja toda la bandada.'],
+    ['zoom',   'Distancia (cerca ← → lejos)',     8,    22,    0.5,  12.5,  'Cerca = bandada grande. Lejos = chica.'],
+    ['second', 'Segunda bandada (%)',             0,    60,    1,    25,    'Una masa más chica que acompaña, a otra altura.'],
+    ['mouse',  'Mouse: empuje sobre los pájaros', 0,    2,     0.05, 0,     'Pasa el mouse por la vista previa y los pájaros se apartan. El cursor NO sale en el video.'],
+    ['mradius','Mouse: radio',                    40,   400,   10,   160,   ''],
+    ['vmouse', 'Mouse virtual (automático)',      0,    1,     1,    0,     '1 = un mouse invisible recorre la bandada solo (requiere empuje > 0).'],
+  ];
+  const PRESETS = {
+    'Murmuración (base)': {},
+    'Compacta y oscura':  { spread: 0.55, jitter: 0.03, size: 0.9, alpha: 0.9, n: 14000, second: 10 },
+    'Nube suelta':        { spread: 1.9, jitter: 0.2, size: 1.1, alpha: 0.7, n: 7000, flap: 0.8 },
+    'Cinta larga':        { len: 4.6, wave: 1.6, twist: 1.6, pinch: 0.6, second: 0 },
+    'Remolino':           { twist: 2.6, wave: 2.0, len: 2.0, spread: 0.8, speed: 1.4 },
+  };
+  const KEY = 'flockParams_v1';
+  const P = {}; SCHEMA.forEach(s => P[s[0]] = s[5]);
+  try { Object.assign(P, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+  let seed = +(localStorage.getItem(KEY + '_seed') || 1);
+
+  /* ── aleatorio con semilla + Beta simétrica (borde suave, centro denso) ── */
+  const rng = (a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; });
+  function gamma(r, k) { const d = k - 1 / 3, c = 1 / Math.sqrt(9 * d); for (;;) { let x, v; do { const u1 = r() || 1e-9, u2 = r(); x = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); v = 1 + c * x; } while (v <= 0); v = v * v * v; const u = r(); if (Math.log(u) < 0.5 * x * x + d - d * v + d * Math.log(v)) return d * v; } }
+  const beta = (r, a) => { const x = gamma(r, a), y = gamma(r, a); return x / (x + y); };
+
+  const MAXN = 18000;
+  let F = null;     // datos estáticos por pájaro
+  const sx = new Float32Array(MAXN), sy = new Float32Array(MAXN), px = new Float32Array(MAXN), py = new Float32Array(MAXN), dirx = new Float32Array(MAXN).fill(1), diry = new Float32Array(MAXN);
+  function build() {
+    const r = rng(seed * 7919 + 13);
+    const N = MAXN;
+    F = { u: new Float32Array(N), w1: new Float32Array(N), w2: new Float32Array(N), ph: new Float32Array(N), rate: new Float32Array(N), grp: new Uint8Array(N),
+          // senos/cosenos precalculados de las fases que dependen de u (así cada frame solo suma ángulos)
+          s: {}, c: {} };
+    const names = ['p1','p2','p3','p4','p5','p6','p7','p8','j1','j2'];
+    names.forEach(n => { F.s[n] = new Float32Array(N); F.c[n] = new Float32Array(N); });
+    const TAU = 2 * Math.PI;
+    for (let i = 0; i < N; i++) {
+      const second = r() < 0.35;            // reservado; el % real se aplica al dibujar (primeros N·(1-%) = bandada 1)
+      F.grp[i] = 0;
+      const u = beta(r, 1.6) * 2 - 1, w1 = beta(r, 2.2) * 2 - 1, w2 = beta(r, 2.2) * 2 - 1, ph = r() * TAU;
+      F.u[i] = u; F.w1[i] = w1; F.w2[i] = w2; F.ph[i] = ph; F.rate[i] = 5.5 + r() * 3;
+      const sv = (n, p) => { F.s[n][i] = Math.sin(p); F.c[n][i] = Math.cos(p); };
+      sv('p1', TAU * 1.1 * u + 0.5); sv('p2', TAU * 0.8 * u); sv('p3', TAU * 2.1 * u + 1.3); sv('p4', TAU * 0.6 * u + 2.0);
+      sv('p5', TAU * 1.7 * u); sv('p6', TAU * 1.3 * u + 1); sv('p7', TAU * 0.9 * u + 0.4); sv('p8', TAU * 0.9 * u);
+      sv('j1', ph); sv('j2', ph * 1.3);
+    }
+  }
+  build();
+
+  /* seno/coseno de (p + k) con p precalculado */
+  const addS = (sp, cp, sk, ck) => sp * ck + cp * sk;
+
+  const layer = document.createElement('canvas'); layer.width = REC.W; layer.height = REC.H;
+  const lctx = layer.getContext('2d');
+  let tClock = 0, last = performance.now(), mouse = null, lastDraw = 0;
+  out.addEventListener('mousemove', e => { const b = out.getBoundingClientRect(); mouse = { x: (e.clientX - b.left) / b.width * out.width, y: (e.clientY - b.top) / b.height * out.height }; });
+  out.addEventListener('mouseleave', () => { mouse = null; });
+
+  function drawFlock() {
+    const ctx = lctx;
+    const now = performance.now();
+    if (now - lastDraw < 30) return false;           // ~30 fps (lo que captura el grabador)
+    lastDraw = now;
+    const dt = Math.min((now - last) / 1000, 0.1); last = now;
+    tClock += dt * P.speed;
+    const W = out.width, H = out.height, kS = W / 720, HZ = 645 * H / 1280, Fc = 900 * kS;
+    const t = tClock, TAU = Math.PI * 2, base = 12;     // base = periodo de referencia de las ondas (s)
+    const a = TAU * t / base;
+    const s1 = Math.sin(a), c1 = Math.cos(a), s2 = Math.sin(2 * a), c2 = Math.cos(2 * a), s6 = Math.sin(6 * a), c6 = Math.cos(6 * a), s7 = Math.sin(7 * a), c7 = Math.cos(7 * a);
+    const N = P.n | 0, N2 = Math.round(N * P.second / 100), N1 = N - N2;
+    ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.strokeStyle = '#0e100e'; ctx.globalAlpha = P.alpha;
+    ctx.lineWidth = Math.max(0.6, 0.75 * kS);
+    ctx.beginPath();
+    let mouseOn = P.mouse > 0;
+    let mX = -1e9, mY = -1e9;
+    if (mouseOn) {
+      if (P.vmouse >= 1) { mX = W * (0.5 + 0.38 * Math.sin(TAU * t / 8 + 0.6)); mY = HZ - 0.38 * H * (0.55 + 0.35 * Math.sin(TAU * t / 16 + 2)); }
+      else if (mouse) { mX = mouse.x; mY = mouse.y; }
+    }
+    const R = P.mradius * kS, R2 = R * R, push = P.mouse * R * 0.55;
+    for (let i = 0; i < N; i++) {
+      const grp2 = i >= N1;                       // los últimos N2 pájaros forman la bandada chica
+      const sd = grp2 ? 2 : 1, x0 = grp2 ? 0.4 : 0, y0 = grp2 ? 1.0 : 0, z0 = grp2 ? 2.0 : 0, ln = grp2 ? 0.66 : 1;
+      const u = F.u[i];
+      // curva central (ondas viajeras)
+      const sp1 = F.s.p1[i], cp1 = F.c.p1[i], sp2 = F.s.p2[i], cp2 = F.c.p2[i], sp3 = F.s.p3[i], cp3 = F.c.p3[i], sp4 = F.s.p4[i], cp4 = F.c.p4[i];
+      const sp5 = F.s.p5[i], cp5 = F.c.p5[i], sp6 = F.s.p6[i], cp6 = F.c.p6[i], sp7 = F.s.p7[i], cp7 = F.c.p7[i], sp8 = F.s.p8[i], cp8 = F.c.p8[i];
+      const sh = sd * 0.9;                        // desfase distinto por bandada
+      const cs = Math.cos(sh), sn = Math.sin(sh);
+      const rot = (sp, cp) => sp * cs + cp * sn;   // sin(p + sh)
+      const W_ = P.wave;
+      let x = P.x + x0 + P.len * ln * u + W_ * (0.9 * addS(rot(sp1, cp1), cp1 * cs - sp1 * sn, s1, c1) + 1.1 * Math.sin(a + 1 + sh));
+      let y = P.y + y0 + W_ * (1.1 * addS(rot(sp2, cp2), cp2 * cs - sp2 * sn, -s2, c2) + 0.6 * addS(sp3, cp3, s1, c1) + 0.5 * Math.sin(a + 2 + sh));
+      let z = P.zoom + z0 + W_ * (3.4 * addS(rot(sp4, cp4), cp4 * cs - sp4 * sn, s1, c1) + 1.4 * addS(sp5, cp5, -s2, c2));
+      // sección: ancho/grosor que se pellizcan; la cinta se retuerce
+      const pin = P.pinch;
+      const wid = (0.45 + 0.55 * (0.5 + 0.5 * addS(rot(sp6, cp6), cp6 * cs - sp6 * sn, -s1, c1) * 1) * 1) ;
+      const widM = 1 - pin + pin * wid / 1;       // mezcla entre ancho fijo y variable
+      const thkS = addS(sp7, cp7, s2, c2);
+      const thk = (1 - pin) + pin * (0.35 + 0.45 * (0.5 + 0.5 * thkS));
+      const th = P.twist * 1.6 * addS(sp8, cp8, s1, c1);
+      const ex = Math.cos(th), ey = Math.sin(th);
+      const sw = F.w1[i] * widM * 1.7 * P.spread;
+      x += sw * ex; y += sw * ey * 0.75; z += F.w2[i] * thk * 3.2 * P.spread + sw * ey * 0.8;
+      // temblor individual
+      x += P.jitter * (F.s.j1[i] * c6 + F.c.j1[i] * s6); y += P.jitter * (F.c.j2[i] * c7 - F.s.j2[i] * s7);
+      const zz = Math.max(z, 2.0);
+      let X = W / 2 + Fc * x / zz, Y = HZ - Fc * (y - 0.8) / zz * 0.8;
+      const sc = Fc / zz;
+      // mouse: empuja los pájaros cercanos (solo en pantalla, no se dibuja el cursor)
+      if (mouseOn) { const dx = X - mX, dy = Y - mY, d2 = dx * dx + dy * dy; if (d2 < R2) { const d = Math.sqrt(d2) + 1e-3, k = (1 - d / R); const f = k * k * push; X += dx / d * f; Y += dy / d * f; } }
+      // dirección = desplazamiento frame a frame
+      let dx = X - px[i], dy = Y - py[i]; const L = Math.hypot(dx, dy);
+      if (L > 0.05 && L < 80) { dirx[i] = dx / L; diry[i] = dy / L; }
+      px[i] = X; py[i] = Y;
+      if (X < -10 || X > W + 10 || Y < -10 || Y > HZ + 30) continue;
+      const fl = 1 - P.flap * (1 - Math.abs(Math.sin(TAU * F.rate[i] * t / 3 + F.ph[i])));
+      const size = Math.min(Math.max(sc * 0.13 * P.size, 0.6 * kS), 2.2 * kS * P.size) * fl;
+      const ux = dirx[i], uy = diry[i];
+      ctx.moveTo(X - ux * size * 0.9 - uy * size * 0.9, Y - uy * size * 0.9 + ux * size * 0.9);
+      ctx.lineTo(X, Y);
+      ctx.lineTo(X - ux * size * 0.9 + uy * size * 0.9, Y - uy * size * 0.9 - ux * size * 0.9);
+    }
+    ctx.stroke();
+    ctx.restore();
+    return true;
+  }
+
+
+  /* ── Panel de sliders ── */
+  const panel = document.getElementById('panel');
+  const box = document.createElement('div'); box.className = 'row'; box.id = 'flockUI';
+  box.innerHTML = '<b>Bandada (murmuración)</b>';
+  const en = document.createElement('label'); en.innerHTML = '<input type="checkbox" checked> Mostrar bandada'; box.appendChild(en);
+  en.firstChild.onchange = e => { REC.flock.enabled = e.target.checked; };
+  const sel = document.createElement('select'); sel.style.cssText = 'width:100%;margin:6px 0';
+  sel.innerHTML = '<option value="">Presets…</option>' + Object.keys(PRESETS).map(k => '<option>' + k + '</option>').join('');
+  box.appendChild(sel);
+  const ctrls = {};
+  SCHEMA.forEach(([k, label, min, max, step, def, tip]) => {
+    const w = document.createElement('div'); w.style.cssText = 'margin:6px 0';
+    w.innerHTML = '<div style="display:flex;justify-content:space-between;font-size:12px"><span>' + label + '</span><span class="v"></span></div><input type="range" style="width:100%" min="' + min + '" max="' + max + '" step="' + step + '">' + (tip ? '<small>' + tip + '</small>' : '');
+    const r = w.querySelector('input'), v = w.querySelector('.v');
+    const set = x => { r.value = x; v.textContent = (+x).toFixed(step < 1 ? 2 : 0); };
+    set(P[k]); r.oninput = () => { P[k] = +r.value; set(P[k]); save(); };
+    ctrls[k] = set; box.appendChild(w);
+  });
+  const save = () => { try { REC.flock.save(); } catch (e) {} };
+  const apply = o => { SCHEMA.forEach(s => { P[s[0]] = (o && s[0] in o) ? o[s[0]] : s[5]; ctrls[s[0]](P[s[0]]); }); save(); };
+  sel.onchange = () => { if (sel.value) apply(PRESETS[sel.value]); sel.value = ''; };
+  const bar2 = document.createElement('div'); bar2.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-top:8px';
+  const mkb = (t, f) => { const b = document.createElement('button'); b.textContent = t; b.style.cssText = 'flex:1;padding:6px;font-size:12px'; b.onclick = f; bar2.appendChild(b); return b; };
+  mkb('🎲 Otra forma', () => { REC.flock.setSeed(Math.floor(Math.random() * 9999) + 1); });
+  mkb('Reiniciar', () => apply({}));
+  const cp = mkb('Copiar valores', () => { const j = JSON.stringify(Object.assign({}, P, { seed: REC.flock.getSeed() })); (navigator.clipboard ? navigator.clipboard.writeText(j) : Promise.reject()).then(() => { cp.textContent = '¡Copiado!'; setTimeout(() => cp.textContent = 'Copiar valores', 1500); }).catch(() => prompt('Copia esto:', j)); });
+  box.appendChild(bar2);
+  const rowRec = panel.querySelector('#rec'); panel.insertBefore(box, rowRec);
+
+  window.REC = window.REC || {};
+  REC.flock = { draw: drawFlock, layer, P, SCHEMA, PRESETS, setSeed: s => { seed = s; localStorage.setItem(KEY + '_seed', s); build(); px.fill(0); py.fill(0); }, getSeed: () => seed, save: () => localStorage.setItem(KEY, JSON.stringify(P)), enabled: true };
+})();
+</script>
