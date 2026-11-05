@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Servicio Directo CR — Javier Guzmán</title>
+<meta name="description" content="Marketplace de servicios locales en Costa Rica con tres paneles independientes — proveedor, cliente y administrador. Búsqueda geolocalizada con filtro por distancia y cobertura por provincia, perfiles verificados con sistema de reviews, chat en tiempo real, cotizador con PDF, calendario de disponibilidad y pagos integrados con Tilopay. Actualmente en migración en vivo de JS vanilla a React + TypeScript sobre la misma base de producción, sin interrumpir el servicio. Logo 3D animado en Three.js que reacciona al scroll.">
+<meta name="theme-color" content="#05101e">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Space+Mono:wght@400;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  html{background:#05101e;-webkit-text-size-adjust:100%}
+  body{background:#05101e;color:#fff;font:14px/1.65 'Space Mono','Courier New',monospace;min-height:100vh}
+  a{color:inherit}
+  .bar{position:sticky;top:0;z-index:5;padding:14px 20px;background:#05101ef2;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.08)}
+  .back{text-decoration:none;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+  main{max-width:760px;margin:0 auto;padding:28px 20px 72px}
+  .eye{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+  h1{font-family:'Pirata One',cursive;font-weight:400;font-size:clamp(40px,11vw,72px);line-height:1;margin:10px 0 18px}
+  .desc{color:rgba(255,255,255,.82);margin-bottom:18px}
+  .tags{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .tags li{font-size:10px;letter-spacing:.08em;padding:4px 10px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:rgba(255,255,255,.75)}
+  .tech{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:18px}
+  .cta{display:inline-block;margin-bottom:26px;padding:10px 16px;border:1px solid rgba(255,255,255,.4);border-radius:999px;text-decoration:none;font-size:12px}
+  .box,.vid{display:block;width:100%;aspect-ratio:16/9;border-radius:10px;background:rgba(255,255,255,.06);margin:8px 0 26px;object-fit:cover}
+  .box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,.6)}
+  .box a{color:#fff}
+  .gal{display:grid;gap:12px;margin:8px 0 28px}
+  .gal img{width:100%;height:auto;border-radius:8px;background:rgba(255,255,255,.05);display:block}
+  details{border-top:1px solid rgba(255,255,255,.12)}
+  details:last-of-type{border-bottom:1px solid rgba(255,255,255,.12)}
+  summary{cursor:pointer;list-style:none;padding:16px 0;font-size:13px;letter-spacing:.06em;display:flex;justify-content:space-between}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:'＋'}
+  details[open] summary::after{content:'−'}
+  details p{padding:0 0 18px;color:rgba(255,255,255,.78)}
+  .nav{display:flex;justify-content:space-between;gap:16px;margin-top:36px;font-size:12px}
+  .nav a{text-decoration:none;color:rgba(255,255,255,.7)}
+  @media (min-width:700px){.gal{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="bar"><a class="back" href="index.html?s=proyectos">← Proyectos</a></header>
+<main>
+  <p class="eye">Platform · UX · Dev</p>
+  <h1>Servicio Directo CR</h1>
+  <p class="desc">Marketplace de servicios locales en Costa Rica con tres paneles independientes — proveedor, cliente y administrador. Búsqueda geolocalizada con filtro por distancia y cobertura por provincia, perfiles verificados con sistema de reviews, chat en tiempo real, cotizador con PDF, calendario de disponibilidad y pagos integrados con Tilopay. Actualmente en migración en vivo de JS vanilla a React + TypeScript sobre la misma base de producción, sin interrumpir el servicio. Logo 3D animado en Three.js que reacciona al scroll.</p>
+  <ul class="tags"><li>React</li><li>TypeScript</li><li>Supabase</li><li>Cloudflare Workers</li><li>Tilopay</li></ul>
+  <p class="tech">React · TypeScript · Vite · HTML · CSS · JS · Supabase · Cloudflare Workers · Three.js · Tilopay</p>
+  <a class="cta" href="https://serviciodirectocr.com" target="_blank" rel="noopener noreferrer">serviciodirectocr.com ↗</a>
+  <div class="box"><p>Proyecto pre-lanzamiento<br>no disponible públicamente</p><a href="mailto:javier.guzman.dlp@gmail.com">Solicitar acceso ↗</a></div>
+  <div class="gal">
+    <img src="img/gallery/sdcr/tarjeta-usuario.avif" alt="Servicio Directo CR" loading="lazy" decoding="async" width="1400" height="1000">
+    <img src="img/gallery/sdcr/colores.avif" alt="Servicio Directo CR" loading="lazy" decoding="async" width="1400" height="1000">
+    <img src="img/gallery/sdcr/tipografias-usadas.avif" alt="Servicio Directo CR" loading="lazy" decoding="async" width="1400" height="1000">
+    <img src="img/gallery/sdcr/mockup-web.avif" alt="Servicio Directo CR" loading="lazy" decoding="async" width="1400" height="1000">
+    <img src="img/gallery/sdcr/1.avif" alt="Servicio Directo CR" loading="lazy" decoding="async" width="1400" height="781">
+    <img src="img/gallery/sdcr/arquitectura-de-sitio.avif" alt="Servicio Directo CR" loading="lazy" decoding="async" width="1279" height="1600">
+    <img src="img/gallery/sdcr/foto-2.avif" alt="Servicio Directo CR" loading="lazy" decoding="async" width="1400" height="1000">
+    <img src="img/gallery/sdcr/logo-showcase.avif" alt="Servicio Directo CR" loading="lazy" decoding="async" width="1400" height="1000">
+  </div>
+  <details><summary>El problema</summary><p>Los oficios y servicios locales en Costa Rica se contratan casi siempre por recomendación de boca en boca o grupos de Facebook: no hay forma de comparar proveedores cercanos, verificar si son confiables, cotizar antes de comprometerse ni pagar de forma segura. El proveedor, por su lado, no tiene una vitrina propia — depende de referidos y pierde tiempo cotizando por WhatsApp sin ningún filtro.</p></details>
+  <details><summary>La solución</summary><p>Un marketplace con tres paneles independientes que resuelve cada lado del problema: el cliente busca por cercanía real (geolocalización + cobertura por provincia) y ve perfiles verificados con reseñas antes de contactar; el proveedor recibe solicitudes calificadas, conversa por chat, cotiza con un generador de PDF integrado, gestiona su disponibilidad en un calendario y cobra con Tilopay o SINPE sin salir de la plataforma; el admin aprueba credenciales (ICT, CFIA, CCSS, CPA), revisa documentos, modera reseñas y atiende reportes. Mensajería en tiempo real conecta a los tres roles sin fricción.</p></details>
+  <details><summary>Mi rol</summary><p>Diseñé y desarrollé la plataforma completa de punta a punta: la arquitectura de los tres paneles independientes (cliente, proveedor, admin), el flujo de verificación de proveedores (credenciales ICT, CFIA, CCSS, CPA), la búsqueda geolocalizada, la mensajería en tiempo real y la integración de pagos. También diseñé y animé el logo 3D en Three.js. Actualmente estoy liderando la migración completa del frontend a React + TypeScript en un branch paralelo, reconstruyendo cada panel (autenticación real con Supabase Auth, chat, cotizador, calendario de disponibilidad, verificación y moderación en el panel admin) sin tocar la producción en vivo. En el proceso audité las políticas de RLS de Supabase y corregí varias vulnerabilidades reales de exposición de datos que existían desde antes del rewrite.</p></details>
+  <details><summary>Stack y decisiones técnicas</summary><p>Supabase (Postgres + Auth + Realtime) para no reconstruir autenticación ni mensajería desde cero; Cloudflare Workers por su latencia baja y costo casi nulo en lógica serverless; Tilopay porque soporta SINPE, clave para el mercado costarricense; Three.js reservado solo para el logo animado, evitando cargar una librería 3D pesada en el resto del sitio; React + TypeScript + Vite para la reescritura del frontend, migrando panel por panel sobre la misma base de Supabase en producción, con verificación de tipos como red de seguridad en cada paso.</p></details>
+  <details><summary>Diagrama del sitio</summary><p><a href="proyectos/sdcr-arquitectura.html">Ver diagrama de arquitectura ↗</a></p></details>
+  <nav class="nav"><a href="index.html?s=proyectos">← Todos los proyectos</a><a href="proyecto-sikua.html">Sikua Tours →</a></nav>
+</main>
+</body>
+</html>

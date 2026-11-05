@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sikua Tours — Javier Guzmán</title>
+<meta name="description" content="Plataforma de turismo cultural Bribri en Talamanca, Costa Rica. Secuencia cinemática de scroll con más de 180 frames AVIF dibujados a mano sobre canvas (sin librerías de animación), tres tipos de tour, itinerarios armados a medida por cliente, tienda de artesanías Bribri con checkout por WhatsApp y panel admin de travel planning.">
+<meta name="theme-color" content="#051209">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Space+Mono:wght@400;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  html{background:#051209;-webkit-text-size-adjust:100%}
+  body{background:#051209;color:#fff;font:14px/1.65 'Space Mono','Courier New',monospace;min-height:100vh}
+  a{color:inherit}
+  .bar{position:sticky;top:0;z-index:5;padding:14px 20px;background:#051209f2;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.08)}
+  .back{text-decoration:none;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+  main{max-width:760px;margin:0 auto;padding:28px 20px 72px}
+  .eye{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+  h1{font-family:'Pirata One',cursive;font-weight:400;font-size:clamp(40px,11vw,72px);line-height:1;margin:10px 0 18px}
+  .desc{color:rgba(255,255,255,.82);margin-bottom:18px}
+  .tags{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .tags li{font-size:10px;letter-spacing:.08em;padding:4px 10px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:rgba(255,255,255,.75)}
+  .tech{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:18px}
+  .cta{display:inline-block;margin-bottom:26px;padding:10px 16px;border:1px solid rgba(255,255,255,.4);border-radius:999px;text-decoration:none;font-size:12px}
+  .box,.vid{display:block;width:100%;aspect-ratio:16/9;border-radius:10px;background:rgba(255,255,255,.06);margin:8px 0 26px;object-fit:cover}
+  .box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,.6)}
+  .box a{color:#fff}
+  .gal{display:grid;gap:12px;margin:8px 0 28px}
+  .gal img{width:100%;height:auto;border-radius:8px;background:rgba(255,255,255,.05);display:block}
+  details{border-top:1px solid rgba(255,255,255,.12)}
+  details:last-of-type{border-bottom:1px solid rgba(255,255,255,.12)}
+  summary{cursor:pointer;list-style:none;padding:16px 0;font-size:13px;letter-spacing:.06em;display:flex;justify-content:space-between}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:'＋'}
+  details[open] summary::after{content:'−'}
+  details p{padding:0 0 18px;color:rgba(255,255,255,.78)}
+  .nav{display:flex;justify-content:space-between;gap:16px;margin-top:36px;font-size:12px}
+  .nav a{text-decoration:none;color:rgba(255,255,255,.7)}
+  @media (min-width:700px){.gal{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="bar"><a class="back" href="index.html?s=proyectos">← Proyectos</a></header>
+<main>
+  <p class="eye">Brand · Web · Turismo</p>
+  <h1>Sikua Tours</h1>
+  <p class="desc">Plataforma de turismo cultural Bribri en Talamanca, Costa Rica. Secuencia cinemática de scroll con más de 180 frames AVIF dibujados a mano sobre canvas (sin librerías de animación), tres tipos de tour, itinerarios armados a medida por cliente, tienda de artesanías Bribri con checkout por WhatsApp y panel admin de travel planning.</p>
+  <ul class="tags"><li>Canvas API</li><li>Vanilla JS</li><li>AVIF</li><li>Cloudflare Pages</li></ul>
+  <p class="tech">HTML · CSS · JS Vanilla · Canvas API · Cloudflare Pages</p>
+  <a class="cta" href="https://sikuatours.com" target="_blank" rel="noopener noreferrer">sikuatours.com ↗</a>
+  <div class="box"><p>Demo próximamente</p></div>
+  <div class="gal">
+    <img src="img/gallery/sikua/g1.avif" alt="Sikua Tours" loading="lazy" decoding="async" width="1200" height="900">
+    <img src="img/gallery/sikua/g2.avif" alt="Sikua Tours" loading="lazy" decoding="async" width="1400" height="781">
+    <img src="img/gallery/sikua/g3.avif" alt="Sikua Tours" loading="lazy" decoding="async" width="1200" height="994">
+    <img src="img/gallery/sikua/g4.avif" alt="Sikua Tours" loading="lazy" decoding="async" width="675" height="1200">
+    <img src="img/gallery/sikua/g5.avif" alt="Sikua Tours" loading="lazy" decoding="async" width="1400" height="1050">
+    <img src="img/gallery/sikua/g6.avif" alt="Sikua Tours" loading="lazy" decoding="async" width="900" height="1200">
+    <img src="img/gallery/sikua/g7.avif" alt="Sikua Tours" loading="lazy" decoding="async" width="1400" height="781">
+    <img src="img/gallery/sikua/g8.avif" alt="Sikua Tours" loading="lazy" decoding="async" width="900" height="1200">
+  </div>
+  <details><summary>El problema</summary><p>El turismo cultural Bribri en Talamanca dependía casi por completo de operadores intermediarios: la comunidad no tenía una vitrina digital propia para mostrar sus tours, itinerarios y artesanías, y quien buscaba la experiencia en internet solo encontraba paquetes genéricos de agencias externas, sin poder armar un recorrido a su medida ni comprarle directo a la comunidad.</p></details>
+  <details><summary>La solución</summary><p>Un sitio-experiencia que arranca con una secuencia cinemática de scroll (180+ frames dibujados a mano) para transmitir el territorio antes de cualquier texto, y que resuelve todo el recorrido sin salir de la página: tres tipos de tour, un itinerario que el cliente arma a su medida, confirmación directa por WhatsApp con el guía, y una tienda de artesanías Bribri con checkout también por WhatsApp — todo coordinado desde un panel admin de travel planning para la comunidad.</p></details>
+  <details><summary>Mi rol</summary><p>Diseñé y construí toda la experiencia: dirigí el guion visual de la secuencia cinemática (qué mostrar en cada tramo del scroll), organicé los 180+ frames AVIF dibujados a mano y desarrollé la lógica de scroll-scrubbing en canvas sin librerías de animación. También diseñé el flujo de itinerario a medida y la tienda de artesanías.</p></details>
+  <details><summary>Stack y decisiones técnicas</summary><p>Canvas API + JS vanilla en vez de una librería de animación, para tener control total del scroll-scrubbing y mantener el peso de página bajo pese a 180+ frames; AVIF por su compresión muy superior a JPEG/WebP en secuencias de imagen; Cloudflare Pages porque el sitio no necesita backend propio — las reservas y compras se resuelven directo por WhatsApp.</p></details>
+  <details><summary>Diagrama del sitio</summary><p><a href="proyectos/sikua-arquitectura.html">Ver diagrama de arquitectura ↗</a></p></details>
+  <nav class="nav"><a href="index.html?s=proyectos">← Todos los proyectos</a><a href="proyecto-fragancia.html">Fragancia Urbana →</a></nav>
+</main>
+</body>
+</html>

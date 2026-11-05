@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fragancia Urbana — Javier Guzmán</title>
+<meta name="description" content="Tienda de perfumería de lujo con estética dark gold. Isotipo 3D animado desde Blender/GLB, transiciones GSAP entre páginas y pagos con SINPE Móvil.">
+<meta name="theme-color" content="#120f04">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Space+Mono:wght@400;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  html{background:#120f04;-webkit-text-size-adjust:100%}
+  body{background:#120f04;color:#fff;font:14px/1.65 'Space Mono','Courier New',monospace;min-height:100vh}
+  a{color:inherit}
+  .bar{position:sticky;top:0;z-index:5;padding:14px 20px;background:#120f04f2;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.08)}
+  .back{text-decoration:none;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+  main{max-width:760px;margin:0 auto;padding:28px 20px 72px}
+  .eye{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+  h1{font-family:'Pirata One',cursive;font-weight:400;font-size:clamp(40px,11vw,72px);line-height:1;margin:10px 0 18px}
+  .desc{color:rgba(255,255,255,.82);margin-bottom:18px}
+  .tags{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .tags li{font-size:10px;letter-spacing:.08em;padding:4px 10px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:rgba(255,255,255,.75)}
+  .tech{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:18px}
+  .cta{display:inline-block;margin-bottom:26px;padding:10px 16px;border:1px solid rgba(255,255,255,.4);border-radius:999px;text-decoration:none;font-size:12px}
+  .box,.vid{display:block;width:100%;aspect-ratio:16/9;border-radius:10px;background:rgba(255,255,255,.06);margin:8px 0 26px;object-fit:cover}
+  .box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,.6)}
+  .box a{color:#fff}
+  .gal{display:grid;gap:12px;margin:8px 0 28px}
+  .gal img{width:100%;height:auto;border-radius:8px;background:rgba(255,255,255,.05);display:block}
+  details{border-top:1px solid rgba(255,255,255,.12)}
+  details:last-of-type{border-bottom:1px solid rgba(255,255,255,.12)}
+  summary{cursor:pointer;list-style:none;padding:16px 0;font-size:13px;letter-spacing:.06em;display:flex;justify-content:space-between}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:'＋'}
+  details[open] summary::after{content:'−'}
+  details p{padding:0 0 18px;color:rgba(255,255,255,.78)}
+  .nav{display:flex;justify-content:space-between;gap:16px;margin-top:36px;font-size:12px}
+  .nav a{text-decoration:none;color:rgba(255,255,255,.7)}
+  @media (min-width:700px){.gal{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="bar"><a class="back" href="index.html?s=proyectos">← Proyectos</a></header>
+<main>
+  <p class="eye">E-commerce · 3D · Luxury</p>
+  <h1>Fragancia Urbana</h1>
+  <p class="desc">Tienda de perfumería de lujo con estética dark gold. Isotipo 3D animado desde Blender/GLB, transiciones GSAP entre páginas y pagos con SINPE Móvil.</p>
+  <ul class="tags"><li>E-commerce</li><li>Three.js</li><li>GSAP</li><li>SINPE Móvil</li></ul>
+  <p class="tech">HTML · CSS · JS · Three.js · GSAP · Cloudflare Pages</p>
+  
+  <video class="vid" src="videos/fragancia.mp4" muted loop playsinline controls preload="none" onerror="this.outerHTML='&lt;div class=&quot;box&quot;&gt;&lt;p&gt;Demo próximamente&lt;/p&gt;&lt;/div&gt;'"></video>
+  <div class="gal">
+    <img src="img/gallery/fragancia/g1.avif" alt="Fragancia Urbana" loading="lazy" decoding="async" width="1440" height="1800">
+    <img src="img/gallery/fragancia/g2.avif" alt="Fragancia Urbana" loading="lazy" decoding="async" width="1800" height="1440">
+    <img src="img/gallery/fragancia/g3.avif" alt="Fragancia Urbana" loading="lazy" decoding="async" width="1800" height="1200">
+    <img src="img/gallery/fragancia/g4.avif" alt="Fragancia Urbana" loading="lazy" decoding="async" width="1350" height="1800">
+    <img src="img/gallery/fragancia/g5.avif" alt="Fragancia Urbana" loading="lazy" decoding="async" width="1352" height="1800">
+    <img src="img/gallery/fragancia/g6.avif" alt="Fragancia Urbana" loading="lazy" decoding="async" width="1800" height="831">
+    <img src="img/gallery/fragancia/g7.avif" alt="Fragancia Urbana" loading="lazy" decoding="async" width="1800" height="1010">
+    <img src="img/gallery/fragancia/g8.avif" alt="Fragancia Urbana" loading="lazy" decoding="async" width="1440" height="1800">
+  </div>
+  <details><summary>El problema</summary><p>Comprar un perfume de nicho a ciegas es caro y arriesgado: un frasco completo cuesta mucho para &quot;probar&quot; si una fragancia le queda bien a alguien, y en Costa Rica no había una tienda que resolviera ese problema con un método de pago simple y directo — sin pasarelas complicadas ni tarjetas internacionales.</p></details>
+  <details><summary>La solución</summary><p>Una tienda que separa cada perfume en dos formatos — frasco completo o decant (muestra en mililitros a precio accesible) — organizada por catálogo de hombre y mujer, con una sección educativa (&quot;¿Qué es un decant?&quot;) que resuelve la duda antes de comprar. El checkout es deliberadamente manual: pago único por SINPE Móvil y confirmación por WhatsApp, reforzado en cada página por un isotipo 3D dorado (Blender → GLB, Three.js) que gira con el scroll y transiciones GSAP que sostienen la estética &quot;dark gold&quot; de lujo.</p></details>
+  <details><summary>Mi rol</summary><p>Diseñé la identidad &quot;dark gold&quot; de la marca, modelé el isotipo 3D en Blender y lo integré con Three.js, y construí toda la tienda: catálogo segmentado por género, el sistema de decants vs. frasco completo, y el checkout manual por SINPE Móvil.</p></details>
+  <details><summary>Stack y decisiones técnicas</summary><p>Three.js solo para el isotipo animado, mismo enfoque liviano que en Servicio Directo CR; GSAP para las transiciones entre páginas, sosteniendo la estética premium sin saltos bruscos; sin pasarela de pago automatizada — decisión deliberada de usar SINPE Móvil + confirmación manual por WhatsApp, evitando comisiones y simplificando el pago para el mercado costarricense.</p></details>
+  <details><summary>Diagrama del sitio</summary><p><a href="proyectos/fragancia-arquitectura.html">Ver diagrama de arquitectura ↗</a></p></details>
+  <nav class="nav"><a href="index.html?s=proyectos">← Todos los proyectos</a><a href="proyecto-pame.html">Pame Salón →</a></nav>
+</main>
+</body>
+</html>

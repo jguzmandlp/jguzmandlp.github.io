@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pame Salón — Javier Guzmán</title>
+<meta name="description" content="Identidad y sitio web para salón en Moravia. Mariposa 3D con GLB desde Blender, paleta hot pink, tipografía Great Vibes / Poppins.">
+<meta name="theme-color" content="#14050d">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Space+Mono:wght@400;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  html{background:#14050d;-webkit-text-size-adjust:100%}
+  body{background:#14050d;color:#fff;font:14px/1.65 'Space Mono','Courier New',monospace;min-height:100vh}
+  a{color:inherit}
+  .bar{position:sticky;top:0;z-index:5;padding:14px 20px;background:#14050df2;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.08)}
+  .back{text-decoration:none;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+  main{max-width:760px;margin:0 auto;padding:28px 20px 72px}
+  .eye{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+  h1{font-family:'Pirata One',cursive;font-weight:400;font-size:clamp(40px,11vw,72px);line-height:1;margin:10px 0 18px}
+  .desc{color:rgba(255,255,255,.82);margin-bottom:18px}
+  .tags{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .tags li{font-size:10px;letter-spacing:.08em;padding:4px 10px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:rgba(255,255,255,.75)}
+  .tech{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:18px}
+  .cta{display:inline-block;margin-bottom:26px;padding:10px 16px;border:1px solid rgba(255,255,255,.4);border-radius:999px;text-decoration:none;font-size:12px}
+  .box,.vid{display:block;width:100%;aspect-ratio:16/9;border-radius:10px;background:rgba(255,255,255,.06);margin:8px 0 26px;object-fit:cover}
+  .box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,.6)}
+  .box a{color:#fff}
+  .gal{display:grid;gap:12px;margin:8px 0 28px}
+  .gal img{width:100%;height:auto;border-radius:8px;background:rgba(255,255,255,.05);display:block}
+  details{border-top:1px solid rgba(255,255,255,.12)}
+  details:last-of-type{border-bottom:1px solid rgba(255,255,255,.12)}
+  summary{cursor:pointer;list-style:none;padding:16px 0;font-size:13px;letter-spacing:.06em;display:flex;justify-content:space-between}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:'＋'}
+  details[open] summary::after{content:'−'}
+  details p{padding:0 0 18px;color:rgba(255,255,255,.78)}
+  .nav{display:flex;justify-content:space-between;gap:16px;margin-top:36px;font-size:12px}
+  .nav a{text-decoration:none;color:rgba(255,255,255,.7)}
+  @media (min-width:700px){.gal{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="bar"><a class="back" href="index.html?s=proyectos">← Proyectos</a></header>
+<main>
+  <p class="eye">Brand · Web</p>
+  <h1>Pame Salón</h1>
+  <p class="desc">Identidad y sitio web para salón en Moravia. Mariposa 3D con GLB desde Blender, paleta hot pink, tipografía Great Vibes / Poppins.</p>
+  <ul class="tags"><li>Brand</li><li>Three.js</li><li>GSAP</li><li>Web</li></ul>
+  <p class="tech">HTML · CSS · JS · Three.js · GSAP</p>
+  
+  <video class="vid" src="videos/pame.mp4" muted loop playsinline controls preload="none" onerror="this.outerHTML='&lt;div class=&quot;box&quot;&gt;&lt;p&gt;Demo próximamente&lt;/p&gt;&lt;/div&gt;'"></video>
+  
+  
+  
+  <nav class="nav"><a href="index.html?s=proyectos">← Todos los proyectos</a><a href="proyecto-orozco.html">Dra. Orozco →</a></nav>
+</main>
+</body>
+</html>
