@@ -3027,13 +3027,18 @@ PROJECTS.forEach((p, i) => {
   el.setAttribute('role', 'button');
   el.setAttribute('aria-label', I18N.t('Ver proyecto') + ': ' + p.name);
 
+  /* Proyectos con case study propio: abren su página completa en vez del panel de galería. */
+  const CASE_STUDY_PAGE = { fragancia: 'proyecto-fragancia.html' }[p.id];
   el.addEventListener('click', e => {
     e.stopPropagation();
-    if (!dragMoved) openProject(i);
+    if (dragMoved) return;
+    if (CASE_STUDY_PAGE) { window.location.href = CASE_STUDY_PAGE; return; }
+    openProject(i);
   });
   el.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
+      if (CASE_STUDY_PAGE) { window.location.href = CASE_STUDY_PAGE; return; }
       openProject(i);
     }
   });
