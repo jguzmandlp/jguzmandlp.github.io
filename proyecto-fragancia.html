@@ -240,6 +240,7 @@
   .d-n{ flex:0 0 28px; height:28px; border-radius:50%; background:var(--navy); color:#fff; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; }
   .draft-note{ font-size:12.5px !important; color:#b45309 !important; background:#fef3c7; border-radius:8px; padding:6px 10px; width:fit-content; }
   .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:8px; }
+  .stats-3{ grid-template-columns:repeat(3,1fr); }
   .stat{ border:1.5px solid var(--line); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:4px; }
   .stat b{ font-size:32px; font-weight:800; color:var(--navy); }
   .stat span{ font-size:13px; color:var(--gray); }
@@ -885,12 +886,16 @@ document.documentElement.style.setProperty('--shader-opacity', HERO_SHADER_CONFI
         <div class="stats">
           <div class="stat"><b>99</b><span>Rendimiento en escritorio</span></div>
           <div class="stat"><b>94</b><span>Rendimiento en móvil (mejor corrida)</span></div>
-          <div class="stat"><b>100</b><span>Accesibilidad, mejores prácticas y SEO</span></div>
-          <div class="stat"><b>0</b><span>Cambios de diseño (CLS)</span></div>
-        </div>
-        <div class="stats" style="margin-top:14px;">
           <div class="stat"><b>1,8 s</b><span>Elemento principal (LCP), escritorio</span></div>
           <div class="stat"><b>110 ms</b><span>Bloqueo total (TBT), escritorio</span></div>
+        </div>
+        <div class="stats stats-3" style="margin-top:14px;">
+          <div class="stat"><b>100</b><span>Accesibilidad</span></div>
+          <div class="stat"><b>100</b><span>Mejores prácticas</span></div>
+          <div class="stat"><b>100</b><span>SEO</span></div>
+        </div>
+        <div class="stats stats-3" style="margin-top:14px;">
+          <div class="stat"><b>0</b><span>Cambios de diseño (CLS)</span></div>
           <div class="stat"><b>3/3</b><span>Navegación con agentes de IA</span></div>
           <div class="stat"><b>2.439</b><span>Fichas de producto con datos estructurados</span></div>
         </div>
