@@ -1189,7 +1189,7 @@
 #contact-panel-0 { z-index:1; }
 #contact-panel-1 {
   z-index:2;
-  background:#060606; /* respaldo opaco mientras carga/si no hay WebGL2 */
+  background:#060606; /* respaldo opaco mientras carga / si no hay WebGL2 */
   overflow:hidden;
 }
 #contact-cloud-canvas {
@@ -1261,17 +1261,16 @@
   color:rgba(255,255,255,.55);
   transition:color .25s;
 }
-.contact-icon-item:hover { color:#fff; }
+.contact-icon-item:hover { color:#22c55e; }
 .contact-icon-circle {
   width:64px; height:64px; border-radius:50%;
-  background:#fff; color:#111;
-  border:1px solid rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,.18);
   display:flex; align-items:center; justify-content:center;
-  transition:border-color .25s, color .25s;
+  transition:border-color .25s, background .25s;
 }
 .contact-icon-circle svg { width:24px; height:24px; }
 .contact-icon-item:hover .contact-icon-circle {
-  border-color:#22c55e; color:#22c55e;
+  border-color:#22c55e; background:rgba(34,197,94,.12);
 }
 .contact-icon-label {
   font-size:10px; letter-spacing:.03em; max-width:160px;
@@ -1279,25 +1278,25 @@
 }
 .contact-icon-item:hover .contact-icon-label { color:rgba(255,255,255,.8); }
 .contact-location {
-  font-size:10px; color:rgba(255,255,255,.2);
+  font-size:10px; color:rgba(255,255,255,.85);
   margin-top:4px; letter-spacing:.05em;
 }
 .contact-footer {
   position:absolute; bottom:0; left:0; width:100%;
   padding:24px 80px;
-  border-top:1px solid rgba(255,255,255,.06);
+  border-top:1px solid rgba(0,0,0,.08);
   display:flex; justify-content:space-between; align-items:center;
-  /* Sin esto hereda el fondo negro de la regla global "footer{}" (para
-     el footer real del sitio) por ser también una etiqueta <footer> —
-     tapaba el panel-1 blanco de Contacto justo donde vive este texto. */
-  background:transparent;
+  /* Franja clara (según Figma) para que el footer se lea sobre el fondo
+     de nubes, en vez de heredar el fondo negro de la regla global
+     "footer{}" del footer real del sitio. */
+  background:rgba(255,255,255,.1);
 }
 .f-name {
   font-family:'UnifrakturMaguntia',cursive;
-  font-size:16px; color:rgba(255,255,255,.3);
+  font-size:16px; color:rgba(0,0,0,.5);
 }
 .f-copy {
-  font-size:9px; color:rgba(255,255,255,.15); letter-spacing:.1em;
+  font-size:9px; color:#000; letter-spacing:.1em;
 }
 
 /* ── Responsive about + contact ── */
@@ -1721,7 +1720,7 @@
   var canvas = document.getElementById('contact-cloud-canvas');
   if (!canvas) return;
   var gl = canvas.getContext('webgl2', { antialias:false, alpha:false, premultipliedAlpha:false });
-  if (!gl) return; // sin WebGL2 el panel se queda con el fondo oscuro sólido de respaldo
+  if (!gl) return;
 
   var vertexSrc = [
     '#version 300 es',
@@ -1861,7 +1860,6 @@
   }
   gl.useProgram(program);
 
-  // Quad de pantalla completa (2 triángulos vía TRIANGLE_STRIP)
   var quad = new Float32Array([
     -1, -1, 0, 1,   0, 0,
      1, -1, 0, 1,   1, 0,
@@ -1893,7 +1891,6 @@
     alpha: gl.getUniformLocation(program, 'alpha')
   };
 
-  // Valores del JSON que mandaste
   var colors = new Float32Array([
     0.03137254901960784, 0.1411764705882353, 0.6862745098039216, 1,
     0.00784313725490196, 0, 0.5019607843137255, 1
@@ -1907,8 +1904,6 @@
   gl.uniform1f(uniforms.coverage, 0.276);
   gl.uniform1f(uniforms.alpha, 1);
 
-  // Resolución del canvas: dpr limitado a 1.5 para aliviar la carga del shader
-  // (este shader hace varias pasadas de ruido fbm por píxel — es pesado).
   var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   function resize() {
     var rect = canvas.parentElement.getBoundingClientRect();
@@ -1930,7 +1925,7 @@
 
   var start = performance.now();
   var lastFrame = 0;
-  var FRAME_INTERVAL = 1000 / 30; // ~30fps: de sobra para nubes que se mueven lento, más liviano para la página
+  var FRAME_INTERVAL = 1000 / 30;
 
   function draw(now) {
     requestAnimationFrame(draw);
@@ -3219,11 +3214,12 @@ const PROJECTS = [
     ] }
 ];
 
-/* ── Estado ── */
 /* Proyectos ya publicados: solo estos abren su página al hacer click.
    Los demás muestran un aviso de "en construcción" — se van agregando acá
    a medida que cada case study queda listo para publicarse. */
 const READY_PROJECTS = new Set(['fragancia']);
+
+/* ── Estado ── */
 let appState = 'stack';
 let leaveTimer = null;
 let openIdx  = null;
@@ -3292,8 +3288,7 @@ PROJECTS.forEach((p, i) => {
 
   el.setAttribute('tabindex', '0');
   el.setAttribute('role', 'button');
-  el.setAttribute('aria-label', I18N.t('Ver proyecto') + ': ' + p.name
-    + (READY_PROJECTS.has(p.id) ? '' : ' (' + (I18N.lang() === 'en' ? 'coming soon' : 'en construcción') + ')'));
+  el.setAttribute('aria-label', I18N.t('Ver proyecto') + ': ' + p.name + (READY_PROJECTS.has(p.id) ? '' : ' (' + (I18N.lang() === 'en' ? 'coming soon' : 'en construcción') + ')'));
 
   /* Proyectos con case study propio: abren su página completa en vez del panel de galería. */
   const CASE_STUDY_PAGE = { fragancia: 'proyecto-fragancia.html' }[p.id];
