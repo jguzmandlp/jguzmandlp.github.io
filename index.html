@@ -989,21 +989,13 @@
    negro→transparente (izquierda sólida donde va el texto, derecha
    transparente donde se ve la cara) — valores ajustados a mano probando
    en un mockup aislado antes de aplicarlos acá. */
-.about-bg { position:absolute; inset:0; z-index:0; overflow:hidden; }
+.about-bg { display:none; }
 .about-bg img {
   position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
   transform:scale(1.8) translate(-12%, 4%);
   transform-origin:center center;
 }
-.about-fade {
-  position:absolute; inset:0; z-index:1;
-  background:linear-gradient(90deg,
-    rgba(6,6,6,1) 0%,
-    rgba(6,6,6,1) 20%,
-    rgba(6,6,6,.32) 42%,
-    rgba(6,6,6,0) 68%,
-    rgba(6,6,6,0) 100%);
-}
+.about-fade { display:none; }
 
 /* Layout interior */
 .about-inner {
@@ -1029,7 +1021,16 @@
 /* Párrafo continuo, sin saltos manuales: el navegador reparte las palabras
    dentro del ancho de la columna y justifica pareja como en InDesign
    (última línea de cada párrafo queda alineada a la izquierda) */
-.about-left { flex:0 0 290px; max-width:290px; }
+.about-left { flex:0 0 420px; max-width:420px; }
+.about-header { display:flex; align-items:center; gap:20px; margin-bottom:20px; }
+.about-avatar {
+  flex:0 0 104px; width:104px; height:104px; border-radius:50%;
+  overflow:hidden; background:#111;
+}
+.about-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+.about-header-text { display:flex; flex-direction:column; }
+.about-header .about-eye { margin-bottom:6px; }
+.about-header .about-title { margin-bottom:0; }
 .about-p {
   font-size:12px; line-height:1.85; letter-spacing:0; word-spacing:-1.5px;
   color:rgba(255,255,255,.5);
@@ -1042,14 +1043,6 @@
 /* La columna donde antes iba el recuadro de foto ahora queda vacía
    (spacer) para que el texto y "Habilidades" mantengan la misma
    posición — la foto real vive de fondo detrás de toda la sección. */
-.about-photo {
-  flex:0 0 330px; width:330px;
-}
-.about-photo-placeholder {
-  font-size:9px; letter-spacing:.2em; text-transform:uppercase;
-  color:rgba(255,255,255,.25); text-align:center; padding:0 20px;
-}
-
 /* ── Bloques desplegables (Habilidades / Certificados): tercera columna
    flexible que se centra dentro del espacio que le queda a la derecha
    de texto + foto (nunca se superpone) ── */
@@ -1199,8 +1192,11 @@
   z-index:0;
   pointer-events:none;
 }
-#contact-panel-1 > :not(#contact-cloud-canvas) {
+#contact-panel-1 > :not(#contact-cloud-canvas):not(.contact-footer) {
   position:relative; z-index:1;
+}
+#contact-panel-1 .contact-footer {
+  z-index:1; /* ya es position:absolute (bottom:0) desde su propia regla; esto solo la sube sobre el canvas */
 }
 
 .contact-logo { margin-bottom:28px; display:flex; justify-content:center; }
@@ -1274,11 +1270,10 @@
 }
 .contact-icon-label {
   font-size:10px; letter-spacing:.03em; max-width:160px;
-  color:rgba(255,255,255,.4);
+  color:#fff;
 }
-.contact-icon-item:hover .contact-icon-label { color:rgba(255,255,255,.8); }
 .contact-location {
-  font-size:10px; color:rgba(255,255,255,.85);
+  font-size:10px; color:#fff;
   margin-top:4px; letter-spacing:.05em;
 }
 .contact-footer {
@@ -1304,7 +1299,6 @@
   .about-inner { gap:40px; padding:40px 28px; }
   .about-top { flex-direction:column; gap:28px; }
   .about-left { flex-basis:auto; max-width:100%; }
-  .about-photo { flex-basis:auto; width:100%; max-width:330px; }
   .about-p { text-align:left; }
   .about-right { width:100%; min-width:0; margin-top:8px; }
   .contact-panel { padding:40px 28px; }
@@ -1545,8 +1539,13 @@
     <div class="about-top">
       <!-- Columna izquierda: texto, saltos forzados a 7 palabras por línea -->
       <div class="about-left">
-        <span class="about-eye">Quién soy</span>
-        <h2 class="about-title">Sobre mí</h2>
+        <div class="about-header">
+          <div class="about-avatar"><img src="img/about/javier-about.avif" alt="Javier Guzmán" width="104" height="104" loading="lazy" decoding="async"></div>
+          <div class="about-header-text">
+            <span class="about-eye">Quién soy</span>
+            <h2 class="about-title">Sobre mí</h2>
+          </div>
+        </div>
         <p class="about-p">Empecé mi carrera en el diseño gráfico y la gestión cultural, liderando proyectos y circuitos de arte público galardonados a nivel nacional. Trabajar a gran escala me enseñó a coordinar procesos complejos, cuidar cada detalle visual y, sobre todo, diseñar pensando siempre en la experiencia de las personas.</p>
         <p class="about-p">Hoy aplico esa misma visión estratégica al entorno digital como Diseñador UX/UI y Desarrollador Web. Integro el pensamiento visual, herramientas de prototipado y desarrollo frontend para construir sitios web e interfaces intuitivas, escalables y orientadas a resultados.</p>
         <p class="about-p">Creo en el diseño con propósito y en las soluciones digitales que transmiten historias auténticas.</p>
@@ -1556,7 +1555,6 @@
       <!-- Columna vacía: reserva el mismo ancho que antes ocupaba el
            recuadro de foto. La foto real ahora es fondo de toda la
            sección (ver .about-bg más arriba). -->
-      <div class="about-photo"></div>
 
       <!-- Habilidades y Certificados, desplegables, centrados en la página -->
       <div class="about-right">
@@ -3095,6 +3093,64 @@ revealEls.forEach(el=>io.observe(el));
 <!-- ── PROJECTS INTERACTIVE JS ── -->
 <script>
 const PROJECTS = [
+{ id:'pame',     name:'Pame Salón',            role:'Brand · Web',
+    color:'#14050d', grad:'linear-gradient(135deg,#150510,#360d22)', accent:'#5a1535',
+    tags:['Brand','Three.js','GSAP','Web'],
+    desc:'Identidad y sitio web para salón en Moravia. Mariposa 3D con GLB desde Blender, paleta hot pink, tipografía Great Vibes / Poppins.',
+    tech:'HTML · CSS · JS · Three.js · GSAP', url:null,
+    video:'videos/pame.mp4',
+    gallery:[
+      'https://picsum.photos/seed/hair-salon-16/800/1067',
+      'https://picsum.photos/seed/hairstyle-17/800/1067',
+      'https://picsum.photos/seed/beauty-salon-18/800/1067',
+      'https://picsum.photos/seed/haircut-19/800/1067',
+      'https://picsum.photos/seed/hairdresser-20/800/1067',
+      'https://picsum.photos/seed/salon-chair-21/800/1067',
+      'https://picsum.photos/seed/hairbrush-22/800/1067',
+      'https://picsum.photos/seed/salon-mirror-23/800/1067'
+    ] },
+  { id:'orozco',   name:'Dra. Orozco',           role:'Web · Booking · Dashboard',
+    color:'#08140a', grad:'linear-gradient(135deg,#081408,#152e18)', accent:'#2a5a30',
+    tags:['Booking','Dashboard','GSAP','WhatsApp'],
+    desc:'Sitio para nutricionista con sistema de reservas, dashboard de cliente, panel admin y animaciones GSAP. WhatsApp CTA integrado para consultas.',
+    tech:'HTML · CSS · JS · GSAP · localStorage', url:null,
+    video:'videos/orozco.mp4', logo:'img/logos/orozco-logo.svg', cardBg:'#ffffff',
+    gallery:[
+      'img/gallery/orozco/g1.avif',
+      'img/gallery/orozco/g2.avif',
+      'img/gallery/orozco/g3.avif',
+      'img/gallery/orozco/g4.avif',
+      'img/gallery/orozco/g5.avif',
+      'img/gallery/orozco/g6.avif',
+      'img/gallery/orozco/g7.avif',
+      'img/gallery/orozco/g8.avif'
+    ],
+    problem:'Quienes buscaban ayuda nutricional llegaban con historias muy distintas — bajar grasa sin perder músculo, controlar diabetes o resistencia a la insulina, o simplemente no saber cómo comer de forma equilibrada — pero se topaban con planes genéricos en papel, sin acompañamiento real ni un camino claro entre "solo quiero un plan" y "quiero resultados más rápidos con entrenamiento supervisado".',
+    solution:'Una landing que arranca validando esas situaciones ("¿te identificas con alguna de estas?") antes de vender nada, presenta dos caminos claros — nutrición sola o nutrición + gimnasio exclusivo — y los lleva a un sistema de reservas real: login/registro, agenda con selección de fecha y hora, y un dashboard de cliente con próxima cita, historial y membresía. Del otro lado, la doctora tiene su propio panel privado para gestionar horarios, bloquear días y llevar la ficha de cada paciente (peso, notas de seguimiento). Beneficios, testimonios y FAQ resuelven las objeciones sin que el usuario tenga que buscarlas.',
+    diagram:'proyectos/orozco-arquitectura.html',
+    myRole:'Diseñé el sitio completo — landing, identidad visual y el sistema de reservas (login, agenda con calendario, dashboard de cliente) — y también el panel privado de administración para la doctora, con gestión de horarios, días bloqueados y ficha de paciente.',
+    stackNotes:'JS vanilla + GSAP para las animaciones, sin el overhead de un framework: es el sitio de una sola profesional, no la complejidad de una plataforma multi-usuario; localStorage para persistir sesión y datos del sistema de reservas sin necesitar backend con base de datos, manteniendo el hosting gratuito.' },
+  { id:'fragancia',name:'Fragancia Urbana',     role:'E-commerce · 3D · Luxury',
+    color:'#120f04', grad:'linear-gradient(135deg,#130f04,#2e2508)', accent:'#5a4a18',
+    tags:['E-commerce','Three.js','GSAP','SINPE Móvil'],
+    desc:'Tienda de perfumería de lujo con estética dark gold. Isotipo 3D animado desde Blender/GLB, transiciones GSAP entre páginas y pagos con SINPE Móvil.',
+    tech:'HTML · CSS · JS · Three.js · GSAP · Cloudflare Pages', url:null,
+    video:'videos/fragancia.mp4', logo:'img/logos/fragancia-logo.jpg', cardBg:'#000000',
+    gallery:[
+      'img/gallery/fragancia/g1.avif',
+      'img/gallery/fragancia/g2.avif',
+      'img/gallery/fragancia/g3.avif',
+      'img/gallery/fragancia/g4.avif',
+      'img/gallery/fragancia/g5.avif',
+      'img/gallery/fragancia/g6.avif',
+      'img/gallery/fragancia/g7.avif',
+      'img/gallery/fragancia/g8.avif'
+    ],
+    problem:'Comprar un perfume de nicho a ciegas es caro y arriesgado: un frasco completo cuesta mucho para "probar" si una fragancia le queda bien a alguien, y en Costa Rica no había una tienda que resolviera ese problema con un método de pago simple y directo — sin pasarelas complicadas ni tarjetas internacionales.',
+    solution:'Una tienda que separa cada perfume en dos formatos — frasco completo o decant (muestra en mililitros a precio accesible) — organizada por catálogo de hombre y mujer, con una sección educativa ("¿Qué es un decant?") que resuelve la duda antes de comprar. El checkout es deliberadamente manual: pago único por SINPE Móvil y confirmación por WhatsApp, reforzado en cada página por un isotipo 3D dorado (Blender → GLB, Three.js) que gira con el scroll y transiciones GSAP que sostienen la estética "dark gold" de lujo.',
+    diagram:'proyectos/fragancia-arquitectura.html',
+    myRole:'Diseñé la identidad "dark gold" de la marca, modelé el isotipo 3D en Blender y lo integré con Three.js, y construí toda la tienda: catálogo segmentado por género, el sistema de decants vs. frasco completo, y el checkout manual por SINPE Móvil.',
+    stackNotes:'Three.js solo para el isotipo animado, mismo enfoque liviano que en Servicio Directo CR; GSAP para las transiciones entre páginas, sosteniendo la estética premium sin saltos bruscos; sin pasarela de pago automatizada — decisión deliberada de usar SINPE Móvil + confirmación manual por WhatsApp, evitando comisiones y simplificando el pago para el mercado costarricense.' },
   { id:'sdcr',     name:'Servicio Directo CR', role:'Platform · UX · Dev',
     color:'#05101e', grad:'linear-gradient(135deg,#060e1a,#0f1e3a)', accent:'#163a60',
     tags:['React','TypeScript','Supabase','Cloudflare Workers','Tilopay'],
@@ -3138,64 +3194,6 @@ const PROJECTS = [
     diagram:'proyectos/sikua-arquitectura.html',
     myRole:'Diseñé y construí toda la experiencia: dirigí el guion visual de la secuencia cinemática (qué mostrar en cada tramo del scroll), organicé los 180+ frames AVIF dibujados a mano y desarrollé la lógica de scroll-scrubbing en canvas sin librerías de animación. También diseñé el flujo de itinerario a medida y la tienda de artesanías.',
     stackNotes:'Canvas API + JS vanilla en vez de una librería de animación, para tener control total del scroll-scrubbing y mantener el peso de página bajo pese a 180+ frames; AVIF por su compresión muy superior a JPEG/WebP en secuencias de imagen; Cloudflare Pages porque el sitio no necesita backend propio — las reservas y compras se resuelven directo por WhatsApp.' },
-  { id:'fragancia',name:'Fragancia Urbana',     role:'E-commerce · 3D · Luxury',
-    color:'#120f04', grad:'linear-gradient(135deg,#130f04,#2e2508)', accent:'#5a4a18',
-    tags:['E-commerce','Three.js','GSAP','SINPE Móvil'],
-    desc:'Tienda de perfumería de lujo con estética dark gold. Isotipo 3D animado desde Blender/GLB, transiciones GSAP entre páginas y pagos con SINPE Móvil.',
-    tech:'HTML · CSS · JS · Three.js · GSAP · Cloudflare Pages', url:null,
-    video:'videos/fragancia.mp4', logo:'img/logos/fragancia-logo.jpg', cardBg:'#000000',
-    gallery:[
-      'img/gallery/fragancia/g1.avif',
-      'img/gallery/fragancia/g2.avif',
-      'img/gallery/fragancia/g3.avif',
-      'img/gallery/fragancia/g4.avif',
-      'img/gallery/fragancia/g5.avif',
-      'img/gallery/fragancia/g6.avif',
-      'img/gallery/fragancia/g7.avif',
-      'img/gallery/fragancia/g8.avif'
-    ],
-    problem:'Comprar un perfume de nicho a ciegas es caro y arriesgado: un frasco completo cuesta mucho para "probar" si una fragancia le queda bien a alguien, y en Costa Rica no había una tienda que resolviera ese problema con un método de pago simple y directo — sin pasarelas complicadas ni tarjetas internacionales.',
-    solution:'Una tienda que separa cada perfume en dos formatos — frasco completo o decant (muestra en mililitros a precio accesible) — organizada por catálogo de hombre y mujer, con una sección educativa ("¿Qué es un decant?") que resuelve la duda antes de comprar. El checkout es deliberadamente manual: pago único por SINPE Móvil y confirmación por WhatsApp, reforzado en cada página por un isotipo 3D dorado (Blender → GLB, Three.js) que gira con el scroll y transiciones GSAP que sostienen la estética "dark gold" de lujo.',
-    diagram:'proyectos/fragancia-arquitectura.html',
-    myRole:'Diseñé la identidad "dark gold" de la marca, modelé el isotipo 3D en Blender y lo integré con Three.js, y construí toda la tienda: catálogo segmentado por género, el sistema de decants vs. frasco completo, y el checkout manual por SINPE Móvil.',
-    stackNotes:'Three.js solo para el isotipo animado, mismo enfoque liviano que en Servicio Directo CR; GSAP para las transiciones entre páginas, sosteniendo la estética premium sin saltos bruscos; sin pasarela de pago automatizada — decisión deliberada de usar SINPE Móvil + confirmación manual por WhatsApp, evitando comisiones y simplificando el pago para el mercado costarricense.' },
-  { id:'pame',     name:'Pame Salón',            role:'Brand · Web',
-    color:'#14050d', grad:'linear-gradient(135deg,#150510,#360d22)', accent:'#5a1535',
-    tags:['Brand','Three.js','GSAP','Web'],
-    desc:'Identidad y sitio web para salón en Moravia. Mariposa 3D con GLB desde Blender, paleta hot pink, tipografía Great Vibes / Poppins.',
-    tech:'HTML · CSS · JS · Three.js · GSAP', url:null,
-    video:'videos/pame.mp4',
-    gallery:[
-      'https://picsum.photos/seed/hair-salon-16/800/1067',
-      'https://picsum.photos/seed/hairstyle-17/800/1067',
-      'https://picsum.photos/seed/beauty-salon-18/800/1067',
-      'https://picsum.photos/seed/haircut-19/800/1067',
-      'https://picsum.photos/seed/hairdresser-20/800/1067',
-      'https://picsum.photos/seed/salon-chair-21/800/1067',
-      'https://picsum.photos/seed/hairbrush-22/800/1067',
-      'https://picsum.photos/seed/salon-mirror-23/800/1067'
-    ] },
-  { id:'orozco',   name:'Dra. Orozco',           role:'Web · Booking · Dashboard',
-    color:'#08140a', grad:'linear-gradient(135deg,#081408,#152e18)', accent:'#2a5a30',
-    tags:['Booking','Dashboard','GSAP','WhatsApp'],
-    desc:'Sitio para nutricionista con sistema de reservas, dashboard de cliente, panel admin y animaciones GSAP. WhatsApp CTA integrado para consultas.',
-    tech:'HTML · CSS · JS · GSAP · localStorage', url:null,
-    video:'videos/orozco.mp4', logo:'img/logos/orozco-logo.svg', cardBg:'#ffffff',
-    gallery:[
-      'img/gallery/orozco/g1.avif',
-      'img/gallery/orozco/g2.avif',
-      'img/gallery/orozco/g3.avif',
-      'img/gallery/orozco/g4.avif',
-      'img/gallery/orozco/g5.avif',
-      'img/gallery/orozco/g6.avif',
-      'img/gallery/orozco/g7.avif',
-      'img/gallery/orozco/g8.avif'
-    ],
-    problem:'Quienes buscaban ayuda nutricional llegaban con historias muy distintas — bajar grasa sin perder músculo, controlar diabetes o resistencia a la insulina, o simplemente no saber cómo comer de forma equilibrada — pero se topaban con planes genéricos en papel, sin acompañamiento real ni un camino claro entre "solo quiero un plan" y "quiero resultados más rápidos con entrenamiento supervisado".',
-    solution:'Una landing que arranca validando esas situaciones ("¿te identificas con alguna de estas?") antes de vender nada, presenta dos caminos claros — nutrición sola o nutrición + gimnasio exclusivo — y los lleva a un sistema de reservas real: login/registro, agenda con selección de fecha y hora, y un dashboard de cliente con próxima cita, historial y membresía. Del otro lado, la doctora tiene su propio panel privado para gestionar horarios, bloquear días y llevar la ficha de cada paciente (peso, notas de seguimiento). Beneficios, testimonios y FAQ resuelven las objeciones sin que el usuario tenga que buscarlas.',
-    diagram:'proyectos/orozco-arquitectura.html',
-    myRole:'Diseñé el sitio completo — landing, identidad visual y el sistema de reservas (login, agenda con calendario, dashboard de cliente) — y también el panel privado de administración para la doctora, con gestión de horarios, días bloqueados y ficha de paciente.',
-    stackNotes:'JS vanilla + GSAP para las animaciones, sin el overhead de un framework: es el sitio de una sola profesional, no la complejidad de una plataforma multi-usuario; localStorage para persistir sesión y datos del sistema de reservas sin necesitar backend con base de datos, manteniendo el hosting gratuito.' },
   { id:'english',  name:'English Fluency',        role:'App · Electron · AI',
     color:'#06041a', grad:'linear-gradient(135deg,#060418,#120d36)', accent:'#22155a',
     tags:['Electron','Node.js','Groq AI','Google TTS'],
