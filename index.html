@@ -1031,7 +1031,7 @@
 .about-p {
   font-size:12px; line-height:1.85; letter-spacing:0; word-spacing:-1.5px;
   color:rgba(255,255,255,.5);
-  margin-bottom:15px; width:100%;
+  margin-bottom:15px; width:100%; max-width:290px; /* ~8 palabras por línea, igual al spec de Figma */
   text-align:justify; text-justify:inter-word;
   hyphens:none; -webkit-hyphens:none; -ms-hyphens:none;
 }
@@ -1044,7 +1044,7 @@
    flexible que se centra dentro del espacio que le queda a la derecha
    de texto + foto (nunca se superpone) ── */
 .about-right {
-  flex:1 1 auto; min-width:260px;
+  flex:1 1 auto; min-width:260px; max-width:580px; /* igual al ancho del Acordeón en Figma */
   display:flex; flex-direction:column; gap:1px; align-items:flex-start; text-align:left;
 }
 .reveal-block { border-top:1px solid rgba(255,255,255,.08); width:100%; }
