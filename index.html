@@ -1006,7 +1006,7 @@
   overflow-y:auto;
 }
 .about-top {
-  display:flex; gap:40px; align-items:stretch;
+  display:flex; gap:40px; align-items:flex-start;
 }
 
 .about-eye {
@@ -1021,16 +1021,13 @@
 /* Párrafo continuo, sin saltos manuales: el navegador reparte las palabras
    dentro del ancho de la columna y justifica pareja como en InDesign
    (última línea de cada párrafo queda alineada a la izquierda) */
-.about-left { flex:0 0 420px; max-width:420px; }
-.about-header { display:flex; align-items:center; gap:20px; margin-bottom:20px; }
+.about-left { flex:0 0 420px; max-width:420px; position:relative; }
 .about-avatar {
-  flex:0 0 104px; width:104px; height:104px; border-radius:50%;
-  overflow:hidden; background:#111;
+  position:absolute; top:0; right:0;
+  width:84px; height:84px; border-radius:50%;
+  overflow:hidden; background:#111; z-index:1;
 }
 .about-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
-.about-header-text { display:flex; flex-direction:column; }
-.about-header .about-eye { margin-bottom:6px; }
-.about-header .about-title { margin-bottom:0; }
 .about-p {
   font-size:12px; line-height:1.85; letter-spacing:0; word-spacing:-1.5px;
   color:rgba(255,255,255,.5);
@@ -1539,13 +1536,9 @@
     <div class="about-top">
       <!-- Columna izquierda: texto, saltos forzados a 7 palabras por línea -->
       <div class="about-left">
-        <div class="about-header">
-          <div class="about-avatar"><img src="img/about/javier-about.avif" alt="Javier Guzmán" width="104" height="104" loading="lazy" decoding="async"></div>
-          <div class="about-header-text">
-            <span class="about-eye">Quién soy</span>
-            <h2 class="about-title">Sobre mí</h2>
-          </div>
-        </div>
+        <div class="about-avatar"><img src="img/about/javier-about.avif" alt="Javier Guzmán" width="84" height="84" loading="lazy" decoding="async"></div>
+        <span class="about-eye">Quién soy</span>
+        <h2 class="about-title">Sobre mí</h2>
         <p class="about-p">Empecé mi carrera en el diseño gráfico y la gestión cultural, liderando proyectos y circuitos de arte público galardonados a nivel nacional. Trabajar a gran escala me enseñó a coordinar procesos complejos, cuidar cada detalle visual y, sobre todo, diseñar pensando siempre en la experiencia de las personas.</p>
         <p class="about-p">Hoy aplico esa misma visión estratégica al entorno digital como Diseñador UX/UI y Desarrollador Web. Integro el pensamiento visual, herramientas de prototipado y desarrollo frontend para construir sitios web e interfaces intuitivas, escalables y orientadas a resultados.</p>
         <p class="about-p">Creo en el diseño con propósito y en las soluciones digitales que transmiten historias auténticas.</p>
@@ -3093,43 +3086,6 @@ revealEls.forEach(el=>io.observe(el));
 <!-- ── PROJECTS INTERACTIVE JS ── -->
 <script>
 const PROJECTS = [
-{ id:'pame',     name:'Pame Salón',            role:'Brand · Web',
-    color:'#14050d', grad:'linear-gradient(135deg,#150510,#360d22)', accent:'#5a1535',
-    tags:['Brand','Three.js','GSAP','Web'],
-    desc:'Identidad y sitio web para salón en Moravia. Mariposa 3D con GLB desde Blender, paleta hot pink, tipografía Great Vibes / Poppins.',
-    tech:'HTML · CSS · JS · Three.js · GSAP', url:null,
-    video:'videos/pame.mp4',
-    gallery:[
-      'https://picsum.photos/seed/hair-salon-16/800/1067',
-      'https://picsum.photos/seed/hairstyle-17/800/1067',
-      'https://picsum.photos/seed/beauty-salon-18/800/1067',
-      'https://picsum.photos/seed/haircut-19/800/1067',
-      'https://picsum.photos/seed/hairdresser-20/800/1067',
-      'https://picsum.photos/seed/salon-chair-21/800/1067',
-      'https://picsum.photos/seed/hairbrush-22/800/1067',
-      'https://picsum.photos/seed/salon-mirror-23/800/1067'
-    ] },
-  { id:'orozco',   name:'Dra. Orozco',           role:'Web · Booking · Dashboard',
-    color:'#08140a', grad:'linear-gradient(135deg,#081408,#152e18)', accent:'#2a5a30',
-    tags:['Booking','Dashboard','GSAP','WhatsApp'],
-    desc:'Sitio para nutricionista con sistema de reservas, dashboard de cliente, panel admin y animaciones GSAP. WhatsApp CTA integrado para consultas.',
-    tech:'HTML · CSS · JS · GSAP · localStorage', url:null,
-    video:'videos/orozco.mp4', logo:'img/logos/orozco-logo.svg', cardBg:'#ffffff',
-    gallery:[
-      'img/gallery/orozco/g1.avif',
-      'img/gallery/orozco/g2.avif',
-      'img/gallery/orozco/g3.avif',
-      'img/gallery/orozco/g4.avif',
-      'img/gallery/orozco/g5.avif',
-      'img/gallery/orozco/g6.avif',
-      'img/gallery/orozco/g7.avif',
-      'img/gallery/orozco/g8.avif'
-    ],
-    problem:'Quienes buscaban ayuda nutricional llegaban con historias muy distintas — bajar grasa sin perder músculo, controlar diabetes o resistencia a la insulina, o simplemente no saber cómo comer de forma equilibrada — pero se topaban con planes genéricos en papel, sin acompañamiento real ni un camino claro entre "solo quiero un plan" y "quiero resultados más rápidos con entrenamiento supervisado".',
-    solution:'Una landing que arranca validando esas situaciones ("¿te identificas con alguna de estas?") antes de vender nada, presenta dos caminos claros — nutrición sola o nutrición + gimnasio exclusivo — y los lleva a un sistema de reservas real: login/registro, agenda con selección de fecha y hora, y un dashboard de cliente con próxima cita, historial y membresía. Del otro lado, la doctora tiene su propio panel privado para gestionar horarios, bloquear días y llevar la ficha de cada paciente (peso, notas de seguimiento). Beneficios, testimonios y FAQ resuelven las objeciones sin que el usuario tenga que buscarlas.',
-    diagram:'proyectos/orozco-arquitectura.html',
-    myRole:'Diseñé el sitio completo — landing, identidad visual y el sistema de reservas (login, agenda con calendario, dashboard de cliente) — y también el panel privado de administración para la doctora, con gestión de horarios, días bloqueados y ficha de paciente.',
-    stackNotes:'JS vanilla + GSAP para las animaciones, sin el overhead de un framework: es el sitio de una sola profesional, no la complejidad de una plataforma multi-usuario; localStorage para persistir sesión y datos del sistema de reservas sin necesitar backend con base de datos, manteniendo el hosting gratuito.' },
   { id:'fragancia',name:'Fragancia Urbana',     role:'E-commerce · 3D · Luxury',
     color:'#120f04', grad:'linear-gradient(135deg,#130f04,#2e2508)', accent:'#5a4a18',
     tags:['E-commerce','Three.js','GSAP','SINPE Móvil'],
@@ -3209,7 +3165,44 @@ const PROJECTS = [
       'https://picsum.photos/seed/notebook-writing-31/800/1067',
       'https://picsum.photos/seed/dictionary-32/800/1067',
       'https://picsum.photos/seed/online-class-33/800/1067'
-    ] }
+    ] },
+  { id:'pame',     name:'Pame Salón',            role:'Brand · Web',
+    color:'#14050d', grad:'linear-gradient(135deg,#150510,#360d22)', accent:'#5a1535',
+    tags:['Brand','Three.js','GSAP','Web'],
+    desc:'Identidad y sitio web para salón en Moravia. Mariposa 3D con GLB desde Blender, paleta hot pink, tipografía Great Vibes / Poppins.',
+    tech:'HTML · CSS · JS · Three.js · GSAP', url:null,
+    video:'videos/pame.mp4',
+    gallery:[
+      'https://picsum.photos/seed/hair-salon-16/800/1067',
+      'https://picsum.photos/seed/hairstyle-17/800/1067',
+      'https://picsum.photos/seed/beauty-salon-18/800/1067',
+      'https://picsum.photos/seed/haircut-19/800/1067',
+      'https://picsum.photos/seed/hairdresser-20/800/1067',
+      'https://picsum.photos/seed/salon-chair-21/800/1067',
+      'https://picsum.photos/seed/hairbrush-22/800/1067',
+      'https://picsum.photos/seed/salon-mirror-23/800/1067'
+    ] },
+  { id:'orozco',   name:'Dra. Orozco',           role:'Web · Booking · Dashboard',
+    color:'#08140a', grad:'linear-gradient(135deg,#081408,#152e18)', accent:'#2a5a30',
+    tags:['Booking','Dashboard','GSAP','WhatsApp'],
+    desc:'Sitio para nutricionista con sistema de reservas, dashboard de cliente, panel admin y animaciones GSAP. WhatsApp CTA integrado para consultas.',
+    tech:'HTML · CSS · JS · GSAP · localStorage', url:null,
+    video:'videos/orozco.mp4', logo:'img/logos/orozco-logo.svg', cardBg:'#ffffff',
+    gallery:[
+      'img/gallery/orozco/g1.avif',
+      'img/gallery/orozco/g2.avif',
+      'img/gallery/orozco/g3.avif',
+      'img/gallery/orozco/g4.avif',
+      'img/gallery/orozco/g5.avif',
+      'img/gallery/orozco/g6.avif',
+      'img/gallery/orozco/g7.avif',
+      'img/gallery/orozco/g8.avif'
+    ],
+    problem:'Quienes buscaban ayuda nutricional llegaban con historias muy distintas — bajar grasa sin perder músculo, controlar diabetes o resistencia a la insulina, o simplemente no saber cómo comer de forma equilibrada — pero se topaban con planes genéricos en papel, sin acompañamiento real ni un camino claro entre "solo quiero un plan" y "quiero resultados más rápidos con entrenamiento supervisado".',
+    solution:'Una landing que arranca validando esas situaciones ("¿te identificas con alguna de estas?") antes de vender nada, presenta dos caminos claros — nutrición sola o nutrición + gimnasio exclusivo — y los lleva a un sistema de reservas real: login/registro, agenda con selección de fecha y hora, y un dashboard de cliente con próxima cita, historial y membresía. Del otro lado, la doctora tiene su propio panel privado para gestionar horarios, bloquear días y llevar la ficha de cada paciente (peso, notas de seguimiento). Beneficios, testimonios y FAQ resuelven las objeciones sin que el usuario tenga que buscarlas.',
+    diagram:'proyectos/orozco-arquitectura.html',
+    myRole:'Diseñé el sitio completo — landing, identidad visual y el sistema de reservas (login, agenda con calendario, dashboard de cliente) — y también el panel privado de administración para la doctora, con gestión de horarios, días bloqueados y ficha de paciente.',
+    stackNotes:'JS vanilla + GSAP para las animaciones, sin el overhead de un framework: es el sitio de una sola profesional, no la complejidad de una plataforma multi-usuario; localStorage para persistir sesión y datos del sistema de reservas sin necesitar backend con base de datos, manteniendo el hosting gratuito.' },
 ];
 
 /* Proyectos ya publicados: solo estos abren su página al hacer click.
@@ -4136,11 +4129,11 @@ function animateContactIcons() {
   if (!logo) return;
   logo.style.cursor = 'pointer';
   logo.addEventListener('mouseenter', () => {
-    gsap.killTweensOf(logo);
+    gsap.killTweensOf(logo, 'scale,rotate');
     gsap.to(logo, { scale: 1.18, rotate: 6, duration: 0.4, ease: 'back.out(3)' });
   });
   logo.addEventListener('mouseleave', () => {
-    gsap.killTweensOf(logo);
+    gsap.killTweensOf(logo, 'scale,rotate');
     gsap.to(logo, { scale: 1, rotate: 0, duration: 0.45, ease: 'power3.out' });
   });
 })();
