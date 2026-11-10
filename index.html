@@ -1196,11 +1196,22 @@
   z-index:1; /* ya es position:absolute (bottom:0) desde su propia regla; esto solo la sube sobre el canvas */
 }
 
+/* ── Parámetros de color de la sección de contacto: tocar solo acá ── */
+#contact-panel-1 {
+  --contact-red: #c0201a;             /* eyebrow "CONTACT" y acento del título */
+  --contact-hover: #22c55e;           /* color al pasar el mouse sobre los íconos */
+  --contact-hover-soft: rgba(34,197,94,.12); /* fondo del círculo en hover */
+  --contact-text: #fff;               /* labels de íconos + ubicación */
+  --contact-footer-bg: rgba(255,255,255,.1);
+  --contact-footer-name: rgba(0,0,0,.5);
+  --contact-footer-copy: #000;
+}
+
 .contact-logo { margin-bottom:28px; display:flex; justify-content:center; }
 .contact-logo img { height:64px; width:auto; display:block; }
 .contact-eye {
   font-size:9px; letter-spacing:.28em; text-transform:uppercase;
-  color:#c0201a; display:block; margin-bottom:14px;
+  color:var(--contact-red); display:block; margin-bottom:14px;
 }
 .contact-title {
   font-family:'Pirata One',cursive; font-weight:400;
@@ -1213,7 +1224,7 @@
   padding-top:0.12em;
 }
 .contact-title em {
-  font-style:normal; color:#c0201a;
+  font-style:normal; color:var(--contact-red);
 }
 .contact-desc {
   font-size:13px; line-height:1.9;
@@ -1254,7 +1265,7 @@
   color:rgba(255,255,255,.55);
   transition:color .25s;
 }
-.contact-icon-item:hover { color:#22c55e; }
+.contact-icon-item:hover { color:var(--contact-hover); }
 .contact-icon-circle {
   width:64px; height:64px; border-radius:50%;
   border:1px solid rgba(255,255,255,.18);
@@ -1263,14 +1274,14 @@
 }
 .contact-icon-circle svg { width:24px; height:24px; }
 .contact-icon-item:hover .contact-icon-circle {
-  border-color:#22c55e; background:rgba(34,197,94,.12);
+  border-color:var(--contact-hover); background:var(--contact-hover-soft);
 }
 .contact-icon-label {
   font-size:10px; letter-spacing:.03em; max-width:160px;
-  color:#fff;
+  color:var(--contact-text);
 }
 .contact-location {
-  font-size:10px; color:#fff;
+  font-size:10px; color:var(--contact-text);
   margin-top:4px; letter-spacing:.05em;
 }
 .contact-footer {
@@ -1281,14 +1292,14 @@
   /* Franja clara (según Figma) para que el footer se lea sobre el fondo
      de nubes, en vez de heredar el fondo negro de la regla global
      "footer{}" del footer real del sitio. */
-  background:rgba(255,255,255,.1);
+  background:var(--contact-footer-bg);
 }
 .f-name {
   font-family:'UnifrakturMaguntia',cursive;
-  font-size:16px; color:rgba(0,0,0,.5);
+  font-size:16px; color:var(--contact-footer-name);
 }
 .f-copy {
-  font-size:9px; color:#000; letter-spacing:.1em;
+  font-size:9px; color:var(--contact-footer-copy); letter-spacing:.1em;
 }
 
 /* ── Responsive about + contact ── */
@@ -1882,18 +1893,40 @@
     alpha: gl.getUniformLocation(program, 'alpha')
   };
 
-  var colors = new Float32Array([
-    0.03137254901960784, 0.1411764705882353, 0.6862745098039216, 1,
-    0.00784313725490196, 0, 0.5019607843137255, 1
-  ]);
+  /* ── Parámetros del shader de nubes: tocar solo acá ──
+     colorTop/colorBottom en hex normal; el resto son los mismos
+     controles del shader original (0 a 1). */
+  var CLOUD_CONFIG = {
+    colorTop:    '#0824af',
+    colorBottom: '#020080',
+    speed:    0.196,
+    scale:    0,
+    light:    0.5,
+    shadow:   0.5,
+    tint:     0.596,
+    coverage: 0.276,
+    alpha:    1
+  };
+  function hexToVec4(hex) {
+    hex = hex.replace('#', '');
+    var r = parseInt(hex.substring(0, 2), 16) / 255;
+    var g = parseInt(hex.substring(2, 4), 16) / 255;
+    var b = parseInt(hex.substring(4, 6), 16) / 255;
+    return [r, g, b, 1];
+  }
+
+  var colors = new Float32Array([].concat(
+    hexToVec4(CLOUD_CONFIG.colorTop),
+    hexToVec4(CLOUD_CONFIG.colorBottom)
+  ));
   gl.uniform4fv(uniforms.u_colors, colors);
-  gl.uniform1f(uniforms.u_speed, 0.196);
-  gl.uniform1f(uniforms.u_scale, 0);
-  gl.uniform1f(uniforms.light, 0.5);
-  gl.uniform1f(uniforms.shadow, 0.5);
-  gl.uniform1f(uniforms.tint, 0.596);
-  gl.uniform1f(uniforms.coverage, 0.276);
-  gl.uniform1f(uniforms.alpha, 1);
+  gl.uniform1f(uniforms.u_speed, CLOUD_CONFIG.speed);
+  gl.uniform1f(uniforms.u_scale, CLOUD_CONFIG.scale);
+  gl.uniform1f(uniforms.light, CLOUD_CONFIG.light);
+  gl.uniform1f(uniforms.shadow, CLOUD_CONFIG.shadow);
+  gl.uniform1f(uniforms.tint, CLOUD_CONFIG.tint);
+  gl.uniform1f(uniforms.coverage, CLOUD_CONFIG.coverage);
+  gl.uniform1f(uniforms.alpha, CLOUD_CONFIG.alpha);
 
   var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   function resize() {
