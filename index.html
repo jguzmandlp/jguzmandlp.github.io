@@ -1089,7 +1089,9 @@
 .about-avatar {
   width:56px; height:56px; border-radius:50%;
   overflow:hidden; background:#111;
-  margin:28px auto 0;
+  /* centrada bajo la columna de texto (290px), no bajo .about-left completo
+     (420px) — si no, queda corrida a la derecha del párrafo. */
+  margin:28px 0 0 117px;
 }
 .about-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
 .about-p {
@@ -1239,7 +1241,17 @@
 }
 /* Panel base (Trabajemos juntos, oscuro) queda fijo abajo; el panel de
    íconos (blanco) siempre por encima, listo para subir y taparlo. */
-#contact-panel-0 { z-index:1; }
+#contact-panel-0 { z-index:1; overflow:hidden; }
+#contact-swirl-canvas {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  display:block;
+  z-index:0;
+  pointer-events:none;
+}
+#contact-panel-0 > :not(#contact-swirl-canvas) {
+  position:relative; z-index:1;
+}
 #contact-panel-1 {
   z-index:2;
   background:#060606; /* respaldo opaco mientras carga / si no hay WebGL2 */
@@ -1752,6 +1764,7 @@
 
     <!-- Panel 1: "Trabajemos juntos" -->
     <div class="contact-panel" id="contact-panel-0">
+      <canvas id="contact-swirl-canvas" aria-hidden="true"></canvas>
       <span class="contact-eye">Hablemos</span>
       <h2 class="contact-title">Trabajemos<br><em>juntos.</em></h2>
       <p class="contact-desc">¿Tienes un proyecto en mente? Estoy disponible para trabajo remoto (freelance o full-time) en diseño gráfico, UX/UI y desarrollo web, en horario de Costa Rica (GMT-6).</p>
@@ -2025,6 +2038,172 @@
   gl.uniform1f(uniforms.tint, CLOUD_CONFIG.tint);
   gl.uniform1f(uniforms.coverage, CLOUD_CONFIG.coverage);
   gl.uniform1f(uniforms.alpha, CLOUD_CONFIG.alpha);
+
+  var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  function resize() {
+    var rect = canvas.parentElement.getBoundingClientRect();
+    var w = Math.max(1, Math.round(rect.width * dpr));
+    var h = Math.max(1, Math.round(rect.height * dpr));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+      gl.viewport(0, 0, w, h);
+      gl.uniform2f(uniforms.u_resolution, w, h);
+    }
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var paused = document.hidden;
+  document.addEventListener('visibilitychange', function () { paused = document.hidden; });
+
+  var start = performance.now();
+  var lastFrame = 0;
+  var FRAME_INTERVAL = 1000 / 30;
+
+  function draw(now) {
+    requestAnimationFrame(draw);
+    if (paused) return;
+    if (now - lastFrame < FRAME_INTERVAL) return;
+    lastFrame = now;
+    gl.uniform1f(uniforms.u_time, (now - start) / 1000);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+
+  if (reduceMotion) {
+    gl.uniform1f(uniforms.u_time, 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  } else {
+    requestAnimationFrame(draw);
+  }
+})();
+</script>
+
+<!-- Shader de remolino rojo (WebGL2) para el fondo del panel "Trabajemos juntos" -->
+<script>
+(function () {
+  var canvas = document.getElementById('contact-swirl-canvas');
+  if (!canvas) return;
+  var gl = canvas.getContext('webgl2', { antialias:false, alpha:false, premultipliedAlpha:false });
+  if (!gl) return;
+
+  var vertexSrc = [
+    '#version 300 es',
+    'precision highp float;',
+    'in vec4 a_position;',
+    'in vec2 a_tex_coord;',
+    'out vec2 v_tex_coord;',
+    'void main() {',
+    '  gl_Position = a_position;',
+    '  v_tex_coord = a_tex_coord;',
+    '}'
+  ].join('\n');
+
+  var fragmentSrc = [
+    '#version 300 es',
+    'precision highp float;',
+    'uniform vec2 u_resolution;',
+    'uniform float u_time;',
+    'uniform vec4 u_background;',
+    'uniform vec3 u_color;',
+    'uniform float u_speed;',
+    'uniform float u_detail;',
+    'out vec4 fragColor;',
+    'mat2 m(float a) {',
+    '  float c = cos(a), s = sin(a);',
+    '  return mat2(c, -s, s, c);',
+    '}',
+    'float map(vec3 p) {',
+    '  float t = u_time * u_speed;',
+    '  p.xz *= m(t * 0.4); p.xy *= m(t * 0.1);',
+    '  vec3 q = p * 2.0 + t;',
+    '  return length(p + vec3(sin((t * u_speed) * 0.1))) * log(length(p) + 0.9) + cos(q.x + sin(q.z + cos(q.y))) * 0.5 - 1.0;',
+    '}',
+    'void main() {',
+    '  vec2 a = gl_FragCoord.xy / u_resolution.x - vec2(0.5, 0.5);',
+    '  vec3 cl = vec3(0.0);',
+    '  float d = 2.5;',
+    '  for (float i = 0.; i <= (1. + 20. * u_detail); i++) {',
+    '    vec3 p = vec3(0, 0, 4.0) + normalize(vec3(a, -1.0)) * d;',
+    '    float rz = map(p);',
+    '    float f = clamp((rz - map(p + 0.1)) * 0.5, -0.1, 1.0);',
+    '    vec3 l = vec3(0.1, 0.3, 0.4) + vec3(5.0, 2.5, 3.0) * f;',
+    '    cl = cl * l + smoothstep(2.5, 0.0, rz) * 0.6 * l;',
+    '    d += min(rz, 1.0);',
+    '  }',
+    '  vec4 color = vec4(min(u_color, cl), 1.0);',
+    '  color.r = max(u_background.r, color.r);',
+    '  color.g = max(u_background.g, color.g);',
+    '  color.b = max(u_background.b, color.b);',
+    '  fragColor = color;',
+    '}'
+  ].join('\n');
+
+  function compile(type, src) {
+    var sh = gl.createShader(type);
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+      console.warn('Shader de remolino: error compilando', gl.getShaderInfoLog(sh));
+      gl.deleteShader(sh);
+      return null;
+    }
+    return sh;
+  }
+
+  var vs = compile(gl.VERTEX_SHADER, vertexSrc);
+  var fs = compile(gl.FRAGMENT_SHADER, fragmentSrc);
+  if (!vs || !fs) return;
+
+  var program = gl.createProgram();
+  gl.attachShader(program, vs);
+  gl.attachShader(program, fs);
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.warn('Shader de remolino: error enlazando', gl.getProgramInfoLog(program));
+    return;
+  }
+  gl.useProgram(program);
+
+  var quad = new Float32Array([
+    -1, -1, 0, 1,   0, 0,
+     1, -1, 0, 1,   1, 0,
+    -1,  1, 0, 1,   0, 1,
+     1,  1, 0, 1,   1, 1
+  ]);
+  var buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
+
+  var posLoc = gl.getAttribLocation(program, 'a_position');
+  var texLoc = gl.getAttribLocation(program, 'a_tex_coord');
+  var stride = 6 * 4;
+  gl.enableVertexAttribArray(posLoc);
+  gl.vertexAttribPointer(posLoc, 4, gl.FLOAT, false, stride, 0);
+  gl.enableVertexAttribArray(texLoc);
+  gl.vertexAttribPointer(texLoc, 2, gl.FLOAT, false, stride, 4 * 4);
+
+  var uniforms = {
+    u_resolution: gl.getUniformLocation(program, 'u_resolution'),
+    u_time: gl.getUniformLocation(program, 'u_time'),
+    u_background: gl.getUniformLocation(program, 'u_background'),
+    u_color: gl.getUniformLocation(program, 'u_color'),
+    u_speed: gl.getUniformLocation(program, 'u_speed'),
+    u_detail: gl.getUniformLocation(program, 'u_detail')
+  };
+
+  /* ── Parámetros del shader: tocar solo acá ── */
+  var SWIRL_CONFIG = {
+    background: [0, 0, 0, 1],
+    color: [1, 0, 0],
+    speed: 0.634,
+    detail: 0.4
+  };
+  gl.uniform4fv(uniforms.u_background, SWIRL_CONFIG.background);
+  gl.uniform3fv(uniforms.u_color, SWIRL_CONFIG.color);
+  gl.uniform1f(uniforms.u_speed, SWIRL_CONFIG.speed);
+  gl.uniform1f(uniforms.u_detail, SWIRL_CONFIG.detail);
 
   var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   function resize() {
