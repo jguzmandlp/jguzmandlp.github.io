@@ -1227,8 +1227,23 @@
    wheel/goTo que ya usa el sitio para pasar de sección en sección — acá
    sencillamente se agrega un sub-estado (contactPanel) para loopear entre
    estos 2 paneles mientras el usuario está parado en "Contacto". */
+/* ── Parámetros de color de la sección de contacto: tocar solo acá ──
+   (vive acá, en el padre común de los 2 paneles, para que --contact-red
+   llegue tanto a #contact-panel-0 como a #contact-panel-1; antes solo
+   estaba declarado dentro de #contact-panel-1 y por eso "juntos."/
+   "together." en el panel 0 no salía en rojo: la variable no existía
+   ahí, al ser hermanos y no haber herencia entre ellos.) */
 .contact-panels {
   position:relative; width:100%; height:100%;
+  --contact-red: #c0201a;             /* eyebrow "CONTACT" y acento del título */
+  --contact-hover: #22c55e;           /* color al pasar el mouse sobre los íconos */
+  --contact-hover-soft: rgba(34,197,94,.12); /* fondo del círculo en hover */
+  --contact-text: #fff;               /* labels de íconos + ubicación */
+  --contact-footer-bg: rgba(255,255,255,.1);
+  --contact-footer-name: rgba(0,0,0,.5);
+  --contact-footer-copy: #000;
+  --contact-icon-bg: rgba(255,255,255,.1);
+  --contact-icon-border: rgba(0,0,0,.18);
 }
 .contact-panel {
   position:absolute; inset:0;
@@ -1271,19 +1286,6 @@
   z-index:1; /* ya es position:absolute (bottom:0) desde su propia regla; esto solo la sube sobre el canvas */
 }
 
-/* ── Parámetros de color de la sección de contacto: tocar solo acá ── */
-#contact-panel-1 {
-  --contact-red: #c0201a;             /* eyebrow "CONTACT" y acento del título */
-  --contact-hover: #22c55e;           /* color al pasar el mouse sobre los íconos */
-  --contact-hover-soft: rgba(34,197,94,.12); /* fondo del círculo en hover */
-  --contact-text: #fff;               /* labels de íconos + ubicación */
-  --contact-footer-bg: rgba(255,255,255,.1);
-  --contact-footer-name: rgba(0,0,0,.5);
-  --contact-footer-copy: #000;
-  --contact-icon-bg: rgba(255,255,255,.1);
-  --contact-icon-border: rgba(0,0,0,.18);
-}
-
 .contact-logo { margin-bottom:28px; display:flex; justify-content:center; }
 .contact-logo img, .contact-logo svg { height:64px; width:auto; display:block; }
 .contact-eye {
@@ -1299,15 +1301,31 @@
      exactamente el alto de esta caja — sin este margen se recortaba
      la punta de esas letras. */
   padding-top:0.12em;
+  /* El shader de fondo "pasa por debajo" del título invirtiendo sus
+     colores (como una sombra que lo atraviesa) en vez de quedar tapado. */
+  mix-blend-mode:difference;
+  isolation:isolate;
 }
 .contact-title em {
   font-style:normal; color:var(--contact-red);
 }
 .contact-desc {
   font-size:13px; line-height:1.9;
-  color:rgba(255,255,255,.45);
+  color:rgba(255,255,255,.72);
   margin-bottom:36px; max-width:440px;
 }
+
+/* ── Efecto de entrada del título: igual al que usan los componentes
+   morph-text/morphing-text reales — un filtro SVG feColorMatrix
+   "threshold" (ver <svg id="contact-title-morph-filters">) vuelve los
+   bordes del blur duros/redondeados en vez de difusos, y el blur +
+   la opacidad de cada palabra se calculan cuadro a cuadro con una
+   curva no-lineal (blur = min(8/fraction-8,100), opacity = fraction^0.4),
+   no con una transition de CSS. El filtro del wrapper solo se activa
+   MIENTRAS anima (ver JS); en reposo el título queda sin ningún filtro,
+   con la tipografía 100% nítida/original. */
+.contact-title .morph-wrap { display:inline-block; }
+.contact-title .morph-word { display:inline-block; }
 .contact-btn {
   display:inline-flex; align-items:center;
   font-size:10px; letter-spacing:.2em; text-transform:uppercase;
@@ -1765,8 +1783,23 @@
     <!-- Panel 1: "Trabajemos juntos" -->
     <div class="contact-panel" id="contact-panel-0">
       <canvas id="contact-swirl-canvas" aria-hidden="true"></canvas>
+
+      <!-- Filtro SVG para el morph de entrada del título (ver CSS .morph-wrap
+           y el script "Morph de entrada del título" más abajo) -->
+      <svg aria-hidden="true" style="position:fixed;width:0;height:0">
+        <defs>
+          <filter id="contact-title-morph-threshold">
+            <feColorMatrix in="SourceGraphic" type="matrix"
+              values="1 0 0 0 0
+                      0 1 0 0 0
+                      0 0 1 0 0
+                      0 0 0 255 -140" />
+          </filter>
+        </defs>
+      </svg>
+
       <span class="contact-eye">Hablemos</span>
-      <h2 class="contact-title">Trabajemos<br><em>juntos.</em></h2>
+      <h2 class="contact-title"><span class="morph-wrap"><span class="morph-word" id="contact-title-word-1">Trabajemos</span></span><br><em class="morph-wrap"><span class="morph-word" id="contact-title-word-2">juntos.</span></em></h2>
       <p class="contact-desc">¿Tienes un proyecto en mente? Estoy disponible para trabajo remoto (freelance o full-time) en diseño gráfico, UX/UI y desarrollo web, en horario de Costa Rica (GMT-6).</p>
       <a href="mailto:javier.guzman.dlp@gmail.com" class="contact-btn">Enviar mensaje ↗</a>
       <div class="contact-scroll-hint">
@@ -2080,7 +2113,7 @@
 })();
 </script>
 
-<!-- Shader de remolino rojo (WebGL2) para el fondo del panel "Trabajemos juntos" -->
+<!-- Shader "neuro" rojo (WebGL2) para el fondo del panel "Trabajemos juntos" -->
 <script>
 (function () {
   var canvas = document.getElementById('contact-swirl-canvas');
@@ -2103,40 +2136,47 @@
   var fragmentSrc = [
     '#version 300 es',
     'precision highp float;',
-    'uniform vec2 u_resolution;',
     'uniform float u_time;',
+    'uniform vec2 u_resolution;',
     'uniform vec4 u_background;',
-    'uniform vec3 u_color;',
+    'uniform vec4 u_color;',
     'uniform float u_speed;',
-    'uniform float u_detail;',
+    'uniform float u_phase;',
+    'uniform float u_scale;',
+    'uniform float u_brightness;',
     'out vec4 fragColor;',
-    'mat2 m(float a) {',
-    '  float c = cos(a), s = sin(a);',
-    '  return mat2(c, -s, s, c);',
+    'vec2 rotate(vec2 uv, float th) {',
+    '  return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;',
     '}',
-    'float map(vec3 p) {',
-    '  float t = u_time * u_speed;',
-    '  p.xz *= m(t * 0.4); p.xy *= m(t * 0.1);',
-    '  vec3 q = p * 2.0 + t;',
-    '  return length(p + vec3(sin((t * u_speed) * 0.1))) * log(length(p) + 0.9) + cos(q.x + sin(q.z + cos(q.y))) * 0.5 - 1.0;',
+    'float neuro_shape(vec2 uv, float t) {',
+    '  vec2 sine_acc = vec2(0.);',
+    '  vec2 res = vec2(0.);',
+    '  float scale = 8.;',
+    '  for (int j = 0; j < 15; j++) {',
+    '    uv = rotate(uv, 1.);',
+    '    sine_acc = rotate(sine_acc, 1.);',
+    '    vec2 layer = uv * scale + float(j) + sine_acc - t;',
+    '    sine_acc += sin(layer);',
+    '    res += (.5 + .5 * cos(layer)) / scale;',
+    '    scale *= (1.2);',
+    '  }',
+    '  return res.x + res.y;',
     '}',
     'void main() {',
-    '  vec2 a = gl_FragCoord.xy / u_resolution.x - vec2(0.5, 0.5);',
-    '  vec3 cl = vec3(0.0);',
-    '  float d = 2.5;',
-    '  for (float i = 0.; i <= (1. + 20. * u_detail); i++) {',
-    '    vec3 p = vec3(0, 0, 4.0) + normalize(vec3(a, -1.0)) * d;',
-    '    float rz = map(p);',
-    '    float f = clamp((rz - map(p + 0.1)) * 0.5, -0.1, 1.0);',
-    '    vec3 l = vec3(0.1, 0.3, 0.4) + vec3(5.0, 2.5, 3.0) * f;',
-    '    cl = cl * l + smoothstep(2.5, 0.0, rz) * 0.6 * l;',
-    '    d += min(rz, 1.0);',
-    '  }',
-    '  vec4 color = vec4(min(u_color, cl), 1.0);',
-    '  color.r = max(u_background.r, color.r);',
-    '  color.g = max(u_background.g, color.g);',
-    '  color.b = max(u_background.b, color.b);',
-    '  fragColor = color;',
+    '  vec2 uv = gl_FragCoord.xy / u_resolution.xy;',
+    '  uv -= .5;',
+    '  float scale = .75 * u_scale + 1e-4;',
+    '  uv *= (.001 * (1. - step(1. - scale, 1.) / scale));',
+    '  uv *= u_resolution;',
+    '  uv += .5;',
+    '  float t = u_time * u_speed + u_phase*10.;',
+    '  float noise = neuro_shape(uv, t);',
+    '  noise = u_brightness * pow(noise, 3.);',
+    '  noise += pow(noise, 12.);',
+    '  noise = max(.0, noise - .5);',
+    '  vec3 color = mix(u_background.rgb * u_background.a, u_color.rgb * u_color.a, noise);',
+    '  float opacity = mix(u_background.a, u_color.a, noise);',
+    '  fragColor = vec4(color, opacity);',
     '}'
   ].join('\n');
 
@@ -2145,7 +2185,7 @@
     gl.shaderSource(sh, src);
     gl.compileShader(sh);
     if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-      console.warn('Shader de remolino: error compilando', gl.getShaderInfoLog(sh));
+      console.warn('Shader neuro: error compilando', gl.getShaderInfoLog(sh));
       gl.deleteShader(sh);
       return null;
     }
@@ -2161,7 +2201,7 @@
   gl.attachShader(program, fs);
   gl.linkProgram(program);
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.warn('Shader de remolino: error enlazando', gl.getProgramInfoLog(program));
+    console.warn('Shader neuro: error enlazando', gl.getProgramInfoLog(program));
     return;
   }
   gl.useProgram(program);
@@ -2190,20 +2230,26 @@
     u_background: gl.getUniformLocation(program, 'u_background'),
     u_color: gl.getUniformLocation(program, 'u_color'),
     u_speed: gl.getUniformLocation(program, 'u_speed'),
-    u_detail: gl.getUniformLocation(program, 'u_detail')
+    u_phase: gl.getUniformLocation(program, 'u_phase'),
+    u_scale: gl.getUniformLocation(program, 'u_scale'),
+    u_brightness: gl.getUniformLocation(program, 'u_brightness')
   };
 
   /* ── Parámetros del shader: tocar solo acá ── */
-  var SWIRL_CONFIG = {
+  var NEURO_CONFIG = {
     background: [0, 0, 0, 1],
-    color: [1, 1, 1],
-    speed: 0.634,
-    detail: 0.4
+    color: [0.8627450980392157, 0.09411764705882353, 0.09411764705882353, 1],
+    speed: 1,
+    phase: 0.5,
+    scale: 1,
+    brightness: 1
   };
-  gl.uniform4fv(uniforms.u_background, SWIRL_CONFIG.background);
-  gl.uniform3fv(uniforms.u_color, SWIRL_CONFIG.color);
-  gl.uniform1f(uniforms.u_speed, SWIRL_CONFIG.speed);
-  gl.uniform1f(uniforms.u_detail, SWIRL_CONFIG.detail);
+  gl.uniform4fv(uniforms.u_background, NEURO_CONFIG.background);
+  gl.uniform4fv(uniforms.u_color, NEURO_CONFIG.color);
+  gl.uniform1f(uniforms.u_speed, NEURO_CONFIG.speed);
+  gl.uniform1f(uniforms.u_phase, NEURO_CONFIG.phase);
+  gl.uniform1f(uniforms.u_scale, NEURO_CONFIG.scale);
+  gl.uniform1f(uniforms.u_brightness, NEURO_CONFIG.brightness);
 
   var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   function resize() {
@@ -2243,6 +2289,75 @@
   } else {
     requestAnimationFrame(draw);
   }
+})();
+</script>
+
+<!-- Morph de entrada del título "Trabajemos juntos" (ver CSS .morph-wrap /
+     .morph-word y el filtro #contact-title-morph-threshold en el markup
+     del panel). Misma fórmula que usan los componentes morph-text/
+     morphing-text reales: blur = min(8/fraction-8,100), opacity =
+     fraction^0.4 * 100%, corriendo cuadro a cuadro con
+     requestAnimationFrame — no es una transition de CSS. Se dispara una
+     sola vez, llamada desde animateContactPanel0() (ver sistema de
+     scroll/secciones), vía window.playContactTitleMorph. -->
+<script>
+(function () {
+  var els = [document.getElementById('contact-title-word-1'), document.getElementById('contact-title-word-2')];
+  if (!els[0] || !els[1]) return;
+  var MORPH_TIME = 1.5;   // segundos, igual al valor real de la librería
+  var STAGGER_MS = 180;   // la 2da línea ("juntos.") entra un poco después que la 1ra
+  var rafIds = [null, null];
+  var played = false;
+
+  function setFrame(el, fraction) {
+    var f = Math.max(fraction, 0.0001);
+    var blurPx = Math.min(8 / f - 8, 100);
+    var opacityPct = Math.pow(fraction, 0.4) * 100;
+    el.style.filter = 'blur(' + blurPx.toFixed(2) + 'px)';
+    el.style.opacity = opacityPct.toFixed(1) + '%';
+  }
+
+  function animateEntrance(el, slot) {
+    if (rafIds[slot] !== null) cancelAnimationFrame(rafIds[slot]);
+    var wrap = el.parentElement;
+    wrap.style.filter = 'url(#contact-title-morph-threshold) blur(0.6px)'; // solo mientras anima
+    el.style.filter = 'blur(100px)';
+    el.style.opacity = '0%';
+    var start = null;
+    function frame(ts) {
+      if (start === null) start = ts;
+      var elapsed = (ts - start) / 1000;
+      var fraction = Math.min(elapsed / MORPH_TIME, 1);
+      setFrame(el, fraction);
+      if (fraction < 1) {
+        rafIds[slot] = requestAnimationFrame(frame);
+      } else {
+        // estado final: sin filtro, tipografía 100% nítida/original
+        el.style.filter = '';
+        el.style.opacity = '100%';
+        wrap.style.filter = '';
+        rafIds[slot] = null;
+      }
+    }
+    rafIds[slot] = requestAnimationFrame(frame);
+  }
+
+  function prefersReducedMotion() {
+    return !!window.__a11yReduceMotion ||
+      (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  window.playContactTitleMorph = function () {
+    if (played) return;
+    played = true;
+    if (prefersReducedMotion()) {
+      els.forEach(function (el) { el.style.filter = ''; el.style.opacity = '100%'; });
+      return;
+    }
+    els.forEach(function (el, i) {
+      setTimeout(function () { animateEntrance(el, i); }, i * STAGGER_MS);
+    });
+  };
 })();
 </script>
 
@@ -4402,15 +4517,18 @@ let contactBusy         = false;
 
 /* Entrada animada del panel 0 ("Trabajemos juntos"): ojo → título → texto
    → botón → hint de scroll, en cascada. Solo la primera vez que se entra
-   a la sección (si el usuario sale y vuelve, ya quedan visibles). */
-gsap.set('#contact-panel-0 .contact-eye, #contact-panel-0 .contact-title, #contact-panel-0 .contact-desc, #contact-panel-0 .contact-btn, #contact-panel-0 .contact-scroll-hint',
+   a la sección (si el usuario sale y vuelve, ya quedan visibles).
+   El título NO usa este fade con GSAP — su entrada es el efecto de morph
+   (blur + threshold) definido más abajo, para que el texto se vea
+   "redondeado" al aparecer y se afile hasta la tipografía original. */
+gsap.set('#contact-panel-0 .contact-eye, #contact-panel-0 .contact-desc, #contact-panel-0 .contact-btn, #contact-panel-0 .contact-scroll-hint',
   { y: 26, opacity: 0 });
 let contactPanel0Animated = false;
 function animateContactPanel0() {
   if (contactPanel0Animated) return;
   contactPanel0Animated = true;
   gsap.to('#contact-panel-0 .contact-eye',         { y:0, opacity:1, duration:0.5, ease:'power3.out', delay:0.05 });
-  gsap.to('#contact-panel-0 .contact-title',       { y:0, opacity:1, duration:0.7, ease:'power3.out', delay:0.15 });
+  if (window.playContactTitleMorph) window.playContactTitleMorph();
   gsap.to('#contact-panel-0 .contact-desc',        { y:0, opacity:1, duration:0.6, ease:'power3.out', delay:0.32 });
   gsap.to('#contact-panel-0 .contact-btn',         { y:0, opacity:1, duration:0.5, ease:'power3.out', delay:0.44 });
   gsap.to('#contact-panel-0 .contact-scroll-hint', { y:0, opacity:1, duration:0.5, ease:'power3.out', delay:0.55 });
