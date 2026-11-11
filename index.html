@@ -230,7 +230,7 @@
        navegar entre secciones. */
     .nav {
       display:flex; align-items:center; gap:22px;
-      background:rgba(255,255,255,.85);
+      background:rgba(255,255,255,.1);
       backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
       border-radius:999px;
       padding:6px 6px 6px 6px;
@@ -248,10 +248,10 @@
     .nav-links { display:flex; align-items:center; gap:28px; }
     .nav-links a {
       font-size:10px; letter-spacing:.2em; text-transform:uppercase;
-      color:rgba(10,10,10,.55);
+      color:rgba(255,255,255,.7);
       transition:color .25s;
     }
-    .nav-links a:hover { color:#0a0a0a; }
+    .nav-links a:hover { color:#fff; }
     .nav-cta {
       display:flex; align-items:center; gap:10px;
       background:#141414;
@@ -307,6 +307,67 @@
       .lang-toggle { width:36px; height:36px; font-size:9px; }
       .a11y-nav-btn { width:32px; height:32px; }
       .a11y-nav-btn svg { width:15px; height:15px; }
+    }
+
+    /* ── Overlay de búsqueda del nav ── */
+    .search-overlay {
+      position:fixed; inset:0; z-index:10000;
+      display:flex; align-items:flex-start; justify-content:center;
+      padding-top:14vh;
+      background:rgba(6,6,6,.6); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+      opacity:0; pointer-events:none;
+      transition:opacity .2s ease;
+    }
+    .search-overlay.open { opacity:1; pointer-events:auto; }
+    .search-panel {
+      width:min(560px, calc(100vw - 48px));
+      max-height:60vh;
+      background:rgba(18,18,18,.92);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:16px;
+      box-shadow:0 24px 60px rgba(0,0,0,.5);
+      display:flex; flex-direction:column;
+      overflow:hidden;
+      transform:translateY(-12px);
+      transition:transform .2s ease;
+    }
+    .search-overlay.open .search-panel { transform:translateY(0); }
+    .search-input-row {
+      display:flex; align-items:center; gap:12px;
+      padding:18px 20px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .search-input-icon { width:18px; height:18px; color:rgba(255,255,255,.4); flex-shrink:0; }
+    #search-input {
+      flex:1; background:none; border:none; outline:none;
+      font-family:inherit; font-size:14px; color:#fff;
+    }
+    #search-input::placeholder { color:rgba(255,255,255,.35); }
+    .search-close {
+      background:none; border:none; cursor:pointer;
+      color:rgba(255,255,255,.4); font-size:14px; padding:4px;
+      transition:color .2s;
+    }
+    .search-close:hover { color:#fff; }
+    .search-results {
+      list-style:none; margin:0; padding:8px; overflow-y:auto;
+    }
+    .search-results li {
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; padding:12px 14px; border-radius:10px;
+      cursor:pointer; color:rgba(255,255,255,.85);
+      transition:background .15s;
+    }
+    .search-results li:hover, .search-results li.active {
+      background:rgba(255,255,255,.08);
+    }
+    .search-results li .sr-name { font-size:13px; }
+    .search-results li .sr-kind {
+      font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+      color:rgba(255,255,255,.35);
+    }
+    .search-results .sr-empty {
+      padding:20px 14px; color:rgba(255,255,255,.4); font-size:13px; text-align:center;
     }
 
     /* HERO CONTENT — bottom left */
@@ -1276,10 +1337,14 @@
   display:flex; align-items:center; justify-content:center;
   transition:border-color .25s, background .25s;
 }
-.contact-icon-circle svg { width:24px; height:24px; }
+/* El ícono en sí siempre al 100% blanco (no hereda el gris tenue de
+   .contact-icon-item, que ahora solo sirve para el label); en hover
+   pasa al color de acento igual que antes. */
+.contact-icon-circle svg { width:24px; height:24px; color:#fff; transition:color .25s; }
 .contact-icon-item:hover .contact-icon-circle {
   border-color:var(--contact-hover); background:var(--contact-hover-soft);
 }
+.contact-icon-item:hover .contact-icon-circle svg { color:var(--contact-hover); }
 .contact-icon-label {
   font-size:10px; letter-spacing:.03em; max-width:160px;
   color:var(--contact-text);
@@ -1402,7 +1467,7 @@
 <div class="nav-row">
 
 <nav class="nav">
-  <button type="button" class="nav-search" aria-label="Buscar">
+  <button type="button" class="nav-search" aria-label="Buscar" onclick="openSiteSearch()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="11" cy="11" r="7"/>
       <line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -1423,7 +1488,7 @@
   </a>
 </nav>
 
-<div class="top-utils">
+<div class="top-utils" id="top-utils">
   <button type="button" class="lang-toggle" id="lang-toggle-btn" onclick="toggleSiteLang()" aria-label="Cambiar idioma">ES</button>
   <button type="button" class="a11y-nav-btn" onclick="var b=document.getElementById('a11y-toggle-btn'); if(b) b.click();" aria-label="Opciones de accesibilidad" title="Opciones de accesibilidad">
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round">
@@ -1433,6 +1498,25 @@
   </button>
 </div>
 
+</div>
+
+<!-- ══════════════════════════════════════
+     BÚSQUEDA DEL NAV: overlay simple, filtra
+     secciones + proyectos (de PROJECTS) y
+     navega con goTo()/openProject() al elegir.
+══════════════════════════════════════ -->
+<div class="search-overlay" id="search-overlay" aria-hidden="true">
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="Buscar en el portafolio">
+    <div class="search-input-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-input-icon">
+        <circle cx="11" cy="11" r="7"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="search-input" placeholder="Buscar secciones o proyectos…" autocomplete="off">
+      <button type="button" class="search-close" onclick="closeSiteSearch()" aria-label="Cerrar búsqueda">✕</button>
+    </div>
+    <ul class="search-results" id="search-results"></ul>
+  </div>
 </div>
 
 <section class="hero">
@@ -2364,19 +2448,24 @@
      recuerda la preferencia en localStorage.
 ══════════════════════════════════════ -->
 <style>
+  /* Vive dentro de .top-utils (nav arriba a la derecha), mismo tamaño
+     y look "vidrio" que ES y accesibilidad — ya no flota abajo a la
+     derecha superpuesto con el boton del logo (.radial-fab). */
   #sound-toggle {
-    position: fixed; bottom: 96px; right: 28px; z-index: 9999;
-    width: 44px; height: 44px; border-radius: 50%;
-    border: 1px solid rgba(255,255,255,.22);
-    background: rgba(6,6,6,.72); backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    cursor: pointer; padding: 0; font-size: 17px; line-height: 1;
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink:0;
+    border: none;
+    background: rgba(255,255,255,.85); backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    cursor: pointer; padding: 0; font-size: 16px; line-height: 1;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 18px rgba(0,0,0,.35);
-    color: #fff; transition: transform .2s ease, opacity .2s ease;
+    box-shadow: 0 10px 24px rgba(0,0,0,.22);
+    color: #0a0a0a; transition: transform .2s ease, opacity .2s ease;
   }
   #sound-toggle:hover { transform: scale(1.08); }
   #sound-toggle[data-muted="true"] { opacity: .55; }
+  @media (max-width: 768px) {
+    #sound-toggle { width:36px; height:36px; font-size:14px; }
+  }
 </style>
 <style>
   /* ── Hero en móvil: layout flexible para que el texto quepa y se lea en iPhone (barra de Safari incluida) ── */
@@ -2398,7 +2487,6 @@
     .hero-socials a { font-size:10px; color:rgba(255,255,255,.8); border-bottom-color:rgba(255,255,255,.35); text-shadow:0 1px 8px rgba(0,0,0,.8); }
     /* Botones flotantes: una sola fila abajo a la derecha, sin tapar el texto */
     .radial-fab-wrap { bottom:calc(env(safe-area-inset-bottom, 0px) + 20px); right:20px; }
-    #sound-toggle { bottom:calc(env(safe-area-inset-bottom, 0px) + 24px); right:82px; }
   }
 </style>
 <style>
@@ -2700,10 +2788,14 @@
       setTimeout(function () { oceanAudio.pause(); }, 450);
     }
   });
-  document.addEventListener('DOMContentLoaded', function () {
-    document.body.appendChild(toggle);
-  });
-  if (document.readyState !== 'loading') document.body.appendChild(toggle);
+  // Vive dentro del nav (.top-utils), junto a ES y accesibilidad —
+  // si por lo que sea no existe ese contenedor, document.body como respaldo.
+  function mountSoundToggle() {
+    var host = document.getElementById('top-utils') || document.body;
+    host.appendChild(toggle);
+  }
+  document.addEventListener('DOMContentLoaded', mountSoundToggle);
+  if (document.readyState !== 'loading') mountSoundToggle();
 
   // ── Panel de debug para ajustar el punto de inicio/corte del derretido
   // y el mar, escuchando en vivo — solo visible con ?soundlab=1 en la URL.
@@ -4996,6 +5088,131 @@ const PROJECT_PAGES = {
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && modal.classList.contains('open')) window.hideComingSoon();
   });
+})();
+</script>
+
+<!-- ══════════════════════════════════════
+     BÚSQUEDA DEL NAV: índice simple de las 3
+     secciones + los proyectos de PROJECTS.
+══════════════════════════════════════ -->
+<script>
+(function () {
+  var overlay  = document.getElementById('search-overlay');
+  var input    = document.getElementById('search-input');
+  var resultsEl = document.getElementById('search-results');
+  if (!overlay || !input || !resultsEl) return;
+
+  function buildIndex() {
+    var items = [
+      { name:'Work / Proyectos', kind:'Sección', action:function () { goTo(1); } },
+      { name:'Sobre mí',         kind:'Sección', action:function () { goTo(2); } },
+      { name:'Contacto',        kind:'Sección', action:function () { goTo(3); } }
+    ];
+    if (typeof PROJECTS !== 'undefined' && Array.isArray(PROJECTS)) {
+      PROJECTS.forEach(function (p, i) {
+        items.push({
+          name: p.name,
+          kind: 'Proyecto',
+          action: function () {
+            goTo(1);
+            // Dar tiempo a que la sección de proyectos termine de entrar
+            // antes de abrir el detalle, para no pelear con su propia animación.
+            setTimeout(function () {
+              if (typeof openProject === 'function') openProject(i);
+            }, 500);
+          }
+        });
+      });
+    }
+    return items;
+  }
+  var INDEX = null;
+  var activeIdx = -1;
+
+  function norm(s) {
+    return (s || '').toString().toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '');
+  }
+
+  function render(list) {
+    resultsEl.innerHTML = '';
+    activeIdx = list.length ? 0 : -1;
+    if (!list.length) {
+      var empty = document.createElement('li');
+      empty.className = 'sr-empty';
+      empty.textContent = 'Sin resultados';
+      resultsEl.appendChild(empty);
+      return;
+    }
+    list.forEach(function (item, i) {
+      var li = document.createElement('li');
+      if (i === 0) li.classList.add('active');
+      var name = document.createElement('span');
+      name.className = 'sr-name';
+      name.textContent = item.name;
+      var kind = document.createElement('span');
+      kind.className = 'sr-kind';
+      kind.textContent = item.kind;
+      li.appendChild(name);
+      li.appendChild(kind);
+      li.addEventListener('click', function () { choose(item); });
+      resultsEl.appendChild(li);
+    });
+  }
+
+  function currentFiltered() {
+    var q = norm(input.value.trim());
+    if (!INDEX) INDEX = buildIndex();
+    if (!q) return INDEX;
+    return INDEX.filter(function (item) { return norm(item.name).indexOf(q) !== -1; });
+  }
+
+  function choose(item) {
+    if (!item) return;
+    closeSiteSearch();
+    item.action();
+  }
+
+  input.addEventListener('input', function () { render(currentFiltered()); });
+
+  input.addEventListener('keydown', function (e) {
+    var items = resultsEl.querySelectorAll('li:not(.sr-empty)');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (!items.length) return;
+      activeIdx = (activeIdx + 1) % items.length;
+      items.forEach(function (li, i) { li.classList.toggle('active', i === activeIdx); });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!items.length) return;
+      activeIdx = (activeIdx - 1 + items.length) % items.length;
+      items.forEach(function (li, i) { li.classList.toggle('active', i === activeIdx); });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      var list = currentFiltered();
+      var pick = activeIdx >= 0 ? list[activeIdx] : list[0];
+      choose(pick);
+    } else if (e.key === 'Escape') {
+      closeSiteSearch();
+    }
+  });
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) closeSiteSearch();
+  });
+
+  window.openSiteSearch = function () {
+    INDEX = buildIndex();
+    input.value = '';
+    render(INDEX);
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    setTimeout(function () { input.focus(); }, 50);
+  };
+  window.closeSiteSearch = function () {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+  };
 })();
 </script>
 </body>
