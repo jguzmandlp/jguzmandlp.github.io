@@ -5076,31 +5076,9 @@ const PROJECT_PAGES = {
     particleHeading('.proj-top-head', 'Proyectos');
     particleHeading('.about-title', 'Sobre mí');
 
-    // "Trabajemos / juntos." — dos líneas, izquierda, "juntos." en rojo
-    // de marca (igual que el <em> original), con el mismo efecto de
-    // partículas.
-    const ctEl = document.querySelector('.contact-title');
-    if (ctEl) {
-      const cs = getComputedStyle(ctEl);
-      const font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-      const sizePx = parseFloat(cs.fontSize) || 90;
-      const align = cs.textAlign === 'start' ? 'left' : cs.textAlign;
-      const { wrapper, canvas } = attachCanvas(ctEl);
-      initParticles(wrapper, canvas, function (ctx, w, h) {
-        ctx.fillStyle = '#000';
-        ctx.font = font;
-        ctx.textAlign = align;
-        ctx.textBaseline = 'middle';
-        const lh = sizePx * 1.05;
-        const x = align === 'center' ? w / 2 : (align === 'right' ? w : 0);
-        ctx.fillText(I18N.t('Trabajemos'), x, h / 2 - lh / 2);
-        ctx.fillText(I18N.t('juntos.'), x, h / 2 + lh / 2);
-      }, null, function (p, w, h) {
-        // Partículas que se originan en la mitad inferior del bloque
-        // (la línea "juntos.") van en rojo de marca; el resto en blanco.
-        return p.originY > h / 2 ? BRAND : WHITE;
-      });
-    }
+    // "Trabajemos / juntos." ya NO usa el efecto de partículas: queda
+    // como texto plano (se mezcla con el shader de fondo del panel de
+    // contacto, por eso se saca de este sistema de canvas).
   });
 
   // Logo del hero (SVG "Javier Guzmán"): se rasteriza a canvas para poder
