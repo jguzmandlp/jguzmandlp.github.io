@@ -3276,7 +3276,7 @@
    En estos equipos se baja resolución interna, antialias, textura del agua y framerate (30fps). */
 const LOW_END = window.__LOW_END = (innerWidth < 768 || matchMedia('(hover:none) and (pointer:coarse)').matches);
 
-/* En celulares el mar es un VIDEO en loop (sin Three.js, sin WebGL): se descarga solo el mp4 (~2.5 MB). */
+/* En celulares el mar es un VIDEO en loop (sin Three.js, sin WebGL): se descarga solo el mp4 (~3.2 MB, comprimido con CRF 30). */
 if (LOW_END) {
   const v = document.createElement('video');
   v.id = 'hero-video'; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true;
