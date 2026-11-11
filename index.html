@@ -2354,6 +2354,16 @@
       els.forEach(function (el) { el.style.filter = ''; el.style.opacity = '100%'; });
       return;
     }
+    // Ocultar TODAS las palabras de inmediato (antes de que el navegador
+    // pinte el próximo frame), no solo la primera. Si esto se deja para
+    // dentro del setTimeout de cada palabra, la 2da palabra ("juntos.")
+    // queda con su estilo por defecto (100% nítida, sin blur) durante
+    // los STAGGER_MS que espera su turno, y se alcanza a ver "pelada"
+    // un instante antes de que el morph arranque.
+    els.forEach(function (el) {
+      el.style.filter = 'blur(100px)';
+      el.style.opacity = '0%';
+    });
     els.forEach(function (el, i) {
       setTimeout(function () { animateEntrance(el, i); }, i * STAGGER_MS);
     });
@@ -2583,6 +2593,9 @@
   document.fonts.ready.then(function () {
     window.aboutWordsSplit = SplitText.create(paras, { type: 'words', wordsClass: 'word' });
     gsap.set(window.aboutWordsSplit.words, { opacity: 0 });
+    // La foto entra después de que termina el reveal del párrafo (ver
+    // goTo(), idx===2): se arranca oculta acá para el primer ingreso.
+    gsap.set('.about-avatar', { y: 14, opacity: 0 });
   });
 })();
 </script>
@@ -4492,9 +4505,20 @@ function goTo(idx) {
      (Propuesta 4 probada en body-text-reveal-test.html). Se repite cada
      vez que se visita la sección, igual que el reveal de "Intereses". */
   if (idx === 2 && window.aboutWordsSplit) {
+    // La foto se re-oculta acá (igual que las palabras) para que, si se
+    // vuelve a entrar a la sección, repita su entrada en vez de quedar
+    // visible desde el principio.
+    gsap.set('.about-avatar', { y: 14, opacity: 0 });
     gsap.fromTo(window.aboutWordsSplit.words,
       { y: 14, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.5, stagger: 0.012, ease: 'power2.out' }
+      {
+        y: 0, opacity: 1, duration: 0.5, stagger: 0.012, ease: 'power2.out',
+        // La foto aparece recién cuando termina de mostrarse el párrafo,
+        // no en paralelo con el reveal de las palabras.
+        onComplete: function () {
+          gsap.to('.about-avatar', { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' });
+        }
+      }
     );
   }
 }
