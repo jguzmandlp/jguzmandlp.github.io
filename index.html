@@ -221,8 +221,8 @@
        cluster de utilidades (idioma + accesibilidad) viven juntos aca,
        anclados en un solo lugar en vez de flotar por separado. */
     .nav-row {
-      position:fixed; top:24px; right:52px; z-index:9500;
-      display:flex; align-items:center; gap:14px;
+      position:fixed; top:28px; right:52px; z-index:9500;
+      display:flex; align-items:center; gap:16px;
     }
     /* Nav flotante en capsula blanca (estilo mockup de Illustrator: pill
        blanco, boton de busqueda oscuro a la izq., CTA negro con icono
@@ -237,7 +237,7 @@
       box-shadow:0 14px 36px rgba(0,0,0,.28);
     }
     .nav-search {
-      width:38px; height:38px; border-radius:50%; flex-shrink:0;
+      width:36px; height:36px; border-radius:50%; flex-shrink:0;
       background:#161616; color:rgba(255,255,255,.85);
       display:flex; align-items:center; justify-content:center;
       border:none; cursor:pointer;
@@ -256,7 +256,7 @@
       display:flex; align-items:center; gap:10px;
       background:#141414;
       border-radius:999px;
-      padding:6px 20px 6px 6px;
+      padding:4px 18px 4px 4px;
       color:#fff !important;
       font-size:10px; letter-spacing:.2em; text-transform:uppercase;
       transition:background .25s;
@@ -264,32 +264,33 @@
     }
     .nav-cta:hover { background:#000; }
     .nav-cta-icon {
-      width:30px; height:30px; border-radius:50%; flex-shrink:0;
+      width:28px; height:28px; border-radius:50%; flex-shrink:0;
       background:#fff; color:#141414;
       display:flex; align-items:center; justify-content:center;
     }
-    .nav-cta-icon svg { width:14px; height:14px; }
+    .nav-cta-icon svg { width:13px; height:13px; }
 
     /* TOP-RIGHT UTILS: idioma (ES/EN) + accesibilidad, arriba a la
        derecha, mismo lenguaje visual que la capsula blanca del nav. */
     .top-utils {
-      display:flex; align-items:center; gap:10px;
+      display:flex; align-items:center; gap:16px;
     }
     .lang-toggle {
       font-family:inherit;
+      width:44px; height:44px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
       font-size:10px; font-weight:700; letter-spacing:.1em;
       color:rgba(10,10,10,.6);
       background:rgba(255,255,255,.85);
       backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-      border:none; border-radius:999px;
-      padding:10px 14px;
+      border:none;
       cursor:pointer;
       box-shadow:0 10px 24px rgba(0,0,0,.22);
       transition:color .25s;
     }
     .lang-toggle:hover { color:#0a0a0a; }
     .a11y-nav-btn {
-      width:38px; height:38px; border-radius:50%; flex-shrink:0;
+      width:44px; height:44px; border-radius:50%; flex-shrink:0;
       display:flex; align-items:center; justify-content:center;
       color:rgba(10,10,10,.6);
       background:rgba(255,255,255,.85);
@@ -299,11 +300,11 @@
       transition:color .25s;
     }
     .a11y-nav-btn:hover { color:#0a0a0a; }
-    .a11y-nav-btn svg { width:18px; height:18px; }
+    .a11y-nav-btn svg { width:20px; height:20px; }
     @media (max-width: 768px) {
       .nav-row { top:16px; right:20px; gap:8px; }
       .top-utils { gap:8px; }
-      .lang-toggle { font-size:9px; padding:8px 12px; }
+      .lang-toggle { width:36px; height:36px; font-size:9px; }
       .a11y-nav-btn { width:32px; height:32px; }
       .a11y-nav-btn svg { width:15px; height:15px; }
     }
@@ -1205,10 +1206,12 @@
   --contact-footer-bg: rgba(255,255,255,.1);
   --contact-footer-name: rgba(0,0,0,.5);
   --contact-footer-copy: #000;
+  --contact-icon-bg: rgba(255,255,255,.1);
+  --contact-icon-border: rgba(0,0,0,.18);
 }
 
 .contact-logo { margin-bottom:28px; display:flex; justify-content:center; }
-.contact-logo img { height:64px; width:auto; display:block; }
+.contact-logo img, .contact-logo svg { height:64px; width:auto; display:block; }
 .contact-eye {
   font-size:9px; letter-spacing:.28em; text-transform:uppercase;
   color:var(--contact-red); display:block; margin-bottom:14px;
@@ -1268,7 +1271,8 @@
 .contact-icon-item:hover { color:var(--contact-hover); }
 .contact-icon-circle {
   width:64px; height:64px; border-radius:50%;
-  border:1px solid rgba(255,255,255,.18);
+  background:var(--contact-icon-bg);
+  border:1px solid var(--contact-icon-border);
   display:flex; align-items:center; justify-content:center;
   transition:border-color .25s, background .25s;
 }
@@ -1410,9 +1414,9 @@
   </div>
   <a href="#" class="nav-cta" onclick="event.preventDefault();goTo(3)">
     <span class="nav-cta-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="7" y1="17" x2="17" y2="7"/>
-        <polyline points="7 7 17 7 17 17"/>
+      <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.08" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3.79167 9.20833L9.20833 3.79167"/>
+        <path d="M3.79167 3.79167H9.20833V9.20833"/>
       </svg>
     </span>
     Contacto
@@ -1422,9 +1426,9 @@
 <div class="top-utils">
   <button type="button" class="lang-toggle" id="lang-toggle-btn" onclick="toggleSiteLang()" aria-label="Cambiar idioma">ES</button>
   <button type="button" class="a11y-nav-btn" onclick="var b=document.getElementById('a11y-toggle-btn'); if(b) b.click();" aria-label="Opciones de accesibilidad" title="Opciones de accesibilidad">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="4.4" r="2.1" fill="currentColor" stroke="none"/>
-      <path d="M12 8.6v5.6M12 10.5l-5.6-2.3M12 10.5l5.6-2.3M12 14.2l-4.4 7.1M12 14.2l4.4 7.1"/>
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 5.41667C10.9665 5.41667 11.75 4.63317 11.75 3.66667C11.75 2.70017 10.9665 1.91667 10 1.91667C9.0335 1.91667 8.25 2.70017 8.25 3.66667C8.25 4.63317 9.0335 5.41667 10 5.41667Z" fill="currentColor" stroke="none"/>
+      <path d="M10 7.16667V8.75M10 8.75V11.8333M10 8.75L5.33333 6.83333M10 8.75L14.6667 6.83333M10 11.8333L6.33333 17.75M10 11.8333L13.6667 17.75"/>
     </svg>
   </button>
 </div>
@@ -1677,31 +1681,40 @@
     <div class="contact-panel" id="contact-panel-1">
       <canvas id="contact-cloud-canvas" aria-hidden="true"></canvas>
       <div class="contact-logo" id="contact-logo-mount">
-        <img src="img/favicon.svg" alt="Javier Guzmán" width="58" height="64">
+        <svg viewBox="0 0 48.0451 55.3668" width="58" height="64" role="img" aria-label="Javier Guzmán">
+<g>
+<path d="M28.013 27.8475C27.1238 28.2093 21.7066 30.1585 20.1905 30.1208V40.301C22.1088 41.9394 21.8909 44.2087 21.8909 44.2087C21.7281 46.8667 19.2597 48.6907 17.028 48.6907C15.8226 48.6907 14.7371 48.2684 13.9999 47.5379C14.3698 47.6092 14.7667 47.6482 15.1769 47.6482C17.3562 47.6482 19.1211 46.5721 19.1211 44.6606C19.1211 42.7492 17.3723 41.6313 15.1352 41.7443C12.4838 41.8762 11.3 43.2469 11.2287 45.0911L11.2261 45.0884V45.2135C11.2261 45.2848 11.2287 45.3574 11.2341 45.4314C11.4171 49.6593 15.0249 51.8828 19.4359 51.8828C19.5664 51.8828 19.6915 51.8801 19.8179 51.8761V51.8828L19.826 51.8761C24.1979 51.7147 28.013 48.8306 28.013 44.5369V40.1315H28.021V33.2671H28.013V27.8448V27.8475Z" fill="#FFF800"/>
+<path d="M18.7175 33.6895C7.19714 32.374 7.70698 23.2834 7.70698 23.2834C7.70698 23.2834 8.06884 13.5848 18.7175 13.0063V6.83341C10.2992 8.96549 3.42786 15.2797 3.4709 24.0824C3.51799 33.8361 10.2696 39.0836 18.7175 40.2983V33.6895Z" fill="#FFF800"/>
+<path d="M29.3259 7.89743V16.3504C30.8769 16.8441 34.174 17.3216 37.0931 13.9722L39.3356 10.7734C39.3356 10.7734 39.758 10.1775 39.0598 9.68246C39.0598 9.68246 38.6079 9.22779 38.129 9.80756C38.129 9.80756 36.2282 12.1199 30.9442 8.75161C30.9442 8.75161 30.3725 8.35882 29.3259 7.89743Z" fill="#FFF800"/>
+<path d="M15.1877 4.97844L19.1964 5.47076C19.7641 5.54071 20.1905 6.02362 20.1905 6.59532V15.3671C20.6143 15.3819 21.1309 15.5581 21.5223 16.1903C21.5223 16.1903 22.4653 17.7211 20.9062 18.5L20.1905 18.8524V21.1002C21.4927 21.0208 24.1038 20.3119 24.1038 20.3119C25.3737 19.9716 27.183 19.5694 28.013 19.3891V15.737C28.013 15.737 28.017 15.7397 28.021 15.7397V7.39031C28.021 7.39031 28.0143 7.39031 28.013 7.38762V6.59263C28.013 6.02228 28.438 5.53937 29.0044 5.46807L32.8557 4.98247C33.7422 4.87082 34.4471 4.18076 34.5762 3.29699H13.4685C13.5977 4.18076 14.3012 4.86948 15.1877 4.97844Z" fill="#FFF800"/>
+<path d="M28.0399 20.441C28.0318 20.4437 28.0237 20.4437 28.013 20.4478C26.6812 20.6993 24.5046 21.2522 24.1535 21.3396C24.1334 21.3463 24.1105 21.3517 24.089 21.3571C22.1546 21.836 20.8322 22.0189 20.1892 22.0875V22.0956C17.9615 22.292 17.7571 21.6988 17.7571 21.6988C16.3634 19.7321 20.0278 17.8987 20.0278 17.8987C20.7663 17.6808 20.2995 16.8064 20.2995 16.8064C20.0063 16.1258 19.1668 16.4769 19.1668 16.4769C9.45037 19.3017 13.4376 26.4337 13.4376 26.4337C14.7532 29.0353 17.5216 29.4751 20.1892 29.1684C20.1892 29.1684 20.4919 29.1953 21.4133 28.9801C22.5231 28.7165 24.5383 28.099 28.0116 26.6543C34.8493 23.8201 38.4034 24.6151 38.4034 24.6151C39.8306 24.7711 40.2181 26.127 40.1548 26.7297C39.762 30.3737 33.0171 32.2596 29.3259 33.021V39.9095C38.8769 38.0963 47.1432 32.7412 44.0909 24.0326C42.2023 18.6385 32.6486 19.6232 28.0399 20.4424V20.441Z" fill="#FFF800"/>
+<path d="M39.0316 16.8683C39.2105 16.6854 39.3894 16.4917 39.5656 16.2885C39.645 16.1984 39.7176 16.1056 39.7863 16.0074L42.0314 12.8086C42.2695 12.4683 42.6731 11.7648 42.7551 10.7976C42.8802 9.3798 42.2614 8.0185 41.0898 7.11724C40.6122 6.72849 39.7553 6.21195 38.5715 6.21195C38.129 6.21195 37.7012 6.28862 37.2949 6.42852C37.459 6.10568 37.5747 5.75056 37.6299 5.37526L37.8505 3.88079C37.9904 2.90824 37.7039 1.9182 37.0582 1.17298C36.4165 0.427761 35.4775 0 34.4942 0H13.3865C12.4031 0 11.4668 0.427761 10.8225 1.17298C10.1781 1.9182 9.89026 2.90689 10.0342 3.88079L10.2521 5.37526C10.314 5.79898 10.4539 6.19177 10.6557 6.54824C8.6836 7.70238 6.93079 9.07714 5.44433 10.6469C1.85799 14.4282 -0.0253023 19.112 0.000256733 24.19C0.033887 30.5123 2.49159 35.7422 7.11374 39.3136C7.82805 39.8678 8.58944 40.3709 9.39118 40.8323C8.42801 41.9165 7.87109 43.2926 7.7702 44.849C7.75944 44.962 7.75541 45.0723 7.75541 45.1839V45.305C7.75541 45.4408 7.75944 45.578 7.76751 45.7179C7.91145 48.7203 9.29433 51.3286 11.6619 53.0679C13.708 54.5718 16.3675 55.3668 19.3579 55.3668C19.4359 55.3668 19.5179 55.3668 19.6027 55.3627C19.6457 55.3668 19.6915 55.3668 19.7359 55.3668C19.8664 55.3668 19.9915 55.3587 20.1206 55.3439C22.9724 55.1852 25.6481 54.1561 27.678 52.4276C30.0308 50.426 31.3249 47.6563 31.3249 44.6297V43.0317C33.3548 42.5689 35.2811 41.9609 37.0487 41.2251C41.1624 39.5033 44.1891 37.1883 46.0455 34.3392C48.2302 30.9831 48.6337 27.0633 47.2118 23.0009C46.3751 20.6119 44.2551 17.8543 39.0329 16.8696L39.0316 16.8683ZM38.1303 9.80621C38.6078 9.22645 39.0612 9.68111 39.0612 9.68111C39.7594 10.1748 39.337 10.772 39.337 10.772L37.0945 13.9708C34.174 17.3203 30.8783 16.8427 29.3272 16.3491V7.89609C30.3738 8.35748 30.9455 8.75026 30.9455 8.75026C36.2295 12.1185 38.1303 9.80621 38.1303 9.80621ZM34.5776 3.29833C34.4471 4.18345 33.7436 4.87217 32.8571 4.98382L29.0057 5.46942C28.4394 5.54071 28.0143 6.02228 28.0143 6.59397V7.38896C28.0143 7.38896 28.0183 7.39165 28.0224 7.39165V15.7411C28.0224 15.7411 28.0156 15.7384 28.0143 15.7384V19.3905C27.183 19.5721 25.375 19.9729 24.1051 20.3133C24.1051 20.3133 21.4941 21.0208 20.1919 21.1015V18.8538L20.9075 18.5013C22.4653 17.7211 21.5237 16.1917 21.5237 16.1917C21.1322 15.5608 20.6156 15.3832 20.1919 15.3684V6.59666C20.1919 6.02497 19.7655 5.54206 19.1978 5.47211L15.189 4.97978C14.3026 4.87082 13.599 4.1821 13.4699 3.29833H34.5789H34.5776ZM3.4709 24.0824C3.42786 15.2797 10.3005 8.96549 18.7175 6.83341V13.0063C8.06884 13.5848 7.70698 23.2834 7.70698 23.2834C7.70698 23.2834 7.19714 32.374 18.7175 33.6895V40.2983C10.2683 39.0836 3.51799 33.8361 3.4709 24.0824ZM28.0224 40.1342H28.0143V44.5396C28.0143 48.8333 24.1993 51.716 19.8273 51.8788L19.8193 51.8855V51.8788C19.6915 51.8828 19.5664 51.8855 19.4372 51.8855C15.0263 51.8855 11.4184 49.6633 11.2355 45.4341C11.2301 45.3601 11.2274 45.2888 11.2274 45.2162V45.0911L11.2301 45.0938C11.3014 43.2496 12.4852 41.8802 15.1366 41.747C17.3737 41.634 19.1224 42.7465 19.1224 44.6633C19.1224 46.5802 17.3575 47.6509 15.1783 47.6509C14.7693 47.6509 14.3712 47.6119 14.0012 47.5406C14.7397 48.271 15.824 48.6934 17.0293 48.6934C19.2597 48.6934 21.7295 46.8707 21.8922 44.2114C21.8922 44.2114 22.1102 41.9421 20.1919 40.3037V30.1235C21.7079 30.1612 27.1265 28.212 28.0143 27.8502V33.2725H28.0224V40.1369V40.1342ZM29.3259 39.9082V33.0196C33.0171 32.2583 39.762 30.3737 40.1548 26.7283C40.2194 26.1257 39.832 24.7698 38.4034 24.6137C38.4034 24.6137 34.8493 23.8187 28.0116 26.653C24.5383 28.0977 22.5218 28.7151 21.4133 28.9788C20.4919 29.194 20.1892 29.1671 20.1892 29.1671C17.523 29.4738 14.7532 29.0339 13.4376 26.4324C13.4376 26.4324 9.45037 19.3017 19.1668 16.4755C19.1668 16.4755 20.0063 16.1244 20.2995 16.8051C20.2995 16.8051 20.7676 17.6794 20.0278 17.8973C20.0278 17.8973 16.3634 19.7308 17.7571 21.6974C17.7571 21.6974 17.9615 22.2906 20.1892 22.0942V22.0862C20.8309 22.0176 22.1546 21.8346 24.089 21.3558C24.1091 21.3517 24.132 21.345 24.1535 21.3383C24.5046 21.2495 26.6825 20.6966 28.013 20.4464C28.0237 20.4424 28.0318 20.4424 28.0399 20.4397C32.6499 19.6205 42.2023 18.6358 44.0909 24.0299C47.1432 32.7385 38.8769 38.0949 29.3259 39.9068V39.9082Z" fill="#1D1D1B"/>
+</g>
+</svg>
       </div>
       <span class="contact-eye">Contacto</span>
       <div class="contact-icons-row">
         <a href="mailto:javier.guzman.dlp@gmail.com" class="contact-icon-item" aria-label="Email">
           <span class="contact-icon-circle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7L22 6"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5H19C20.1046 5 21 5.89543 21 7V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7C3 5.89543 3.89543 5 5 5Z"/><path d="M3 7L12 13L21 7"/></svg>
           </span>
           <span class="contact-icon-label">javier.guzman.dlp@gmail.com</span>
         </a>
         <a href="https://wa.me/50688741052" target="_blank" class="contact-icon-item" rel="noopener noreferrer" aria-label="WhatsApp">
           <span class="contact-icon-circle">
-            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.07L2 22l5.09-1.34A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Zm5.2 14.3c-.22.62-1.09 1.15-1.79 1.3-.48.1-1.11.18-3.22-.69-2.71-1.12-4.46-3.86-4.6-4.04-.13-.18-1.1-1.46-1.1-2.78 0-1.32.69-1.97.94-2.24.22-.24.48-.3.64-.3.16 0 .32 0 .46.01.15.01.35-.06.55.42.22.53.73 1.83.8 1.96.06.13.1.29.02.46-.08.18-.12.29-.24.44-.12.15-.26.34-.37.46-.12.13-.25.27-.11.53.14.26.62 1.02 1.33 1.65.91.82 1.68 1.07 1.94 1.19.26.13.41.11.56-.06.16-.18.65-.75.82-1.01.17-.26.34-.21.57-.13.23.08 1.47.7 1.72.82.25.13.42.19.48.3.06.11.06.62-.16 1.24Z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5C21.0034 12.8199 20.6951 14.1219 20.1 15.3C19.3944 16.7117 18.3098 17.8992 16.9674 18.7293C15.6251 19.5594 14.0782 19.9994 12.5 20C11.1801 20.0034 9.87812 19.6951 8.7 19.1L3 21L4.9 15.3C4.30493 14.1219 3.99656 12.8199 4 11.5C4.00061 9.92176 4.44061 8.37485 5.27072 7.03255C6.10083 5.69025 7.28825 4.60557 8.7 3.9C9.87812 3.30493 11.1801 2.99656 12.5 3H13C15.0843 3.11499 17.053 3.99476 18.5291 5.47086C20.0052 6.94696 20.885 8.91565 21 11V11.5Z"/></svg>
           </span>
           <span class="contact-icon-label">+506 8874 1052</span>
         </a>
         <a href="https://linkedin.com/in/jguzmandlp" target="_blank" class="contact-icon-item" rel="noopener noreferrer" aria-label="LinkedIn">
           <span class="contact-icon-circle">
-            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47v6.27ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45Z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8C17.5913 8 19.1174 8.63214 20.2426 9.75736C21.3679 10.8826 22 12.4087 22 14V21H18V14C18 13.4696 17.7893 12.9609 17.4142 12.5858C17.0391 12.2107 16.5304 12 16 12C15.4696 12 14.9609 12.2107 14.5858 12.5858C14.2107 12.9609 14 13.4696 14 14V21H10V14C10 12.4087 10.6321 10.8826 11.7574 9.75736C12.8826 8.63214 14.4087 8 16 8Z"/><path d="M2 9H6V21H2V9Z"/><path d="M6 4C6 5.10457 5.10457 6 4 6C2.89543 6 2 5.10457 2 4C2 2.89543 2.89543 2 4 2C5.10457 2 6 2.89543 6 4Z"/></svg>
           </span>
           <span class="contact-icon-label">linkedin.com/in/jguzmandlp</span>
         </a>
         <a href="https://torre.ai/javier-guzman" target="_blank" class="contact-icon-item" rel="noopener noreferrer" aria-label="Torre.ai">
           <span class="contact-icon-circle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"/><path d="M2 12H22"/><path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2Z"/></svg>
           </span>
           <span class="contact-icon-label">torre.ai/javier-guzman</span>
         </a>
