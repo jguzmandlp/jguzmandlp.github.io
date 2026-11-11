@@ -16,9 +16,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <!-- Fuentes: carga sin bloquear el render (solo el peso de Unbounded que se usa: 700) -->
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Space+Mono:wght@400;700&family=Unbounded:wght@700&family=Pirata+One&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Space+Mono:wght@400;700&family=Unbounded:wght@700&family=Pirata+One&display=swap"></noscript>
+  <!-- Fuentes: antes usaba el truco rel="preload" + onload para no bloquear
+       el render, pero bajo file:// el evento "onload" de ese <link> nunca
+       dispara (bug/quirk conocido de Chrome con preload en páginas con
+       origin file:), así que el <link> se queda en rel="preload" para
+       siempre y la hoja de estilos de Google Fonts NUNCA llega a aplicarse:
+       Pirata One no se registra, cae al fallback genérico 'cursive', y esa
+       tipografía equivocada queda fija en las partículas de "Proyectos"
+       (ver whenFontsReady más abajo). Por eso se cambió a un <link
+       rel="stylesheet"> normal, que carga igual bajo file:// y bajo https. -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Space+Mono:wght@400;700&family=Unbounded:wght@700&family=Pirata+One&display=swap">
   <script>
     /* Al volver desde una página de proyecto (index.html?s=proyectos) no se repite el preloader/intro. */
     if (/[?&]s=proyectos\b/.test(location.search)) { document.documentElement.classList.add('skip-intro'); window.__skipIntro = true; }
@@ -4794,6 +4801,20 @@ function initGridMesh(sectionEl, canvasEl) {
     color: [140, 140, 145], // gris neutro
   };
 
+  // Config expuesta para el panel de debug (?colorlab=1, ver más abajo
+  // después de las dos llamadas a initGridMesh()): permite ajustar en vivo
+  // el color de esta rejilla y el fondo de la sección. Lo guardado queda
+  // en el localStorage de ESTE navegador nada más — nunca afecta a otros
+  // visitantes del sitio.
+  window.__gridMeshConfigs = window.__gridMeshConfigs || {};
+  window.__gridMeshConfigs[canvasEl.id] = CONFIG;
+  try {
+    const savedGridColor = localStorage.getItem('jg_colorlab_grid_' + canvasEl.id);
+    if (savedGridColor) CONFIG.color = JSON.parse(savedGridColor);
+    const savedBg = localStorage.getItem('jg_colorlab_bg_' + sectionEl.id);
+    if (savedBg) sectionEl.style.background = savedBg;
+  } catch (e) {}
+
   let grid = [];
   let cols = 0, rows = 0;
   let mouse = { x: -9999, y: -9999 };
@@ -4955,8 +4976,579 @@ function initGridMesh(sectionEl, canvasEl) {
   requestAnimationFrame(gridLoop);
 }
 
+// ── Shader de prueba (anillo rojo tipo "nube") — botón de prueba
+// dentro del grupo Proyectos. Usa el shader (GLSL / WebGL2) que me
+// compartiste; se agrega como un canvas más arriba del grid-mesh
+// (mismo orden que ya traía esa sección) y corre con
+// requestAnimationFrame mientras el botón esté en "ON".
+function compileShader(gl, type, source) {
+  const shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+    gl.deleteShader(shader);
+    return null;
+  }
+  return shader;
+}
+
+function startShaderBackground(sectionEl) {
+  const VERT = "#version 300 es\nprecision highp float;\nin vec4 a_position;\nin vec2 a_tex_coord;\nout vec2 v_tex_coord;\n\nvoid main() {\n  gl_Position = a_position;\n  v_tex_coord = a_tex_coord;\n}";
+  const FRAG = "#version 300 es\nprecision highp float;\n\nuniform vec2 u_resolution;\nuniform float u_time;\n\n\nuniform vec4 u_background;\nuniform vec4 u_inner_color;\nuniform vec4 u_outer_color;\nuniform float u_scale;\nuniform float u_cloudyness;\nuniform float u_thickness;\nuniform float u_speed;\n\nout vec4 fragColor;\n\n#define TWO_PI 6.28318530718\n#define PI 3.14159265358979323846\n\nfloat random(in vec2 st) {\n  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);\n}\nfloat noise(in vec2 st) {\n  vec2 i = floor(st);\n  vec2 f = fract(st);\n  float a = random(i);\n  float b = random(i + vec2(1.0, 0.0));\n  float c = random(i + vec2(0.0, 1.0));\n  float d = random(i + vec2(1.0, 1.0));\n  vec2 u = f * f * (3.0 - 2.0 * f);\n  return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;\n}\nfloat fbm(in vec2 n) {\n  float total = 0.0, amplitude = .4;\n  for (int i = 0; i < 12; i++) {\n    total += noise(n) * amplitude;\n    n += n;\n    amplitude *= 0.6;\n  }\n  return total;\n}\n\nfloat get_ring_shape(vec2 uv, float innerRadius, float outerRadius) {\n  float distance = length(uv);\n  float line_width = outerRadius - innerRadius;\n  float ringValue = smoothstep(innerRadius, innerRadius + .8 * line_width, distance);\n  ringValue -= smoothstep(outerRadius, outerRadius + 1.2 * line_width, distance);\n  return clamp(ringValue, 0., 1.);\n}\n\nvoid main() {\n  vec2 uv = gl_FragCoord.xy / u_resolution.xy;\n  float ratio = u_resolution.x / u_resolution.y;\n\n  uv -= .5;\n  // Zoom directo: a mayor u_scale, el anillo completo (no solo el ruido\n  // de adentro) ocupa más pantalla. u_scale=1 es el tamaño \"normal\".\n  uv *= 3.0 / max(u_scale, 0.05);\n  uv.x *= ratio;\n\n  float t = u_time * u_speed;\n\n  float atg = atan(uv.y, uv.x);\n  float angle = (atg + PI) / TWO_PI;\n\n  vec2 polar_uv = vec2(atg, .1 * t - (.5 * length(uv)) + 1. / pow(length(uv), .5));\n  polar_uv *= u_cloudyness;\n\n  float noise_left = fbm(polar_uv + .05 * t);\n  polar_uv.x = mod(polar_uv.x, u_cloudyness * TWO_PI);\n  float noise_right = fbm(polar_uv + .05 * t);\n  float noise = mix(noise_right, noise_left, smoothstep(-.2, .2, uv.x));\n\n  float center_shape = 1. - pow(smoothstep(2., .0, length(uv)), 50.);\n\n  float radius = .4 - .25 * u_thickness;\n  float thickness = u_thickness;\n  thickness = pow(thickness, 2.);\n\n  float ring_shape = get_ring_shape(uv * (.5 + .6 * noise), radius - .2 * thickness, radius + .5 * thickness);\n\n  float ring_shape_outer = 1. - pow(ring_shape, 7.);\n  ring_shape_outer *= ring_shape;\n\n  float ring_shape_inner = ring_shape - ring_shape_outer;\n  ring_shape_inner *= ring_shape;\n\n  float background = u_background.a;\n\n  float opacity = ring_shape_outer * u_outer_color.a;\n  opacity += ring_shape_inner * u_inner_color.a;\n  opacity += background * (1. - ring_shape_inner * u_inner_color.a - ring_shape_outer * u_outer_color.a);\n\n  vec3 color = u_background.rgb * (1. - ring_shape) * background;\n  color += u_outer_color.rgb * ring_shape_outer * u_outer_color.a;\n  color += u_inner_color.rgb * ring_shape_inner * u_inner_color.a;\n\n  color += u_background.rgb * ring_shape_inner * (1. - u_inner_color.a) * background;\n  color += u_background.rgb * ring_shape_outer * (1. - u_outer_color.a) * background;\n\n  fragColor = vec4(color, opacity);\n}";
+
+  const canvas = document.createElement('canvas');
+  canvas.className = 'shaderbg-canvas';
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;';
+  const gridCanvas = sectionEl.querySelector('.grid-mesh-canvas');
+  if (gridCanvas && gridCanvas.nextSibling) {
+    sectionEl.insertBefore(canvas, gridCanvas.nextSibling);
+  } else {
+    sectionEl.appendChild(canvas);
+  }
+
+  const gl = canvas.getContext('webgl2');
+  if (!gl) {
+    console.warn('WebGL2 no disponible en este navegador — no se puede probar el shader.');
+    canvas.remove();
+    return { stop: function () {} };
+  }
+
+  const vs = compileShader(gl, gl.VERTEX_SHADER, VERT);
+  const fs = compileShader(gl, gl.FRAGMENT_SHADER, FRAG);
+  const program = gl.createProgram();
+  gl.attachShader(program, vs);
+  gl.attachShader(program, fs);
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.error('Shader link error:', gl.getProgramInfoLog(program));
+    canvas.remove();
+    return { stop: function () {} };
+  }
+  gl.useProgram(program);
+
+  // Quad a pantalla completa (dos triángulos) — posición (vec4) + texcoord (vec2) por vértice.
+  const quad = new Float32Array([
+    -1, -1, 0, 1, 0, 0,
+     1, -1, 0, 1, 1, 0,
+    -1,  1, 0, 1, 0, 1,
+    -1,  1, 0, 1, 0, 1,
+     1, -1, 0, 1, 1, 0,
+     1,  1, 0, 1, 1, 1
+  ]);
+  const vbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
+
+  const posLoc = gl.getAttribLocation(program, 'a_position');
+  const texLoc = gl.getAttribLocation(program, 'a_tex_coord');
+  const stride = 6 * 4;
+  gl.enableVertexAttribArray(posLoc);
+  gl.vertexAttribPointer(posLoc, 4, gl.FLOAT, false, stride, 0);
+  gl.enableVertexAttribArray(texLoc);
+  gl.vertexAttribPointer(texLoc, 2, gl.FLOAT, false, stride, 4 * 4);
+
+  const u = {
+    resolution: gl.getUniformLocation(program, 'u_resolution'),
+    time: gl.getUniformLocation(program, 'u_time'),
+    background: gl.getUniformLocation(program, 'u_background'),
+    inner: gl.getUniformLocation(program, 'u_inner_color'),
+    outer: gl.getUniformLocation(program, 'u_outer_color'),
+    scale: gl.getUniformLocation(program, 'u_scale'),
+    cloudyness: gl.getUniformLocation(program, 'u_cloudyness'),
+    thickness: gl.getUniformLocation(program, 'u_thickness'),
+    speed: gl.getUniformLocation(program, 'u_speed')
+  };
+
+  // Valores por defecto: los mismos del JSON que me pasaste.
+  const cfg = {
+    background: [0, 0, 0, 1],
+    inner_color: [1, 0, 0, 1],
+    outer_color: [1, 1, 1, 0.1],
+    // Valor final elegido en el Color Lab (escala 1.43), con la
+    // fórmula de zoom ya corregida.
+    scale: 1.43,
+    cloudyness: 1,
+    thickness: 1,
+    speed: 1
+  };
+
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+  function resize() {
+    const rect = sectionEl.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(1, Math.round(rect.width * dpr));
+    canvas.height = Math.max(1, Math.round(rect.height * dpr));
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const start = performance.now();
+  let rafId;
+  function frame(now) {
+    const t = (now - start) / 1000;
+    gl.uniform2f(u.resolution, canvas.width, canvas.height);
+    gl.uniform1f(u.time, t);
+    gl.uniform4fv(u.background, cfg.background);
+    gl.uniform4fv(u.inner, cfg.inner_color);
+    gl.uniform4fv(u.outer, cfg.outer_color);
+    gl.uniform1f(u.scale, cfg.scale);
+    gl.uniform1f(u.cloudyness, cfg.cloudyness);
+    gl.uniform1f(u.thickness, cfg.thickness);
+    gl.uniform1f(u.speed, cfg.speed);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    rafId = requestAnimationFrame(frame);
+  }
+  rafId = requestAnimationFrame(frame);
+
+  return {
+    cfg: cfg,
+    canvas: canvas,
+    stop: function () {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', resize);
+      canvas.remove();
+    }
+  };
+}
+
+// Segundo shader de prueba ("iridiscencia" tipo ReactBits) — mismo
+// patrón que startShaderBackground, para el botón de About. Se
+// duplica el boilerplate de WebGL en vez de generalizar una función
+// común porque esto es solo tooling de prueba local (no va a git).
+// OJO: el fragmentShader que me pasaste venía en GLSL ES 1.00
+// (gl_FragColor, sin #version) pero el vertexShader es GLSL ES 3.00
+// (#version 300 es) — mezclar versiones no compila en WebGL2, así que
+// acá el fragment shader se adaptó a 300 es (gl_FragColor → variable
+// "out"), manteniendo la lógica exactamente igual.
+function startIridescenceBackground(sectionEl) {
+  const VERT = "#version 300 es\nprecision highp float;\nin vec4 a_position;\nin vec2 a_tex_coord;\nout vec2 v_tex_coord;\n\nvoid main() {\n  gl_Position = a_position;\n  v_tex_coord = a_tex_coord;\n}";
+  const FRAG = "#version 300 es\nprecision highp float;\n\nuniform vec2 u_resolution;\nuniform vec2 u_mouse;\nuniform float u_time;\nuniform vec3 u_color;\nuniform float u_scale;\nuniform float u_speed;\n\nout vec4 fragColor;\n\nvoid main() {\n  vec2 st = gl_FragCoord.xy/u_resolution.xy;\n  float mr = min(u_resolution.x, u_resolution.y);\n  vec2 uv = (st.xy * 2.0 - 1.0) * u_resolution.xy / mr;\n\n  uv *= (1.0-u_scale) * 2.;\n\n  // Viñeta: no venía en el JSON que me pasaste, pero la preview de\n  // referencia sí la tiene (bordes a negro). Se calcula DESPUÉS del\n  // escalado por u_scale (a diferencia de antes) para que el círculo\n  // visible crezca junto con el patrón de adentro, no se quede fijo.\n  float vignette = 1.0 - smoothstep(0.25, 1.15, length(uv));\n\n  float d = -u_time * 0.5 * u_speed;\n  float a = 0.0;\n  for (float i = 0.0; i < 8.0; ++i) {\n    a += cos(i - d - a * uv.x);\n    d += sin(uv.y * i + a);\n  }\n  d += u_time * 0.5 * u_speed;\n  vec3 col = vec3(cos(uv * vec2(d, a)) * 0.6 + 0.4, cos(a + d) * 0.5 + 0.5);\n  col = cos(col * cos(vec3(d, a, 2.5)) * 0.5 + 0.5) * u_color;\n  col *= vignette;\n  fragColor = vec4(col, 1.0);\n}";
+
+  const canvas = document.createElement('canvas');
+  canvas.className = 'shaderbg-canvas';
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;';
+  const gridCanvas = sectionEl.querySelector('.grid-mesh-canvas');
+  if (gridCanvas && gridCanvas.nextSibling) {
+    sectionEl.insertBefore(canvas, gridCanvas.nextSibling);
+  } else {
+    sectionEl.appendChild(canvas);
+  }
+
+  const gl = canvas.getContext('webgl2');
+  if (!gl) {
+    console.warn('WebGL2 no disponible en este navegador — no se puede probar el shader.');
+    canvas.remove();
+    return { stop: function () {} };
+  }
+
+  const vs = compileShader(gl, gl.VERTEX_SHADER, VERT);
+  const fs = compileShader(gl, gl.FRAGMENT_SHADER, FRAG);
+  const program = gl.createProgram();
+  gl.attachShader(program, vs);
+  gl.attachShader(program, fs);
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.error('Shader link error:', gl.getProgramInfoLog(program));
+    canvas.remove();
+    return { stop: function () {} };
+  }
+  gl.useProgram(program);
+
+  const quad = new Float32Array([
+    -1, -1, 0, 1, 0, 0,
+     1, -1, 0, 1, 1, 0,
+    -1,  1, 0, 1, 0, 1,
+    -1,  1, 0, 1, 0, 1,
+     1, -1, 0, 1, 1, 0,
+     1,  1, 0, 1, 1, 1
+  ]);
+  const vbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
+
+  const posLoc = gl.getAttribLocation(program, 'a_position');
+  const texLoc = gl.getAttribLocation(program, 'a_tex_coord');
+  const stride = 6 * 4;
+  gl.enableVertexAttribArray(posLoc);
+  gl.vertexAttribPointer(posLoc, 4, gl.FLOAT, false, stride, 0);
+  gl.enableVertexAttribArray(texLoc);
+  gl.vertexAttribPointer(texLoc, 2, gl.FLOAT, false, stride, 4 * 4);
+
+  const u = {
+    resolution: gl.getUniformLocation(program, 'u_resolution'),
+    mouse: gl.getUniformLocation(program, 'u_mouse'),
+    time: gl.getUniformLocation(program, 'u_time'),
+    color: gl.getUniformLocation(program, 'u_color'),
+    scale: gl.getUniformLocation(program, 'u_scale'),
+    speed: gl.getUniformLocation(program, 'u_speed')
+  };
+
+  // Valor final elegido en el Color Lab (escala 0.65); color igual al
+  // del JSON original.
+  const cfg = {
+    color: [0.3215686274509804, 0, 0],
+    scale: 0.65,
+    speed: 1
+  };
+
+  function resize() {
+    const rect = sectionEl.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(1, Math.round(rect.width * dpr));
+    canvas.height = Math.max(1, Math.round(rect.height * dpr));
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const start = performance.now();
+  let rafId;
+  function frame(now) {
+    const t = (now - start) / 1000;
+    gl.uniform2f(u.resolution, canvas.width, canvas.height);
+    gl.uniform2f(u.mouse, 0, 0);
+    gl.uniform1f(u.time, t);
+    gl.uniform3fv(u.color, cfg.color);
+    gl.uniform1f(u.scale, cfg.scale);
+    gl.uniform1f(u.speed, cfg.speed);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    rafId = requestAnimationFrame(frame);
+  }
+  rafId = requestAnimationFrame(frame);
+
+  return {
+    cfg: cfg,
+    canvas: canvas,
+    stop: function () {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', resize);
+      canvas.remove();
+    }
+  };
+}
+
 initGridMesh(document.getElementById('proj-section'), document.getElementById('grid-mesh-proj'));
 initGridMesh(document.getElementById('about-section'), document.getElementById('grid-mesh-about'));
+
+// Shaders de fondo (Proyectos: anillo rojo / About: iridiscencia) con los
+// valores finales que quedaron elegidos en el Color Lab — corren para
+// todas las visitas, no solo en las pruebas locales. Los defaults de
+// escala/color ya quedaron puestos en compileShader/startShaderBackground/
+// startIridescenceBackground de arriba; acá solo falta la opacidad, que se
+// aplica como CSS sobre el canvas (no es un uniform del shader).
+const projShaderHandle = startShaderBackground(document.getElementById('proj-section'));
+projShaderHandle.canvas.style.opacity = '0.85';
+const aboutShaderHandle = startIridescenceBackground(document.getElementById('about-section'));
+aboutShaderHandle.canvas.style.opacity = '1';
+
+// ── Panel de debug para ajustar en vivo los colores de fondo de Proyectos
+// y de About — visible automáticamente al abrir el archivo local
+// (file://) o agregando ?colorlab=1 en la URL; nunca en el sitio
+// publicado (https). Lo que ajustás acá queda en localStorage de este
+// navegador (no afecta a otros visitantes); el botón "Guardar" copia los
+// valores finales para pasármelos y dejarlos fijos en el código.
+if (location.protocol === 'file:' || location.search.indexOf('colorlab=1') !== -1) {
+  (function () {
+    function rgbToHex(rgb) {
+      return '#' + rgb.map(function (n) {
+        return Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0');
+      }).join('');
+    }
+    function hexToRgb(hex) {
+      const h = hex.replace('#', '');
+      return [parseInt(h.substr(0, 2), 16), parseInt(h.substr(2, 2), 16), parseInt(h.substr(4, 2), 16)];
+    }
+
+    // Los shaders WebGL usan color en floats 0–1 (no 0–255 como <input
+    // type="color">), así que estas dos son aparte de rgbToHex/hexToRgb.
+    function hexToRgbFloat(hex) {
+      const h = hex.replace('#', '');
+      return [parseInt(h.substr(0, 2), 16) / 255, parseInt(h.substr(2, 2), 16) / 255, parseInt(h.substr(4, 2), 16) / 255];
+    }
+    function rgbFloatToHex(rgb) {
+      return '#' + rgb.slice(0, 3).map(function (n) {
+        return Math.max(0, Math.min(255, Math.round(n * 255))).toString(16).padStart(2, '0');
+      }).join('');
+    }
+
+
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:fixed;top:16px;right:16px;z-index:99999;' +
+      'background:rgba(10,10,10,.92);border:1px solid rgba(255,255,255,.2);' +
+      'border-radius:10px;padding:14px 16px;color:#fff;font:12px/1.5 monospace;' +
+      'width:240px;box-shadow:0 8px 24px rgba(0,0,0,.5);';
+    wrap.innerHTML = '<div style="font-weight:bold;margin-bottom:10px;">🎨 Color Lab</div>';
+    document.body.appendChild(wrap);
+
+    // Una sección por grupo (Proyectos / About): mismo control repetido.
+    const groups = [
+      { label: 'Proyectos', sectionId: 'proj-section', canvasId: 'grid-mesh-proj' },
+      { label: 'About',     sectionId: 'about-section', canvasId: 'grid-mesh-about' }
+    ];
+    const results = {};
+
+    groups.forEach(function (g) {
+      const sectionEl = document.getElementById(g.sectionId);
+      const gridConfig = window.__gridMeshConfigs && window.__gridMeshConfigs[g.canvasId];
+      if (!sectionEl || !gridConfig) return;
+
+      const box = document.createElement('div');
+      box.style.cssText = 'margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.15);';
+      box.innerHTML =
+        '<div style="opacity:.7;margin-bottom:6px;">' + g.label + '</div>' +
+        '<div>Fondo de la sección</div>' +
+        '<input class="cl-bg" type="color" style="width:100%;height:32px;margin-bottom:6px;">' +
+        '<div>Color de la rejilla</div>' +
+        '<input class="cl-grid" type="color" style="width:100%;height:32px;">';
+      wrap.appendChild(box);
+
+      const bgInput = box.querySelector('.cl-bg');
+      const gridInput = box.querySelector('.cl-grid');
+
+      // Lo llena cada bloque de shader (Proyectos/About) más abajo, para
+      // que "Guardar" pueda incluir también su estado (encendido o no,
+      // escala, color, opacidad) — antes el botón solo guardaba fondo y
+      // rejilla.
+      let shaderState = null;
+
+      // El fondo arranca como color inline si ya había uno guardado (ver
+      // initGridMesh), o si no, el valor fijo que trae el CSS (#060606).
+      const currentBg = sectionEl.style.background;
+      bgInput.value = /^#[0-9a-f]{6}$/i.test(currentBg) ? currentBg : '#060606';
+      gridInput.value = rgbToHex(gridConfig.color);
+
+      bgInput.addEventListener('input', function () {
+        sectionEl.style.background = bgInput.value;
+      });
+      gridInput.addEventListener('input', function () {
+        gridConfig.color = hexToRgb(gridInput.value);
+      });
+
+      // Botón de prueba para el shader (anillo rojo) — solo en Proyectos,
+      // que es donde me mandaste el mockup. Prende/apaga el canvas WebGL
+      // sin tocar la rejilla ni el color de fondo, así se puede combinar
+      // con esos controles para probar todo junto.
+      if (g.label === 'Proyectos') {
+        const shaderBtn = document.createElement('button');
+        shaderBtn.textContent = '🌀 Shader (anillo) — ON';
+        shaderBtn.style.cssText = 'width:100%;margin-top:6px;';
+        box.appendChild(shaderBtn);
+
+        // Escala del shader — ahora es un zoom directo sobre TODO el
+        // anillo (no solo el ruido de adentro, que era el bug de la
+        // fórmula original del JSON). 1 = tamaño normal, más alto = anillo
+        // más grande, más bajo = anillo más chico. Se guarda en
+        // `scaleValue` aparte del handle para que el slider sirva aunque
+        // el shader esté apagado: al prenderlo de nuevo, arranca ya con la
+        // última escala elegida.
+        const scaleRow = document.createElement('div');
+        scaleRow.style.cssText = 'margin-top:6px;';
+        scaleRow.innerHTML =
+          '<div>Escala del shader <span class="cl-scale-val">1.43</span></div>' +
+          '<input class="cl-scale" type="range" min="0.1" max="3" step="0.01" value="1.43" style="width:100%;">';
+        box.appendChild(scaleRow);
+        const scaleInput = scaleRow.querySelector('.cl-scale');
+        const scaleVal = scaleRow.querySelector('.cl-scale-val');
+
+        // Color del anillo (pisa inner_color, que es el color principal
+        // del efecto) y opacidad general (vía CSS en el propio canvas, no
+        // toca el shader — así sirve igual para cualquier shader).
+        const colorRow = document.createElement('div');
+        colorRow.style.cssText = 'margin-top:6px;';
+        colorRow.innerHTML =
+          '<div>Color del shader</div>' +
+          '<input class="cl-shader-color" type="color" value="#ff0000" style="width:100%;height:32px;">';
+        box.appendChild(colorRow);
+        const colorInput = colorRow.querySelector('.cl-shader-color');
+
+        const opacityRow = document.createElement('div');
+        opacityRow.style.cssText = 'margin-top:6px;';
+        opacityRow.innerHTML =
+          '<div>Opacidad del shader <span class="cl-op-val">0.85</span></div>' +
+          '<input class="cl-shader-op" type="range" min="0" max="1" step="0.01" value="0.85" style="width:100%;">';
+        box.appendChild(opacityRow);
+        const opacityInput = opacityRow.querySelector('.cl-shader-op');
+        const opacityVal = opacityRow.querySelector('.cl-op-val');
+
+        let scaleValue = 1.43;
+        let colorValue = hexToRgbFloat('#ff0000');
+        let opacityValue = 0.85;
+        let shaderHandle = projShaderHandle;
+
+        scaleInput.addEventListener('input', function () {
+          scaleValue = parseFloat(scaleInput.value);
+          scaleVal.textContent = scaleValue.toFixed(2);
+          if (shaderHandle) shaderHandle.cfg.scale = scaleValue;
+        });
+        colorInput.addEventListener('input', function () {
+          colorValue = hexToRgbFloat(colorInput.value);
+          if (shaderHandle) {
+            shaderHandle.cfg.inner_color[0] = colorValue[0];
+            shaderHandle.cfg.inner_color[1] = colorValue[1];
+            shaderHandle.cfg.inner_color[2] = colorValue[2];
+          }
+        });
+        opacityInput.addEventListener('input', function () {
+          opacityValue = parseFloat(opacityInput.value);
+          opacityVal.textContent = opacityValue.toFixed(2);
+          if (shaderHandle) shaderHandle.canvas.style.opacity = String(opacityValue);
+        });
+
+        shaderBtn.addEventListener('click', function () {
+          if (shaderHandle) {
+            shaderHandle.stop();
+            shaderHandle = null;
+            shaderBtn.textContent = '🌀 Shader (anillo)';
+          } else {
+            shaderHandle = startShaderBackground(sectionEl);
+            shaderHandle.cfg.scale = scaleValue;
+            shaderHandle.cfg.inner_color[0] = colorValue[0];
+            shaderHandle.cfg.inner_color[1] = colorValue[1];
+            shaderHandle.cfg.inner_color[2] = colorValue[2];
+            shaderHandle.canvas.style.opacity = String(opacityValue);
+            shaderBtn.textContent = '🌀 Shader (anillo) — ON';
+          }
+        });
+
+        shaderState = {
+          name: 'anillo',
+          isOn: function () { return !!shaderHandle; },
+          scale: function () { return scaleValue; },
+          color: function () { return colorValue; },
+          opacity: function () { return opacityValue; }
+        };
+      }
+
+      // Botón de prueba para el shader de iridiscencia — solo en About,
+      // que es donde me pediste probarlo.
+      if (g.label === 'About') {
+        const iriBtn = document.createElement('button');
+        iriBtn.textContent = '🌈 Shader (iridiscencia) — ON';
+        iriBtn.style.cssText = 'width:100%;margin-top:6px;';
+        box.appendChild(iriBtn);
+
+        // Escala — rango 0 a 1 (el uniform u_scale viene comentado como
+        // "%" en el JSON original, y arriba de 1 el patrón se invierte).
+        const iriScaleRow = document.createElement('div');
+        iriScaleRow.style.cssText = 'margin-top:6px;';
+        iriScaleRow.innerHTML =
+          '<div>Escala del shader <span class="cl-iri-scale-val">0.65</span></div>' +
+          '<input class="cl-iri-scale" type="range" min="0" max="1" step="0.01" value="0.65" style="width:100%;">';
+        box.appendChild(iriScaleRow);
+        const iriScaleInput = iriScaleRow.querySelector('.cl-iri-scale');
+        const iriScaleVal = iriScaleRow.querySelector('.cl-iri-scale-val');
+
+        const iriColorRow = document.createElement('div');
+        iriColorRow.style.cssText = 'margin-top:6px;';
+        iriColorRow.innerHTML =
+          '<div>Color del shader</div>' +
+          '<input class="cl-iri-color" type="color" value="' + rgbFloatToHex([0.3215686274509804, 0, 0]) + '" style="width:100%;height:32px;">';
+        box.appendChild(iriColorRow);
+        const iriColorInput = iriColorRow.querySelector('.cl-iri-color');
+
+        const iriOpacityRow = document.createElement('div');
+        iriOpacityRow.style.cssText = 'margin-top:6px;';
+        iriOpacityRow.innerHTML =
+          '<div>Opacidad del shader <span class="cl-iri-op-val">1.00</span></div>' +
+          '<input class="cl-iri-op" type="range" min="0" max="1" step="0.01" value="1" style="width:100%;">';
+        box.appendChild(iriOpacityRow);
+        const iriOpacityInput = iriOpacityRow.querySelector('.cl-iri-op');
+        const iriOpacityVal = iriOpacityRow.querySelector('.cl-iri-op-val');
+
+        let iriScaleValue = 0.65;
+        let iriColorValue = hexToRgbFloat(iriColorInput.value);
+        let iriOpacityValue = 1;
+        let iriHandle = aboutShaderHandle;
+
+        iriScaleInput.addEventListener('input', function () {
+          iriScaleValue = parseFloat(iriScaleInput.value);
+          iriScaleVal.textContent = iriScaleValue.toFixed(2);
+          if (iriHandle) iriHandle.cfg.scale = iriScaleValue;
+        });
+        iriColorInput.addEventListener('input', function () {
+          iriColorValue = hexToRgbFloat(iriColorInput.value);
+          if (iriHandle) {
+            iriHandle.cfg.color[0] = iriColorValue[0];
+            iriHandle.cfg.color[1] = iriColorValue[1];
+            iriHandle.cfg.color[2] = iriColorValue[2];
+          }
+        });
+        iriOpacityInput.addEventListener('input', function () {
+          iriOpacityValue = parseFloat(iriOpacityInput.value);
+          iriOpacityVal.textContent = iriOpacityValue.toFixed(2);
+          if (iriHandle) iriHandle.canvas.style.opacity = String(iriOpacityValue);
+        });
+
+        iriBtn.addEventListener('click', function () {
+          if (iriHandle) {
+            iriHandle.stop();
+            iriHandle = null;
+            iriBtn.textContent = '🌈 Shader (iridiscencia)';
+          } else {
+            iriHandle = startIridescenceBackground(sectionEl);
+            iriHandle.cfg.scale = iriScaleValue;
+            iriHandle.cfg.color[0] = iriColorValue[0];
+            iriHandle.cfg.color[1] = iriColorValue[1];
+            iriHandle.cfg.color[2] = iriColorValue[2];
+            iriHandle.canvas.style.opacity = String(iriOpacityValue);
+            iriBtn.textContent = '🌈 Shader (iridiscencia) — ON';
+          }
+        });
+
+        shaderState = {
+          name: 'iridiscencia',
+          isOn: function () { return !!iriHandle; },
+          scale: function () { return iriScaleValue; },
+          color: function () { return iriColorValue; },
+          opacity: function () { return iriOpacityValue; }
+        };
+      }
+
+      results[g.label] = { sectionEl: sectionEl, canvasId: g.canvasId, gridConfig: gridConfig, bgInput: bgInput, shaderState: shaderState };
+    });
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = '💾 Guardar';
+    saveBtn.style.cssText = 'width:100%;';
+    wrap.appendChild(saveBtn);
+    const savedMsg = document.createElement('div');
+    savedMsg.style.cssText = 'margin-top:6px;opacity:.7;';
+    wrap.appendChild(savedMsg);
+
+    saveBtn.addEventListener('click', function () {
+      let txt = '';
+      Object.keys(results).forEach(function (label) {
+        const r = results[label];
+        localStorage.setItem('jg_colorlab_bg_' + r.sectionEl.id, r.bgInput.value);
+        localStorage.setItem('jg_colorlab_grid_' + r.canvasId, JSON.stringify(r.gridConfig.color));
+        txt += label + ' — fondo: ' + r.bgInput.value + ' / rejilla (RGB): ' + r.gridConfig.color.join(', ') + '\n';
+
+        // Antes esto no se guardaba para nada: el botón solo tocaba fondo
+        // y rejilla, aunque ya había sliders de shader en pantalla.
+        if (r.shaderState) {
+          const s = r.shaderState;
+          const on = s.isOn();
+          const colorHex = rgbFloatToHex(s.color());
+          localStorage.setItem('jg_colorlab_shader_on_' + label, on ? '1' : '0');
+          localStorage.setItem('jg_colorlab_shader_scale_' + label, String(s.scale()));
+          localStorage.setItem('jg_colorlab_shader_color_' + label, colorHex);
+          localStorage.setItem('jg_colorlab_shader_opacity_' + label, String(s.opacity()));
+          txt += label + ' — shader (' + s.name + '): ' + (on ? 'ON' : 'OFF') +
+            ' / escala: ' + s.scale().toFixed(2) +
+            ' / color: ' + colorHex +
+            ' / opacidad: ' + s.opacity().toFixed(2) + '\n';
+        }
+      });
+      (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+        .then(function () { savedMsg.textContent = '✅ Guardado y copiado — pégamelo en el chat'; })
+        .catch(function () { savedMsg.textContent = '✅ Guardado — ' + txt.replace(/\n/g, ' · '); });
+    });
+  })();
+}
 </script>
 
 <script>
