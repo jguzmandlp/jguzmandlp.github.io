@@ -1078,23 +1078,18 @@
 .about-title {
   font-family:'Pirata One',cursive; font-weight:400;
   font-size:clamp(32px,4.5vw,65px);
-  color:#fff; line-height:1;
+  color:#fff; line-height:1; margin-bottom:22px;
 }
 /* Párrafo continuo, sin saltos manuales: el navegador reparte las palabras
    dentro del ancho de la columna y justifica pareja como en InDesign
    (última línea de cada párrafo queda alineada a la izquierda) */
 .about-left { flex:0 0 420px; max-width:420px; position:relative; }
-/* Foto pegada al título (no flotando arriba a la derecha de toda la
-   columna): misma fila que "Quién soy" + "Sobre mí", mas pequeña y
-   contenida dentro del ancho del texto (290px, igual que .about-p). */
-.about-head {
-  display:flex; align-items:flex-end; justify-content:space-between;
-  gap:16px; max-width:290px; margin-bottom:22px;
-}
-.about-head-text { min-width:0; }
+/* Foto al final de la columna de texto, centrada (ya no pegada al
+   título): va después del último párrafo. */
 .about-avatar {
-  width:56px; height:56px; border-radius:50%; flex-shrink:0;
+  width:56px; height:56px; border-radius:50%;
   overflow:hidden; background:#111;
+  margin:28px auto 0;
 }
 .about-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
 .about-p {
@@ -1641,17 +1636,13 @@
     <div class="about-top">
       <!-- Columna izquierda: texto, saltos forzados a 7 palabras por línea -->
       <div class="about-left">
-        <div class="about-head">
-          <div class="about-head-text">
-            <span class="about-eye">Quién soy</span>
-            <h2 class="about-title">Sobre mí</h2>
-          </div>
-          <div class="about-avatar"><img src="img/about/javier-about.avif" alt="Javier Guzmán" width="84" height="84" loading="lazy" decoding="async"></div>
-        </div>
+        <span class="about-eye">Quién soy</span>
+        <h2 class="about-title">Sobre mí</h2>
         <p class="about-p">Empecé mi carrera en el diseño gráfico y la gestión cultural, liderando proyectos y circuitos de arte público galardonados a nivel nacional. Trabajar a gran escala me enseñó a coordinar procesos complejos, cuidar cada detalle visual y, sobre todo, diseñar pensando siempre en la experiencia de las personas.</p>
         <p class="about-p">Hoy aplico esa misma visión estratégica al entorno digital como Diseñador UX/UI y Desarrollador Web. Integro el pensamiento visual, herramientas de prototipado y desarrollo frontend para construir sitios web e interfaces intuitivas, escalables y orientadas a resultados.</p>
         <p class="about-p">Creo en el diseño con propósito y en las soluciones digitales que transmiten historias auténticas.</p>
         <p class="about-p">📍 Ubicado en Costa Rica y abierto a colaboraciones remotas.</p>
+        <div class="about-avatar"><img src="img/about/javier-about.avif" alt="Javier Guzmán" width="84" height="84" loading="lazy" decoding="async"></div>
       </div>
 
       <!-- Columna vacía: reserva el mismo ancho que antes ocupaba el
@@ -2460,21 +2451,25 @@
 <style>
   /* Vive dentro de .top-utils (nav arriba a la derecha), mismo tamaño
      y look "vidrio" que ES y accesibilidad — ya no flota abajo a la
-     derecha superpuesto con el boton del logo (.radial-fab). */
+     derecha superpuesto con el boton del logo (.radial-fab). Ícono de
+     trazo (SVG), no emoji, para seguir la lógica del resto de íconos
+     del sitio (búsqueda, accesibilidad, contacto). */
   #sound-toggle {
     width: 44px; height: 44px; border-radius: 50%; flex-shrink:0;
     border: none;
     background: rgba(255,255,255,.85); backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    cursor: pointer; padding: 0; font-size: 16px; line-height: 1;
+    cursor: pointer; padding: 0; line-height: 1;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 10px 24px rgba(0,0,0,.22);
     color: #0a0a0a; transition: transform .2s ease, opacity .2s ease;
   }
   #sound-toggle:hover { transform: scale(1.08); }
   #sound-toggle[data-muted="true"] { opacity: .55; }
+  #sound-toggle svg { width:20px; height:20px; }
   @media (max-width: 768px) {
-    #sound-toggle { width:36px; height:36px; font-size:14px; }
+    #sound-toggle { width:36px; height:36px; }
+    #sound-toggle svg { width:15px; height:15px; }
   }
 </style>
 <style>
@@ -2778,19 +2773,22 @@
   }, true);
 
   // ── Toggle de sonido (recuerda la preferencia; sonido viene activado
-  // por defecto salvo que ya lo hayan apagado antes) ──
+  // por defecto salvo que ya lo hayan apagado antes). Ícono de trazo,
+  // mismo estilo que el resto de íconos del sitio (no emoji). ──
+  var ICON_SOUND_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+  var ICON_SOUND_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
   var toggle = document.createElement('button');
   toggle.id = 'sound-toggle';
   toggle.type = 'button';
   toggle.setAttribute('aria-label', 'Activar o desactivar el sonido');
   toggle.dataset.muted = (!enabled).toString();
-  toggle.textContent = enabled ? '🔊' : '🔇';
+  toggle.innerHTML = enabled ? ICON_SOUND_ON : ICON_SOUND_OFF;
   toggle.addEventListener('click', function (ev) {
     ev.stopPropagation();
     enabled = !enabled;
     localStorage.setItem(STORAGE_KEY, enabled ? 'on' : 'off');
     toggle.dataset.muted = (!enabled).toString();
-    toggle.textContent = enabled ? '🔊' : '🔇';
+    toggle.innerHTML = enabled ? ICON_SOUND_ON : ICON_SOUND_OFF;
     if (enabled) {
       startOcean();
     } else {
