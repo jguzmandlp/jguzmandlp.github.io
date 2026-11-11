@@ -1078,16 +1078,23 @@
 .about-title {
   font-family:'Pirata One',cursive; font-weight:400;
   font-size:clamp(32px,4.5vw,65px);
-  color:#fff; line-height:1; margin-bottom:22px;
+  color:#fff; line-height:1;
 }
 /* Párrafo continuo, sin saltos manuales: el navegador reparte las palabras
    dentro del ancho de la columna y justifica pareja como en InDesign
    (última línea de cada párrafo queda alineada a la izquierda) */
 .about-left { flex:0 0 420px; max-width:420px; position:relative; }
+/* Foto pegada al título (no flotando arriba a la derecha de toda la
+   columna): misma fila que "Quién soy" + "Sobre mí", mas pequeña y
+   contenida dentro del ancho del texto (290px, igual que .about-p). */
+.about-head {
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:16px; max-width:290px; margin-bottom:22px;
+}
+.about-head-text { min-width:0; }
 .about-avatar {
-  position:absolute; top:0; right:0;
-  width:84px; height:84px; border-radius:50%;
-  overflow:hidden; background:#111; z-index:1;
+  width:56px; height:56px; border-radius:50%; flex-shrink:0;
+  overflow:hidden; background:#111;
 }
 .about-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
 .about-p {
@@ -1099,15 +1106,14 @@
 }
 .about-p strong { color:rgba(255,255,255,.82); font-weight:400; }
 
-/* La columna donde antes iba el recuadro de foto ahora queda vacía
-   (spacer) para que el texto y "Habilidades" mantengan la misma
-   posición — la foto real vive de fondo detrás de toda la sección. */
-/* ── Bloques desplegables (Habilidades / Certificados): tercera columna
-   flexible que se centra dentro del espacio que le queda a la derecha
-   de texto + foto (nunca se superpone) ── */
+/* ── Bloques desplegables (Habilidades / Certificados): segunda columna.
+   margin-top la baja para que arranque a la altura del cuerpo de texto
+   de la izquierda (bajo el bloque de ojo+título+foto), no a la altura
+   del título. ── */
 .about-right {
   flex:1 1 auto; min-width:260px; max-width:580px; /* igual al ancho del Acordeón en Figma */
   display:flex; flex-direction:column; gap:1px; align-items:flex-start; text-align:left;
+  margin-top:110px;
 }
 .reveal-block { border-top:1px solid rgba(255,255,255,.08); width:100%; }
 .reveal-block:last-child { border-bottom:1px solid rgba(255,255,255,.08); }
@@ -1635,9 +1641,13 @@
     <div class="about-top">
       <!-- Columna izquierda: texto, saltos forzados a 7 palabras por línea -->
       <div class="about-left">
-        <div class="about-avatar"><img src="img/about/javier-about.avif" alt="Javier Guzmán" width="84" height="84" loading="lazy" decoding="async"></div>
-        <span class="about-eye">Quién soy</span>
-        <h2 class="about-title">Sobre mí</h2>
+        <div class="about-head">
+          <div class="about-head-text">
+            <span class="about-eye">Quién soy</span>
+            <h2 class="about-title">Sobre mí</h2>
+          </div>
+          <div class="about-avatar"><img src="img/about/javier-about.avif" alt="Javier Guzmán" width="84" height="84" loading="lazy" decoding="async"></div>
+        </div>
         <p class="about-p">Empecé mi carrera en el diseño gráfico y la gestión cultural, liderando proyectos y circuitos de arte público galardonados a nivel nacional. Trabajar a gran escala me enseñó a coordinar procesos complejos, cuidar cada detalle visual y, sobre todo, diseñar pensando siempre en la experiencia de las personas.</p>
         <p class="about-p">Hoy aplico esa misma visión estratégica al entorno digital como Diseñador UX/UI y Desarrollador Web. Integro el pensamiento visual, herramientas de prototipado y desarrollo frontend para construir sitios web e interfaces intuitivas, escalables y orientadas a resultados.</p>
         <p class="about-p">Creo en el diseño con propósito y en las soluciones digitales que transmiten historias auténticas.</p>
