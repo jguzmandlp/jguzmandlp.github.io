@@ -4244,6 +4244,17 @@ const contactEl = document.getElementById('contact-section');
 const SECTIONS  = [heroEl, projEl, aboutEl, contactEl];
 let currentSection = 0;
 let scrollBusy = false;
+/* Después de que termina la animación de cambio de sección, un scroll
+   fuerte (trackpad / mouse con inercia) sigue mandando eventos "wheel"
+   residuales durante un rato (el gesto físico ya terminó pero el
+   navegador todavía está "frenando"). Si scrollBusy se libera justo al
+   terminar la animación, esos eventos remanentes alcanzan a disparar un
+   segundo goTo() y se saltan dos secciones de una. Por eso el bloqueo se
+   extiende un poco más allá del fin de la animación (cooldown), para
+   que un solo gesto de scroll — sin importar qué tan fuerte sea — mueva
+   siempre exactamente una sección. */
+const SCROLL_COOLDOWN_MS = 550;
+let scrollCooldownTimer = null;
 
 /* ── Optimización: los renders WebGL/WebGPU del hero (océano + pájaros,
    lo más pesado de toda la página) solo tienen sentido corriendo cuando
@@ -4340,7 +4351,10 @@ function goTo(idx) {
       yPercent: target,
       duration: dur,
       ease: dir > 0 ? 'expo.out' : 'power3.in',
-      onComplete: i === idx ? () => { scrollBusy = false; } : undefined
+      onComplete: i === idx ? () => {
+        clearTimeout(scrollCooldownTimer);
+        scrollCooldownTimer = setTimeout(() => { scrollBusy = false; }, SCROLL_COOLDOWN_MS);
+      } : undefined
     });
   });
 
