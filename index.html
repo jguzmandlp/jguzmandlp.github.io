@@ -135,7 +135,11 @@
 
     /* ── Menú radial (favicon) ── */
     .radial-fab-wrap {
-      position:fixed; bottom:28px; right:28px; z-index:9999;
+      /* bottom:28px dejaba el botón pisando ~37px la barra de footer de
+         Contacto (footer ~65.5px de alto) — se sube a 84px (28*3, mismo
+         "paso" que ya usa el sitio) para que quede siempre por encima de
+         cualquier footer, en todas las páginas. */
+      position:fixed; bottom:84px; right:28px; z-index:9999;
     }
     .radial-fab {
       width:52px; height:52px; border-radius:50%;
@@ -257,6 +261,10 @@
       font-size:10px; letter-spacing:.2em; text-transform:uppercase;
       color:rgba(255,255,255,.7);
       transition:color .25s;
+      /* Evita que "About me"/textos de 2 palabras se partan en 2 líneas
+         dentro del pill flotante: sin esto, el flex item podía encogerse
+         hasta el ancho de la palabra más larga y partir el texto. */
+      white-space:nowrap;
     }
     .nav-links a:hover { color:#fff; }
     .nav-cta {
@@ -1271,7 +1279,12 @@
   z-index:0;
   pointer-events:none;
 }
-#contact-panel-0 > :not(#contact-swirl-canvas) {
+/* El hint de scroll queda afuera de este reset: necesita quedarse
+   position:absolute (centrado con left:50%/translateX(-50%) y pegado
+   al bottom) — si entraba en este reset pasaba a position:relative y el
+   "left:50%"/"bottom" dejaban de centrarlo, empujándolo fuera de centro
+   (bug reportado: el hint aparecía corrido a la derecha, cerca del botón). */
+#contact-panel-0 > :not(#contact-swirl-canvas):not(.contact-scroll-hint) {
   position:relative; z-index:1;
 }
 #contact-panel-1 {
@@ -2095,16 +2108,34 @@
   window.addEventListener('resize', resize);
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var paused = document.hidden;
-  document.addEventListener('visibilitychange', function () { paused = document.hidden; });
+  // "paused" combina 2 motivos independientes: pestaña oculta (como
+  // antes) y sección de Contacto no visible (nuevo — este shader no
+  // tiene sentido corriendo mientras el usuario está en Hero/Proyectos/
+  // Sobre mí). Antes el rAF se seguía pidiendo igual aunque "paused"
+  // fuera true (solo se saltaba el draw); ahora directamente se deja de
+  // pedir el próximo frame, y recomputePaused() lo reactiva con un
+  // rAF nuevo al volver. window.__setContactCloudActive lo llama
+  // updateBgRenderState() cada vez que cambia currentSection.
+  var tabHidden = document.hidden;
+  var sectionActive = true;
+  var paused = tabHidden || !sectionActive;
+  var rafId = null;
+  function recomputePaused() {
+    var next = tabHidden || !sectionActive;
+    if (next === paused) return;
+    paused = next;
+    if (!paused && rafId === null) rafId = requestAnimationFrame(draw);
+  }
+  document.addEventListener('visibilitychange', function () { tabHidden = document.hidden; recomputePaused(); });
+  window.__setContactCloudActive = function (isActive) { sectionActive = !!isActive; recomputePaused(); };
 
   var start = performance.now();
   var lastFrame = 0;
   var FRAME_INTERVAL = 1000 / 30;
 
   function draw(now) {
-    requestAnimationFrame(draw);
-    if (paused) return;
+    if (paused) { rafId = null; return; }
+    rafId = requestAnimationFrame(draw);
     if (now - lastFrame < FRAME_INTERVAL) return;
     lastFrame = now;
     gl.uniform1f(uniforms.u_time, (now - start) / 1000);
@@ -2114,8 +2145,8 @@
   if (reduceMotion) {
     gl.uniform1f(uniforms.u_time, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  } else {
-    requestAnimationFrame(draw);
+  } else if (!paused) {
+    rafId = requestAnimationFrame(draw);
   }
 })();
 </script>
@@ -2274,16 +2305,30 @@
   window.addEventListener('resize', resize);
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var paused = document.hidden;
-  document.addEventListener('visibilitychange', function () { paused = document.hidden; });
+  // Mismo patrón que el shader de nubes (ver ese comentario): "paused"
+  // combina pestaña oculta + sección de Contacto no visible, y el rAF
+  // se deja de pedir del todo (no solo se salta el draw) mientras está
+  // pausado.
+  var tabHidden = document.hidden;
+  var sectionActive = true;
+  var paused = tabHidden || !sectionActive;
+  var rafId = null;
+  function recomputePaused() {
+    var next = tabHidden || !sectionActive;
+    if (next === paused) return;
+    paused = next;
+    if (!paused && rafId === null) rafId = requestAnimationFrame(draw);
+  }
+  document.addEventListener('visibilitychange', function () { tabHidden = document.hidden; recomputePaused(); });
+  window.__setContactSwirlActive = function (isActive) { sectionActive = !!isActive; recomputePaused(); };
 
   var start = performance.now();
   var lastFrame = 0;
   var FRAME_INTERVAL = 1000 / 30;
 
   function draw(now) {
-    requestAnimationFrame(draw);
-    if (paused) return;
+    if (paused) { rafId = null; return; }
+    rafId = requestAnimationFrame(draw);
     if (now - lastFrame < FRAME_INTERVAL) return;
     lastFrame = now;
     gl.uniform1f(uniforms.u_time, (now - start) / 1000);
@@ -2293,8 +2338,8 @@
   if (reduceMotion) {
     gl.uniform1f(uniforms.u_time, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  } else {
-    requestAnimationFrame(draw);
+  } else if (!paused) {
+    rafId = requestAnimationFrame(draw);
   }
 })();
 </script>
@@ -4405,6 +4450,23 @@ function updateBgRenderState() {
     window.__birdsRenderer.setAnimationLoop(shouldRun ? window.__birdsTick : null);
   }
   if (window.__heroVideo) { shouldRun ? window.__heroVideo.play().catch(()=>{}) : window.__heroVideo.pause(); }
+
+  /* Mismo criterio, extendido a los 4 shaders de fondo (anillo de
+     Proyectos, iridiscencia de About, nube + neuro de Contacto): cada
+     uno corre solo mientras su sección es la visible. Los handles se
+     exponen en window desde el <script> que los crea (ver
+     window.__projShaderHandle / __aboutShaderHandle más abajo en el
+     archivo, y window.__setContactSwirlActive / __setContactCloudActive
+     dentro de sus propios <script> de shader) porque viven en otro
+     bloque <script> con su propio scope de const/let. */
+  const baseOk = !document.hidden && !window.__a11yReduceMotion;
+  const projOk    = baseOk && currentSection === 1;
+  const aboutOk   = baseOk && currentSection === 2;
+  const contactOk = baseOk && currentSection === 3;
+  if (window.__projShaderHandle)  { projOk  ? window.__projShaderHandle.resume()  : window.__projShaderHandle.pause(); }
+  if (window.__aboutShaderHandle) { aboutOk ? window.__aboutShaderHandle.resume() : window.__aboutShaderHandle.pause(); }
+  if (window.__setContactSwirlActive) window.__setContactSwirlActive(contactOk);
+  if (window.__setContactCloudActive) window.__setContactCloudActive(contactOk);
 }
 document.addEventListener('visibilitychange', updateBgRenderState);
 
@@ -5088,6 +5150,13 @@ function startShaderBackground(sectionEl) {
 
   const start = performance.now();
   let rafId;
+  // Pausado = no hay rAF corriendo en absoluto (no solo "no dibuja"): el
+  // shader no vale nada mientras Proyectos no está en pantalla, así que
+  // en vez de dibujar igual cada frame y descartarlo, directamente no se
+  // pide el próximo frame hasta que resume() lo reactive (ver
+  // updateBgRenderState, que llama pause()/resume() según la sección
+  // actual — mismo patrón que ya usa el sitio para el océano del hero).
+  let isPaused = false;
   function frame(now) {
     const t = (now - start) / 1000;
     gl.uniform2f(u.resolution, canvas.width, canvas.height);
@@ -5100,13 +5169,23 @@ function startShaderBackground(sectionEl) {
     gl.uniform1f(u.thickness, cfg.thickness);
     gl.uniform1f(u.speed, cfg.speed);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-    rafId = requestAnimationFrame(frame);
+    if (!isPaused) rafId = requestAnimationFrame(frame);
   }
   rafId = requestAnimationFrame(frame);
 
   return {
     cfg: cfg,
     canvas: canvas,
+    pause: function () {
+      if (isPaused) return;
+      isPaused = true;
+      cancelAnimationFrame(rafId);
+    },
+    resume: function () {
+      if (!isPaused) return;
+      isPaused = false;
+      rafId = requestAnimationFrame(frame);
+    },
     stop: function () {
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
@@ -5207,6 +5286,10 @@ function startIridescenceBackground(sectionEl) {
 
   const start = performance.now();
   let rafId;
+  // Mismo patrón de pause/resume que startShaderBackground: ver ese
+  // comentario para el porqué (no vale la pena dibujar About si no está
+  // en pantalla).
+  let isPaused = false;
   function frame(now) {
     const t = (now - start) / 1000;
     gl.uniform2f(u.resolution, canvas.width, canvas.height);
@@ -5216,13 +5299,23 @@ function startIridescenceBackground(sectionEl) {
     gl.uniform1f(u.scale, cfg.scale);
     gl.uniform1f(u.speed, cfg.speed);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-    rafId = requestAnimationFrame(frame);
+    if (!isPaused) rafId = requestAnimationFrame(frame);
   }
   rafId = requestAnimationFrame(frame);
 
   return {
     cfg: cfg,
     canvas: canvas,
+    pause: function () {
+      if (isPaused) return;
+      isPaused = true;
+      cancelAnimationFrame(rafId);
+    },
+    resume: function () {
+      if (!isPaused) return;
+      isPaused = false;
+      rafId = requestAnimationFrame(frame);
+    },
     stop: function () {
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
@@ -5244,6 +5337,18 @@ const projShaderHandle = startShaderBackground(document.getElementById('proj-sec
 projShaderHandle.canvas.style.opacity = '0.85';
 const aboutShaderHandle = startIridescenceBackground(document.getElementById('about-section'));
 aboutShaderHandle.canvas.style.opacity = '1';
+
+// Expuestos en window (no en una variable de este <script>) para que
+// updateBgRenderState() — definida en OTRO <script> más arriba, junto
+// con currentSection/goTo() — pueda pausarlos/reanudarlos según la
+// sección visible. Mismo patrón que ya usan __oceanRenderer/
+// __birdsRenderer/__heroVideo para lo mismo con el hero.
+window.__projShaderHandle = projShaderHandle;
+window.__aboutShaderHandle = aboutShaderHandle;
+// Aplica de inmediato el estado real (recién arrancan, currentSection
+// sigue siendo 0/hero) — sin esto quedarían corriendo de más hasta el
+// primer cambio de sección.
+if (typeof updateBgRenderState === 'function') updateBgRenderState();
 
 // ── Panel de debug para ajustar en vivo los colores de fondo de Proyectos
 // y de About — visible automáticamente al abrir el archivo local
