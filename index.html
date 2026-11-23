@@ -750,13 +750,14 @@
     .sc.fading-out { opacity:0 !important; transition:opacity .25s ease; pointer-events:none; }
     .sc:hover { filter:drop-shadow(0 18px 30px rgba(0,0,0,.85)) brightness(1.1); }
     .sc.not-ready { cursor:pointer; }
+    /* Proyectos privados: candado (SVG) = se ven pidiendo la clave */
     .sc.not-ready::after {
-      content:'\1F6A7';
+      content:'';
       position:absolute; top:10px; right:10px;
       width:28px; height:28px; border-radius:50%;
-      background:rgba(6,6,6,.78); border:1px solid rgba(192,32,26,.5);
-      display:flex; align-items:center; justify-content:center;
-      font-size:13px; pointer-events:none;
+      background:rgba(6,6,6,.78) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E") center / 14px 14px no-repeat;
+      border:1px solid rgba(192,32,26,.5);
+      pointer-events:none;
     }
 
     /* ---------- Modal "proyecto en construcción" ---------- */
@@ -778,6 +779,46 @@
       transition:background .2s ease;
     }
     .cs-modal-box .cs-close:hover { background:#e0271f; }
+    .cs-modal-box .cs-eyebrow { display:inline-flex; align-items:center; gap:8px; }
+    .cs-modal-box .lock-ico { width:14px; height:14px; flex:none; }
+    .cs-modal-box .cs-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .cs-modal-box .cs-form { text-align:left; }
+    .cs-modal-box .cs-label { display:block; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#999; margin-bottom:8px; }
+    .cs-modal-box .cs-field { position:relative; }
+    .cs-modal-box .cs-input {
+      width:100%; box-sizing:border-box; font:inherit; font-size:14px; letter-spacing:.06em; color:#fff;
+      background:#060606; border:1px solid rgba(255,255,255,.2); border-radius:4px;
+      padding:12px 46px 12px 14px; transition:border-color .2s ease;
+    }
+    .cs-modal-box .cs-input:hover { border-color:rgba(255,255,255,.35); }
+    .cs-modal-box .cs-input:focus { outline:none; border-color:#c0201a; box-shadow:0 0 0 3px rgba(192,32,26,.25); }
+    .cs-modal-box .cs-input[aria-invalid=true] { border-color:#e0271f; }
+    .cs-modal-box .cs-eye {
+      position:absolute; top:50%; right:4px; transform:translateY(-50%);
+      width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+      background:none; border:none; border-radius:4px; color:#999; cursor:pointer;
+    }
+    .cs-modal-box .cs-eye:hover { color:#fff; }
+    .cs-modal-box .cs-eye svg { width:18px; height:18px; }
+    .cs-modal-box .cs-eye .eye-off { display:none; }
+    .cs-modal-box .cs-eye[aria-pressed=true] .eye-on { display:none; }
+    .cs-modal-box .cs-eye[aria-pressed=true] .eye-off { display:block; }
+    .cs-modal-box .cs-error { min-height:18px; font-size:12px; color:#ff5a52; margin:8px 0 14px; }
+    .cs-modal-box .cs-actions { justify-content:stretch; }
+    .cs-modal-box .cs-actions > button { flex:1; }
+    .cs-modal-box .cs-submit {
+      font-family:inherit; font-size:12px; letter-spacing:.05em; text-transform:uppercase;
+      background:#c0201a; color:#fff; border:none; padding:12px 24px; border-radius:4px; cursor:pointer;
+      transition:background .2s ease;
+    }
+    .cs-modal-box .cs-submit:hover { background:#e0271f; }
+    .cs-modal-box .cs-submit[disabled] { opacity:.6; cursor:wait; }
+    .cs-modal-box .cs-submit:focus-visible,.cs-modal-box .cs-close:focus-visible,.cs-modal-box .cs-eye:focus-visible { outline:2px solid #fff; outline-offset:2px; }
+    @keyframes csShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .cs-modal-box .cs-field.shake { animation:csShake .3s ease; }
+    @media (prefers-reduced-motion:reduce) { .cs-modal-box .cs-field.shake { animation:none; } }
+    .cs-modal-box .cs-close.cs-secondary { background:transparent; border:1px solid rgba(255,255,255,.25); color:#ddd; }
+    .cs-modal-box .cs-close.cs-secondary:hover { background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.5); }
 
     .proj-actions {
       position:absolute; bottom:48px; left:50%;
@@ -3895,21 +3936,21 @@ PROJECTS.forEach((p, i) => {
 
   el.setAttribute('tabindex', '0');
   el.setAttribute('role', 'button');
-  el.setAttribute('aria-label', I18N.t('Ver proyecto') + ': ' + p.name + (READY_PROJECTS.has(p.id) ? '' : ' (' + (I18N.lang() === 'en' ? 'coming soon' : 'en construcción') + ')'));
+  el.setAttribute('aria-label', I18N.t('Ver proyecto') + ': ' + p.name + (READY_PROJECTS.has(p.id) ? '' : ' (' + (I18N.lang() === 'en' ? 'password required' : 'requiere clave') + ')'));
 
   /* Proyectos con case study propio: abren su página completa en vez del panel de galería. */
   const CASE_STUDY_PAGE = { fragancia: 'proyecto-fragancia.html' }[p.id];
   el.addEventListener('click', e => {
     e.stopPropagation();
     if (dragMoved) return;
-    if (!READY_PROJECTS.has(p.id)) { showComingSoon(p.name); return; }
+    if (!READY_PROJECTS.has(p.id) && !(window.projUnlocked && window.projUnlocked())) { showComingSoon(p.name, i); return; }
     if (CASE_STUDY_PAGE) { window.location.href = CASE_STUDY_PAGE; return; }
     openProject(i);
   });
   el.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      if (!READY_PROJECTS.has(p.id)) { showComingSoon(p.name); return; }
+      if (!READY_PROJECTS.has(p.id) && !(window.projUnlocked && window.projUnlocked())) { showComingSoon(p.name, i); return; }
       if (CASE_STUDY_PAGE) { window.location.href = CASE_STUDY_PAGE; return; }
       openProject(i);
     }
@@ -4199,7 +4240,7 @@ function showDetail(idx) {
   const rightCol = p.private
     ? `<div class="pd-video-wrap">
         <div class="pd-private">
-          <div class="pd-private-icon">${p.id === 'sdcr' ? sdIconSVG() : '🔒'}</div>
+          <div class="pd-private-icon">${p.id === 'sdcr' ? sdIconSVG() : '<svg class="lock-ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'}</div>
           <p>${I18N.t('Proyecto pre-lanzamiento')}<br>${I18N.t('no disponible públicamente')}</p>
           <a href="mailto:javier.guzman.dlp@gmail.com">${I18N.t('Solicitar acceso ↗')}</a>
         </div>
@@ -6178,10 +6219,24 @@ const PROJECT_PAGES = {
 <div id="coming-soon-modal" class="cs-modal" role="dialog" aria-modal="true" aria-labelledby="cs-modal-title">
   <div class="cs-modal-backdrop"></div>
   <div class="cs-modal-box">
-    <span class="cs-eyebrow">\1F6A7 <span class="cs-project"></span></span>
+    <span class="cs-eyebrow"><svg class="lock-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span class="cs-project"></span></span>
     <h3 class="cs-title" id="cs-modal-title"></h3>
     <p class="cs-sub"></p>
-    <button type="button" class="cs-close"></button>
+    <form class="cs-form" novalidate>
+      <label class="cs-label" for="cs-pass"></label>
+      <div class="cs-field">
+        <input id="cs-pass" class="cs-input" type="password" autocomplete="current-password" spellcheck="false" autocapitalize="off" aria-describedby="cs-error">
+        <button type="button" class="cs-eye" aria-pressed="false">
+          <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2"/><path d="M6.6 6.6C3.9 8.4 2 12 2 12s3.5 7 10 7a9.9 9.9 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+        </button>
+      </div>
+      <p class="cs-error" id="cs-error" role="alert"></p>
+      <div class="cs-actions">
+        <button type="submit" class="cs-submit"></button>
+        <button type="button" class="cs-close cs-secondary"></button>
+      </div>
+    </form>
   </div>
 </div>
 <script>
@@ -6191,19 +6246,85 @@ const PROJECT_PAGES = {
   var titleEl = modal.querySelector('.cs-title'),
       subEl = modal.querySelector('.cs-sub'),
       projEl = modal.querySelector('.cs-project'),
-      closeEl = modal.querySelector('.cs-close');
+      closeEl = modal.querySelector('.cs-close'),
+      formEl = modal.querySelector('.cs-form'),
+      labelEl = modal.querySelector('.cs-label'),
+      inputEl = modal.querySelector('.cs-input'),
+      fieldEl = modal.querySelector('.cs-field'),
+      eyeEl = modal.querySelector('.cs-eye'),
+      errEl = modal.querySelector('.cs-error'),
+      submitEl = modal.querySelector('.cs-submit'),
+      pendingIdx = null;
+
+  /* Clave de los proyectos privados (se guarda solo su huella SHA-256, no el texto).
+     Para cambiarla: en la terminal, python3 -c "import hashlib;print(hashlib.sha256(b'NUEVA').hexdigest())"
+     y pega el resultado acá. Ojo: es un sitio estático, esto oculta el contenido
+     a la vista pero no es seguridad de servidor. */
+  var PASS_HASH = '292ff9b57506228af93442578476732c8effef45a2ef9f67031788ce9c8d017e';
+  var UNLOCK_KEY = 'jg-proj-unlocked';
+
+  window.projUnlocked = function () {
+    try { return sessionStorage.getItem(UNLOCK_KEY) === '1'; } catch (e) { return false; }
+  };
+
+  function sha256(text) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (buf) {
+      return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+    });
+  }
+
+  function setError(msg) {
+    errEl.textContent = msg || '';
+    inputEl.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  }
+
+  eyeEl.addEventListener('click', function () {
+    var show = inputEl.type === 'password';
+    inputEl.type = show ? 'text' : 'password';
+    eyeEl.setAttribute('aria-pressed', String(show));
+    eyeEl.setAttribute('aria-label', show ? (isEn() ? 'Hide password' : 'Ocultar clave') : (isEn() ? 'Show password' : 'Mostrar clave'));
+    inputEl.focus();
+  });
+
+  formEl.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var val = inputEl.value.trim();
+    if (!val) { setError(isEn() ? 'Enter the password.' : 'Escribe la clave.'); inputEl.focus(); return; }
+    if (!window.crypto || !crypto.subtle) { setError(isEn() ? 'Your browser can\u2019t check the password.' : 'Tu navegador no puede verificar la clave.'); return; }
+    submitEl.disabled = true;
+    sha256(val).then(function (h) {
+      submitEl.disabled = false;
+      if (h === PASS_HASH) {
+        try { sessionStorage.setItem(UNLOCK_KEY, '1'); } catch (err) {}
+        var idx = pendingIdx;
+        window.hideComingSoon();
+        if (idx != null && typeof openProject === 'function') openProject(idx);
+      } else {
+        setError(isEn() ? 'Wrong password. Try again.' : 'Clave incorrecta. Intenta de nuevo.');
+        fieldEl.classList.remove('shake'); void fieldEl.offsetWidth; fieldEl.classList.add('shake');
+        inputEl.select();
+      }
+    });
+  });
 
   function isEn() { return window.I18N && window.I18N.lang() === 'en'; }
 
-  window.showComingSoon = function (name) {
+  window.showComingSoon = function (name, idx) {
+    pendingIdx = (idx == null ? null : idx);
     projEl.textContent = name || '';
-    titleEl.textContent = isEn() ? 'Project under construction' : 'Proyecto en construcción';
+    titleEl.textContent = isEn() ? 'Password-protected project' : 'Proyecto protegido con clave';
     subEl.textContent = isEn()
-      ? 'This case study isn\u2019t published yet \u2014 check back soon.'
-      : 'Este caso de estudio todav\u00eda no est\u00e1 publicado \u2014 vuelve pronto.';
+      ? 'This case study is private. Enter the password to view it.'
+      : 'Este caso de estudio es privado. Ingresa la clave para verlo.';
+    labelEl.textContent = isEn() ? 'Password' : 'Clave';
+    submitEl.textContent = isEn() ? 'Enter' : 'Entrar';
     closeEl.textContent = isEn() ? 'Close' : 'Cerrar';
+    inputEl.value = ''; inputEl.type = 'password'; setError('');
+    eyeEl.setAttribute('aria-pressed', 'false');
+    eyeEl.setAttribute('aria-label', isEn() ? 'Show password' : 'Mostrar clave');
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
+    setTimeout(function () { inputEl.focus(); }, 50);
   };
   window.hideComingSoon = function () {
     modal.classList.remove('open');
@@ -6375,5 +6496,7 @@ const PROJECT_PAGES = {
   });
 })();
 </script>
+<!-- PRUEBA liquid glass: nav, botones de arriba, cards de proyectos y footer -->
+<script src="liquid-glass-portafolio.js?v=1"></script>
 </body>
 </html>
