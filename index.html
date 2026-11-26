@@ -5838,7 +5838,7 @@ const PROJECT_PAGES = {
       const top = p.logo
         ? `<span class="pgm-top" style="background:${p.cardBg || p.color}"><img src="${p.logo}" alt="" loading="lazy" decoding="async"></span>`
         : `<span class="pgm-top" style="background:${p.grad || p.color}"><b>${p.name.split(' ').map(w => w[0]).join('').slice(0, 2)}</b></span>`;
-      return `<a class="pgm-card" href="${PROJECT_PAGES[p.id] || '#'}" aria-label="${p.name}">${top}<span class="pgm-meta"><strong>${p.name}</strong><em>${I18N.t(p.role)}</em><p>${I18N.t(SHORT[p.id] || '')}</p><b>${I18N.t('Ver proyecto →')}</b></span></a>`;
+      return `<a class="pgm-card" href="${PROJECT_PAGES[p.id] || '#'}" data-id="${p.id}" data-name="${p.name}" aria-label="${p.name}">${top}<span class="pgm-meta"><strong>${p.name}</strong><em>${I18N.t(p.role)}</em><p>${I18N.t(SHORT[p.id] || '')}</p><b>${I18N.t('Ver proyecto →')}</b></span></a>`;
     }).join('');
     grid.innerHTML = `<div class="pgm-track">${cards}</div><div class="pgm-dots">${PROJECTS.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>`;
     const track = grid.querySelector('.pgm-track'), dots = [...grid.querySelectorAll('.pgm-dots i')];
@@ -5847,6 +5847,14 @@ const PROJECT_PAGES = {
       dots.forEach((d, k) => d.classList.toggle('on', k === i));
     }, { passive: true });
   }
+  /* Candado en móvil: los proyectos que no están en READY_PROJECTS piden clave antes de abrir su página. */
+  if (grid) grid.addEventListener('click', function (e) {
+    const a = e.target.closest('.pgm-card');
+    if (!a) return;
+    if (READY_PROJECTS.has(a.dataset.id) || (window.projUnlocked && window.projUnlocked())) return;
+    e.preventDefault();
+    showComingSoon(a.dataset.name, null, a.getAttribute('href'));
+  });
   build();
   if (mq.addEventListener) mq.addEventListener('change', build);
   I18N.onChange(function () { built = false; build(); });
@@ -6254,7 +6262,8 @@ const PROJECT_PAGES = {
       eyeEl = modal.querySelector('.cs-eye'),
       errEl = modal.querySelector('.cs-error'),
       submitEl = modal.querySelector('.cs-submit'),
-      pendingIdx = null;
+      pendingIdx = null,
+      pendingHref = null;
 
   /* Clave de los proyectos privados (se guarda solo su huella SHA-256, no el texto).
      Para cambiarla: en la terminal, python3 -c "import hashlib;print(hashlib.sha256(b'NUEVA').hexdigest())"
@@ -6296,8 +6305,9 @@ const PROJECT_PAGES = {
       submitEl.disabled = false;
       if (h === PASS_HASH) {
         try { sessionStorage.setItem(UNLOCK_KEY, '1'); } catch (err) {}
-        var idx = pendingIdx;
+        var idx = pendingIdx, href = pendingHref;
         window.hideComingSoon();
+        if (href) { window.location.href = href; return; }
         if (idx != null && typeof openProject === 'function') openProject(idx);
       } else {
         setError(isEn() ? 'Wrong password. Try again.' : 'Clave incorrecta. Intenta de nuevo.');
@@ -6309,8 +6319,9 @@ const PROJECT_PAGES = {
 
   function isEn() { return window.I18N && window.I18N.lang() === 'en'; }
 
-  window.showComingSoon = function (name, idx) {
+  window.showComingSoon = function (name, idx, href) {
     pendingIdx = (idx == null ? null : idx);
+    pendingHref = href || null;
     projEl.textContent = name || '';
     titleEl.textContent = isEn() ? 'Password-protected project' : 'Proyecto protegido con clave';
     subEl.textContent = isEn()
@@ -6368,6 +6379,7 @@ const PROJECT_PAGES = {
             // Dar tiempo a que la sección de proyectos termine de entrar
             // antes de abrir el detalle, para no pelear con su propia animación.
             setTimeout(function () {
+              if (!READY_PROJECTS.has(p.id) && !(window.projUnlocked && window.projUnlocked())) { showComingSoon(p.name, i); return; }
               if (typeof openProject === 'function') openProject(i);
             }, 500);
           }
